@@ -1,0 +1,16 @@
+test-replication:
+  description: "Test uploading/replication to RSEs."
+  module_name: "tests.replication"
+  class_name: "TestReplication"
+  enabled: true
+  args:
+  kwargs:
+    copies: 1
+    sizes:
+      - 10000 # bytes
+    lifetime: 60 # seconds                
+    rses:
+      - DESY-DCACHE
+      - LAPP-DCACHE
+    scope: rucio-testing
+
