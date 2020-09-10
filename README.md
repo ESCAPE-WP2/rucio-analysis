@@ -25,12 +25,13 @@ eng@ubuntu:~$ docker run -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/c
 Uploads require initialising a voms-proxy inside the container first:
 
 ```bash
-eng@ubuntu:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
+[user@b802f5113379 src]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
 ```
 
 e.g. 
 
 ```bash
+[user@b802f5113379 /]$ cd ~/rucio-analysis/src/
 [user@b802f5113379 src]$ python3 run-analysis.py -v
 2020-09-10 15:08:26,244 INFO    Parsing configuration file
 2020-09-10 15:08:26,277 DEBUG   Constructing instance of TestReplication()

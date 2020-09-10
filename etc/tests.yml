@@ -13,4 +13,3 @@ test-replication:
       - DESY-DCACHE
       - LAPP-DCACHE
     scope: rucio-testing
-
