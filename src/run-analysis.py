@@ -6,7 +6,6 @@ from session import Session
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()  
-    parser.add_argument('-a', help="rucio account", type=str)
     parser.add_argument('-t', help="tests file path", default="../etc/tests.yml", 
         type=str)
     parser.add_argument('-v', help="verbose?", action='store_true')
@@ -17,7 +16,7 @@ if __name__ == "__main__":
     else:
         logger = Logger(level='INFO').logger
 
-    session = Session(iargs.a, tests=iargs.t, logger=logger)
+    session = Session(tests=iargs.t, logger=logger)
     for test in session.tests:
         try:
             desc = session.tests[test]['description']

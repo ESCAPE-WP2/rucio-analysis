@@ -1,8 +1,7 @@
 import yaml
 
 class Session():
-    def __init__(self, account, tests, logger):
-        self._account = account
+    def __init__(self, tests, logger):
         self.logger = logger
         self._tests = None
 
@@ -11,7 +10,7 @@ class Session():
 
     def _parseTestsFile(self, path):
         """ Parse a tests yaml file. """
-        self.logger.info("Parsing configuration file")
+        self.logger.info("Parsing tests file")
         try:
             with open(path) as f:
                 contents = f.read()
@@ -25,16 +24,6 @@ class Session():
             self.logger.critical("Configuration file not found.")
             self.logger.critical(repr(e))
             exit()
-
-
-    @property
-    def account(self):
-        return self._account
-    
-
-    @account.setter
-    def account(self, newAccount):
-        self._account = newAccount
 
 
     @property
