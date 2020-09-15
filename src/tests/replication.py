@@ -3,7 +3,7 @@ import os
 
 from rucio import Rucio
 from tests import Test
-from utility import generateRandomFile
+from utility import generateRandomFile, bcolors
 
 class TestReplication(Test):
     """ Rucio file upload/replication to a list of RSEs.
@@ -18,9 +18,10 @@ class TestReplication(Test):
         try:
             # Assign variables from test.yml kwargs.
             #
-            copies = kwargs['copies']
+            nFiles = kwargs['n_files']
             rses = kwargs['rses']
             scope = kwargs['scope']
+            lifetime = kwargs['lifetime']
             sizes = kwargs['sizes']
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for test.")
@@ -57,31 +58,59 @@ class TestReplication(Test):
         else:
             self.logger.debug("Dataset already exists")
 
-        # Recursively upload a file of size from <sizes> to the first 
+        # Recursively upload a file of size from <sizes> to each
         # RSE, attach to the dataset, add add replication rules to the 
         # other listed RSEs.
         #
-        self.logger.info("Starting upload...")
-        self.logger.info("RSE: {}".format(rses[0]))
-        for size in sizes:
-            self.logger.debug("  File size: {} bytes".format(size))
-            for idx in range(copies):
-                f = generateRandomFile(size)
-                fileDID = '{}:{}'.format(scope, os.path.basename(f.name))
-                self.logger.debug("    Uploading file {} of {}".format(
-                    idx+1, copies))
-                rucio.upload(rse=rses[0], scope=scope, filePath=f.name)
-                self.logger.debug("      Attaching file {} to {}".format(
-                    fileDID, datasetDID))
-                rucio.attach(scope=scope, todid=datasetDID, dids=fileDID)
-            self.logger.info("Upload complete")
+        for rseSrc in rses:
+            self.logger.info(bcolors.OKBLUE + "RSE (src): {}".format(rseSrc) + bcolors.ENDC)
+            self.logger.info("Starting upload...")
+            for size in sizes:
+                self.logger.debug("  File size: {} bytes".format(size))
+                for idx in range(nFiles):
+                    # Generate random file of size <size>
+                    f = generateRandomFile(size)
+                    fileDID = '{}:{}'.format(scope, os.path.basename(f.name))
 
-            self.logger.info("Adding replication rules...")
-            for rse in rses:
-                self.logger.info("RSE: {}".format(rse))
-                rtn = rucio.addRule(fileDID, str(copies), rse)
-                self.logger.debug("  {}".format(rtn.stdout.decode('UTF-8').rstrip('\n')))
-            self.logger.info("Replication rules added")
+                    # Upload to <rseSrc>
+                    self.logger.debug("    Uploading file {} of {}".format(
+                        idx+1, nFiles))
+                    try:
+                        rucio.upload(rse=rseSrc, scope=scope, filePath=f.name, 
+                            lifetime=lifetime)
+                    except Exception as e:
+                        self.logger.warning(repr(e))
+                        os.remove(f.name)
+                        break
+                    self.logger.debug("      Attaching file {} to {}".format(
+                        fileDID, datasetDID))
+                    self.logger.info("Upload complete")
+                    os.remove(f.name)
+
+                    # Attach to dataset
+                    try:
+                        rucio.attach(scope=scope, todid=datasetDID, dids=fileDID)
+                    except Exception as e:
+                        self.logger.warning(repr(e))
+                        break
+                    self.logger.info("Attached to dataset")
+
+                    # Add replication rules for other RSEs
+                    self.logger.info("Adding replication rules...")
+                    for rseDst in rses:
+                        if rseSrc == rseDst:
+                            continue
+                        self.logger.info(
+                            bcolors.OKGREEN + "  RSE (dst): {}".format(rseDst) + \
+                                bcolors.ENDC)
+                        try:
+                            rtn = rucio.addRule(fileDID, 1, rseDst, lifetime=lifetime)
+                            self.logger.debug("    {}".format(
+                                rtn.stdout.decode('UTF-8').rstrip('\n')))
+                        except Exception as e:
+                            self.logger.warning(repr(e))
+                            continue
+                    self.logger.info("Replication rules added")
 
         self.toc()
         self.logger.info("Finished in {}s".format(
