@@ -1,8 +1,8 @@
 # rucio-analysis
 
-Toolkit to perform Rucio tests.
+Toolkit to perform Rucio stress tests.
 
-# Development
+# Production
 
 First, export the root directory path: 
 
@@ -16,10 +16,10 @@ and build the image:
 eng@ubuntu:~/ESCAP/167/rucio-analysis$ make build
 ```
 
-Development can then be done with the mounted source running inside a dockerised environment, e.g.:
+Commands can then be ran inside a dockerised environment, e.g.:
 
 ```bash
-eng@ubuntu:~$ docker run -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -v $RUCIO_ANALYSIS_ROOT:/home/user/rucio-analysis -it --name=rucio-analysis rucio-analysis
+eng@ubuntu:~$ docker run -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -it --name=rucio-analysis-prod rucio-analysis:latest
 ```
 
 Uploads require initialising a voms-proxy inside the container first:
@@ -28,11 +28,67 @@ Uploads require initialising a voms-proxy inside the container first:
 [user@b802f5113379 src]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
 ```
 
-e.g. 
+## Adding to crontab
+
+First start a detached container:
+
+```bash
+eng@ubuntu:~$ docker run -d -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -it --name=rucio-analysis-prod rucio-analysis:latest
+```
+
+Then edit the crontab:
+
+```bash
+eng@ubuntu:~$ crontab -e
+```
+
+and add:
+
+```bash
+@hourly /opt/rucio-analysis/etc/cron/run-analysis.sh
+```
+
+# Development
+
+First, export the root directory path: 
+
+```bash
+eng@ubuntu:~$ export RUCIO_ANALYSIS_ROOT=/home/eng/ESCAP/167/rucio-analysis
+```
+
+and build the image:
+
+```bash
+eng@ubuntu:~/ESCAP/167/rucio-analysis$ make build-dev
+```
+
+Development can then be done with the mounted source running inside a dockerised environment, e.g.:
+
+```bash
+eng@ubuntu:~$ docker run -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -v $RUCIO_ANALYSIS_ROOT:/home/user/rucio-analysis-dev -it --name=rucio-analysis rucio-analysis:dev
+```
+
+Uploads require initialising a voms-proxy inside the container first:
+
+```bash
+[user@b802f5113379 src]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
+```
+
+## Architecture
+
+To create a new test:
+
+1. Take a copy of the test class stub in `src/tests/stub.py` and rename it. 
+2. Add an entry to `etc/tests.yml` with `module_name` (including `tests.` prefix) and `class_name` set accordingly. To inject parameters into the test's entry point, `run()`, assign them in the `args` and `kwargs` keys. Note that the `description`, `module_name`, `class_name`, `enabled`, `args` and `kwargs` keys **must** all be set.
+3. Amend the `run()` function as desired.
+
+# Examples
+
+Run the script with default tests file, `etc/tests.yml`: 
 
 ```bash
 [user@b802f5113379 /]$ cd ~/rucio-analysis/src/
-[user@b802f5113379 src]$ python3 run-analysis.py -v
+[user@b802f5113379 src]$ python3 run-analysis.py -v -t ../etc/tests.yml
 2020-09-10 15:08:26,244 INFO    Parsing configuration file
 2020-09-10 15:08:26,277 DEBUG   Constructing instance of TestReplication()
 2020-09-10 15:08:26,284 INFO    Executing TestReplication.run()
@@ -53,11 +109,3 @@ e.g.
 2020-09-10 15:08:34,790 INFO    Finished in 9s
 2020-09-10 15:08:34,793 DEBUG   Deconstructing instance of TestReplication()
 ```
-
-## Architecture
-
-To create a new test:
-
-1. Take a copy of the test class stub in `src/tests/stub.py` and rename it. 
-2. Add an entry to `etc/tests.yml` with `module_name` (including `tests.` prefix) and `class_name` set accordingly. To inject parameters into the test's entry point, `run()`, assign them in the `args` and `kwargs` keys. Note that the `description`, `module_name`, `class_name`, `enabled`, `args` and `kwargs` keys **must** all be set.
-3. Amend the `run()` function as desired.

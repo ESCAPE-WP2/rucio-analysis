@@ -7,7 +7,6 @@ RUN curl -s -o /etc/yum.repos.d/EGI-trustanchors.repo http://repository.egi.eu/s
 RUN yum -y install ca-certificates ca-policy-egi-core
 RUN yum -y install wget vim 
 RUN yum -y install python3
-RUN yum -y install git
 
 # voms setup
 RUN mkdir -p /etc/vomses \
@@ -22,7 +21,7 @@ COPY etc/rucio/rucio_cli.sh /etc/profile.d
 # create non-priveleged dummy user
 RUN useradd -ms /bin/bash user
 
-RUN git clone https://github.com/ESCAPE-WP2/rucio-analysis.git /opt/rucio-analysis
-RUN python3 -m pip install -r /opt/rucio-analysis/requirements.txt
+COPY requirements.txt /tmp/
+RUN python3 -m pip install -r /tmp/requirements.txt
 
 ENTRYPOINT ["/bin/bash"]
