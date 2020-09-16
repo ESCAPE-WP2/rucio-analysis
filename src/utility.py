@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import tempfile
 import uuid
@@ -14,8 +15,8 @@ class bcolors:
 
 def generateRandomFile(size):
     """ Generate a randomly named file of size <size> with random contents. """
-    
-    basename = '{}KB_{}'.format(size//1000, uuid.uuid4().hex)
+    todaysDatetime = datetime.now().strftime('%d%m%yT%H.%M.%S')
+    basename = '{}KB_{}'.format(size//1000, todaysDatetime)
     absFilename = os.path.join(tempfile.gettempdir(), basename)
     with open(absFilename, 'wb') as f:
         f.write(os.urandom(size))

@@ -37,7 +37,7 @@ class TestReplication(Test):
         #
         # Does not try to create a dataset if it already exists.
         #
-        todaysDate = datetime.now().strftime('%m-%d-%Y')
+        todaysDate = datetime.now().strftime('%d-%m-%Y')
         datasetDID = '{}:{}'.format(scope, todaysDate)
         self.logger.info("Checking for dataset ({})".format(
             datasetDID))
