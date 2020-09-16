@@ -64,7 +64,6 @@ class TestReplication(Test):
         #
         for rseSrc in rses:
             self.logger.info(bcolors.OKBLUE + "RSE (src): {}".format(rseSrc) + bcolors.ENDC)
-            self.logger.info("Starting upload...")
             for size in sizes:
                 self.logger.debug("  File size: {} bytes".format(size))
                 for idx in range(nFiles):
@@ -82,35 +81,35 @@ class TestReplication(Test):
                         self.logger.warning(repr(e))
                         os.remove(f.name)
                         break
-                    self.logger.debug("      Attaching file {} to {}".format(
-                        fileDID, datasetDID))
-                    self.logger.info("Upload complete")
+                    self.logger.debug("    Upload complete")
                     os.remove(f.name)
 
                     # Attach to dataset
+                    self.logger.debug("    Attaching file {} to {}".format(
+                        fileDID, datasetDID))
                     try:
                         rucio.attach(scope=scope, todid=datasetDID, dids=fileDID)
                     except Exception as e:
                         self.logger.warning(repr(e))
                         break
-                    self.logger.info("Attached to dataset")
+                    self.logger.debug("    Attached file to dataset")
 
                     # Add replication rules for other RSEs
-                    self.logger.info("Adding replication rules...")
+                    self.logger.debug("    Adding replication rules...")
                     for rseDst in rses:
                         if rseSrc == rseDst:
                             continue
-                        self.logger.info(
-                            bcolors.OKGREEN + "  RSE (dst): {}".format(rseDst) + \
+                        self.logger.debug(
+                            bcolors.OKGREEN + "    RSE (dst): {}".format(rseDst) + \
                                 bcolors.ENDC)
                         try:
                             rtn = rucio.addRule(fileDID, 1, rseDst, lifetime=lifetime)
-                            self.logger.debug("    {}".format(
+                            self.logger.debug("      Rule ID: {}".format(
                                 rtn.stdout.decode('UTF-8').rstrip('\n')))
                         except Exception as e:
                             self.logger.warning(repr(e))
                             continue
-                    self.logger.info("Replication rules added")
+                    self.logger.debug("    Replication rules added")
 
         self.toc()
         self.logger.info("Finished in {}s".format(

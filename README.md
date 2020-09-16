@@ -74,14 +74,6 @@ Uploads require initialising a voms-proxy inside the container first:
 [user@b802f5113379 src]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
 ```
 
-## Architecture
-
-To create a new test:
-
-1. Take a copy of the test class stub in `src/tests/stub.py` and rename it. 
-2. Add an entry to `etc/tests.yml` with `module_name` (including `tests.` prefix) and `class_name` set accordingly. To inject parameters into the test's entry point, `run()`, assign them in the `args` and `kwargs` keys. Note that the `description`, `module_name`, `class_name`, `enabled`, `args` and `kwargs` keys **must** all be set.
-3. Amend the `run()` function as desired.
-
 # Examples
 
 Run the script with default tests file, `etc/tests.yml`: 
@@ -109,3 +101,12 @@ Run the script with default tests file, `etc/tests.yml`:
 2020-09-10 15:08:34,790 INFO    Finished in 9s
 2020-09-10 15:08:34,793 DEBUG   Deconstructing instance of TestReplication()
 ```
+
+## Test Definition
+
+### Creating a new test
+
+1. Take a copy of the test class stub in `src/tests/stub.py` and rename it. 
+2. Add an entry to `etc/tests.yml` with `module_name` (including `tests.` prefix) and `class_name` set accordingly. To inject parameters into the test's entry point, `run()`, assign them in the `args` and `kwargs` keys. Note that the `description`, `module_name`, `class_name`, `enabled`, `args` and `kwargs` keys **must** all be set.
+3. Amend the `run()` function as desired.
+
