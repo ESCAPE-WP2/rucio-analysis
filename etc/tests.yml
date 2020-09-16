@@ -5,11 +5,18 @@ test-replication:
   enabled: true
   args:
   kwargs:
-    copies: 1
+    n_files: 1
     sizes:
-      - 10000 # bytes
-    lifetime: 60 # seconds                
+      - 15000 # bytes
+    lifetime: 3600 # seconds                
     rses:
       - DESY-DCACHE
-      - LAPP-DCACHE
+      - SARA-DCACHE
+      #- ALPAMED-DPM
+      #- IN2P3-CC-DCACHE
+      #- INFN-NA-DPM
+      #- CNAF-STORM
+      #- PIC-DCACHE
+      #- EULAKE-1
+      #- EULAKE-2
     scope: rucio-testing

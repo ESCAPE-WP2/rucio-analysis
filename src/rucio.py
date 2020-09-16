@@ -13,9 +13,10 @@ class Rucio():
         
 
     @staticmethod
-    def addRule(did, copies, rse):
+    def addRule(did, copies, rse, lifetime):
         rtn = subprocess.run(
-            ['rucio', 'add-rule', did, copies, rse, '--skip-duplicates'],
+            ['rucio', 'add-rule', '--lifetime', str(lifetime), 
+            did, str(copies), rse],
             stdout=subprocess.PIPE)
         if rtn.returncode != 0:
             raise Exception("Non-zero return code")  
@@ -55,9 +56,10 @@ class Rucio():
               
 
     @staticmethod
-    def upload(rse, scope, filePath):
+    def upload(rse, scope, filePath, lifetime):
         rtn = subprocess.run(
-            ['rucio', 'upload', '--rse', rse, '--scope', scope, filePath],
+            ['rucio', 'upload', '--rse', rse, '--scope', scope, 
+            '--lifetime', str(lifetime), filePath],
             stdout=subprocess.PIPE)
         if rtn.returncode != 0:
             raise Exception("Non-zero return code")  
