@@ -22,7 +22,7 @@ COPY etc/rucio/rucio_cli.sh /etc/profile.d
 # create non-priveleged dummy user
 RUN useradd -ms /bin/bash user
 
-RUN git clone https://github.com/ESCAPE-WP2/rucio-analysis.git /opt/rucio-analysis
+COPY . /opt/rucio-analysis
 RUN python3 -m pip install -r /opt/rucio-analysis/requirements.txt
 
 ENTRYPOINT ["/bin/bash"]

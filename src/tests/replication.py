@@ -58,7 +58,7 @@ class TestReplication(Test):
         else:
             self.logger.debug("Dataset already exists")
 
-        # Recursively upload a file of size from <sizes> to each
+        # Iteratively upload a file of size from <sizes> to each
         # RSE, attach to the dataset, add add replication rules to the 
         # other listed RSEs.
         #

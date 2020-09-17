@@ -1,3 +1,11 @@
+test-stub:
+  description: "Test stub"
+  module_name: "tests.stub"
+  class_name: "TestStub"
+  enabled: false
+  args:
+  kwargs:
+    text: "Hello World!"
 test-replication:
   description: "Test uploading/replication to RSEs."
   module_name: "tests.replication"

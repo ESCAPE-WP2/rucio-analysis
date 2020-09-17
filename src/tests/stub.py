@@ -13,11 +13,13 @@ class TestStub(Test):
         try:
             # Assign variables from test.yml kwargs.
             #
+            text = kwargs['text']
             pass
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for test.")
             self.logger.critical(repr(e))
             exit()
+        self.logger.info(text)
 
         self.toc()
         self.logger.info("Finished in {}s".format(
