@@ -25,7 +25,7 @@ Commands can be ran directly inside a dockerised environment, e.g.:
 eng@ubuntu:~$ docker run -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -it --name=rucio-analysis rucio-analysis:latest
 ```
 
-Note that upload tests will require initialising a `voms-proxy` inside the container first:
+Note that upload tests require a valid X509 certificate to be bound inside the container (as shown above) and will require initialising a `voms-proxy` inside the container:
 
 ```bash
 [user@b802f5113379 src]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
