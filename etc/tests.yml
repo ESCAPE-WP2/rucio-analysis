@@ -15,16 +15,20 @@ test-replication:
   kwargs:
     n_files: 1
     sizes:
-      - 15000 # bytes
-    lifetime: 3600 # seconds                
+      - 100000 # bytes
+    lifetime: 2592000 # seconds                
     rses:
+      - ALPAMED-DPM
+      - CNAF-STORM
       - DESY-DCACHE
+      - EULAKE-1
+      - EULAKE-2
+      - GSI-ROOT
+      - IN2P3-CC-DCACHE
+      - INFN-NA-DPM
+      - LAPP-DCACHE
+      - LAPP-DPM
+      - PIC-DCACHE
+      - PIC-INJECT
       - SARA-DCACHE
-      #- ALPAMED-DPM
-      #- IN2P3-CC-DCACHE
-      #- INFN-NA-DPM
-      #- CNAF-STORM
-      #- PIC-DCACHE
-      #- EULAKE-1
-      #- EULAKE-2
     scope: rucio-testing
