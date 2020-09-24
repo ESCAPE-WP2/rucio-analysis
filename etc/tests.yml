@@ -18,19 +18,17 @@ test-replication:
       - 100000 # bytes
     lifetime: 2592000 # seconds                
     rses:
+      - ALPAMED-DPM
+      - CNAF-STORM
       - DESY-DCACHE
+      - EULAKE-1
+      - EULAKE-2
+      - GSI-ROOT
+      - IN2P3-CC-DCACHE
+      - INFN-NA-DPM
+      - LAPP-DCACHE
+      - LAPP-DPM
+      - PIC-DCACHE
+      - PIC-INJECT
       - SARA-DCACHE
-      #- ALPAMED-DPM
-      # - CNAF-STORM
-      #- DESY-DCACHE
-      #- EULAKE-1
-      #- EULAKE-2
-      #- GSI-ROOT
-      #- IN2P3-CC-DCACHE
-      #- INFN-NA-DPM
-      #- LAPP-DCACHE
-      #- LAPP-DPM
-      #- PIC-DCACHE
-      #- PIC-INJECT
-      #- SARA-DCACHE
     scope: rucio-testing
