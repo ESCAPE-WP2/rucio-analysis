@@ -1,7 +1,9 @@
-from datetime import datetime
 import os
 import tempfile
 import uuid
+from datetime import datetime
+from pathlib import Path
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -21,3 +23,19 @@ def generateRandomFile(size):
     with open(absFilename, 'wb') as f:
         f.write(os.urandom(size))
     return f
+
+def generateDirRandomFiles(nFiles, size):
+    """ Generate a directory of nFiles of size <size> with random contents. """
+    todaysDatetime = datetime.now().strftime('%d%m%yT%H.%M.%S')
+    tmpDir = tempfile.gettempdir()
+    dirName = '{}x{}KB_{}'.format(nFiles, size//1000, todaysDatetime)
+
+    # Create dir structure
+    Path(os.path.join(tmpDir, dirName)).mkdir(parents=True, exist_ok=True)
+
+    for idx in range(nFiles):
+        basename = '{}KB_{}_{}'.format(size//1000, todaysDatetime, idx)
+        absFilename = os.path.join(tmpDir, dirName, basename)
+        with open(absFilename, 'wb') as f:
+            f.write(os.urandom(size))
+    return os.path.join(tmpDir, dirName)

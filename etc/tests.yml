@@ -32,3 +32,28 @@ test-replication:
       - PIC-INJECT
       - SARA-DCACHE
     scope: rucio-testing
+test-replicate-dir:
+  description: "Test uploading/replication of directory to RSEs."
+  module_name: "tests.replicate_dir"
+  class_name: "TestReplicateDir"
+  enabled: false
+  args:
+  kwargs:
+    n_files: 3
+    file_size: 13000 # bytes
+    lifetime: 3600 # seconds                
+    rses:
+      # - ALPAMED-DPM
+      # - CNAF-STORM
+      - DESY-DCACHE
+      # - EULAKE-1
+      # - EULAKE-2
+      # - GSI-ROOT
+      # - IN2P3-CC-DCACHE
+      # - INFN-NA-DPM
+      # - LAPP-DCACHE
+      # - LAPP-DPM
+      # - PIC-DCACHE
+      # - PIC-INJECT
+      - SARA-DCACHE
+    scope: rucio-testing
