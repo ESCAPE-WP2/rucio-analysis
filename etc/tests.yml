@@ -20,15 +20,15 @@ test-replication:
     rses:
       - ALPAMED-DPM
       - CNAF-STORM
-      #- DESY-DCACHE
-      #- EULAKE-1
-      #- EULAKE-2
-      #- GSI-ROOT
-      #- IN2P3-CC-DCACHE
-      #- INFN-NA-DPM
-      #- LAPP-DCACHE
-      #- LAPP-DPM
-      #- PIC-DCACHE
-      #- PIC-INJECT
-      #- SARA-DCACHE
+      - DESY-DCACHE
+      - EULAKE-1
+      - EULAKE-2
+      - GSI-ROOT
+      - IN2P3-CC-DCACHE
+      - INFN-NA-DPM
+      - LAPP-DCACHE
+      - LAPP-DPM
+      - PIC-DCACHE
+      - PIC-INJECT
+      - SARA-DCACHE
     scope: rucio-testing
