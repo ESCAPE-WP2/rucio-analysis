@@ -1,8 +1,0 @@
-#!/bin/sh
-
-# Making user owner of rucio/etc so that we can run the init
-# as user, making it easier to port to Singularity
-mkdir -p /opt/rucio/etc/
-chown -R user:user /opt/rucio/etc/
-
-su user; exit

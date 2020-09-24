@@ -16,7 +16,7 @@ eng@ubuntu:~$ export RUCIO_ANALYSIS_ROOT=/home/eng/ESCAP/167/rucio-analysis
 and build the image:
 
 ```bash
-eng@ubuntu:~/ESCAP/167/rucio-analysis$ make build
+eng@ubuntu:~/ESCAP/167/rucio-analysis$ make latest
 ```
 
 Commands can be ran directly inside a dockerised environment, e.g.:
@@ -33,27 +33,17 @@ Note that upload tests require a valid X509 certificate to be bound inside the c
 
 ## Automating tests
 
-Automated testing can be done via cron. It is **not** built in to the image, and must be added.
+To keep the container single purpose & minimal, automated testing is invoked via cron on the host. 
 
-Cron scripts can be found in `etc/cron`.
-
-After the image is built, start a detached container:
+The latest production crontab is `etc/cron/crontab`. It can be installed by:
 
 ```bash
-eng@ubuntu:~$ docker run -d -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -it --name=rucio-analysis rucio-analysis:latest
+eng@ubuntu:~$ etc/install-crontab.sh
 ```
 
-edit the crontab:
+:warning: this will overwrite the existing crontab.
 
-```bash
-eng@ubuntu:~$ crontab -e
-```
-
-and add, e.g.:
-
-```bash
-@hourly /opt/rucio-analysis/etc/cron/run-analysis.sh
-```
+Jobs in the crontab should call `docker run` on the `rucio-analysis` image, passing in scripts from `etc/cron/jobs`. These scripts are designed to be ran inside the dockerised environment.
 
 # Development environment
 
@@ -66,7 +56,7 @@ eng@ubuntu:~$ export RUCIO_ANALYSIS_ROOT=/home/eng/ESCAP/167/rucio-analysis
 and build the image:
 
 ```bash
-eng@ubuntu:~/ESCAP/167/rucio-analysis$ make build
+eng@ubuntu:~/ESCAP/167/rucio-analysis$ make latest
 ```
 
 Development can then be done dynamically by mounting the source inside a dockerised environment, e.g.:
@@ -133,5 +123,7 @@ The procedure for creating a new tests is as follows:
 3. Amend the `run()` function as desired.
 
 The stub function, `src/stub.py` and corresponding entry (test-stub) in `etc/tests.yml` illustrate this usage.
+
+If you are creating a new yml e.g. for different cadence tests, a new script will need to be written in `etc/cron/jobs` and `etc/cron/crontab` amended accordingly.
 
 

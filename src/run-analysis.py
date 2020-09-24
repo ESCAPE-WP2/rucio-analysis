@@ -1,5 +1,7 @@
 import argparse
 import importlib
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
 from logger import Logger
 from session import Session

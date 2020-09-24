@@ -1,0 +1,1 @@
+@hourly docker run --rm -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -v $RUCIO_ANALYSIS_ROOT:/opt/rucio-analysis --name rucio-analysis-tests rucio-analysis:latest /opt/rucio-analysis/etc/cron/jobs/tests.sh
