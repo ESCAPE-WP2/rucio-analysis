@@ -71,28 +71,15 @@ class TestReplicateDir(Test):
             dirPath = generateDirRandomFiles(nFiles, file_size)
 
             # Upload to <rseSrc>
-            self.logger.debug("    Uploading dir {}".format(dirPath))
+            self.logger.debug("    Uploading dir {} and attaching to {}".format(dirPath, datasetDID))
 
             try:
-                rucio.upload(rseSrc, scope, dirPath, lifetime)
+                rucio.upload_dir(rseSrc, scope, dirPath, lifetime, datasetDID)
             except Exception as e:
                 self.logger.warning(repr(e))
                 shutil.rmtree(dirPath)
                 break
             self.logger.debug("    Upload complete")
-            
-            # Attach files to dataset
-            for filename in os.listdir(dirPath):
-                fileDID = '{}:{}'.format(scope, filename)
-                self.logger.debug("    Attaching file {} to {}".format(
-                    fileDID, datasetDID))
-                try:
-                    rucio.attach(scope=scope, todid=datasetDID, dids=fileDID)
-                except Exception as e:
-                    self.logger.warning(repr(e))
-                    shutil.rmtree(dirPath)
-                    break
-            self.logger.debug("    Attached all files to dataset")
 
             # Add replication rules for other RSEs
             for filename in os.listdir(dirPath):

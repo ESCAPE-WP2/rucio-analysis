@@ -64,3 +64,17 @@ class Rucio():
         if rtn.returncode != 0:
             raise Exception("Non-zero return code")  
         return rtn
+
+
+    @staticmethod
+    def upload_dir(rse, scope, filePath, lifetime, parentDid):
+        '''
+        Upload a directory of files and attach each file to the parentDid
+        '''
+        rtn = subprocess.run(
+            ['rucio', 'upload', '--rse', rse, '--lifetime', str(lifetime),
+             '--scope', scope, parentDid, filePath],
+            stdout=subprocess.PIPE)
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")  
+        return rtn
