@@ -6,14 +6,15 @@ from rucio import Rucio
 from tests import Test
 from utility import generateDirRandomFiles, bcolors
 
-class TestReplicateDir(Test):
+class TestReplicationBulk(Test):
     """
-    Rucio upload/replicate directory of files to a list of RSEs.
+    Rucio upload directories of files in parallel to a source RSE and
+    replicate on a destination RSE.
     """
     def __init__(self, logger):
         super().__init__(logger)
 
-    
+
     def run(self, args, kwargs):
         super().run()
         self.tic()

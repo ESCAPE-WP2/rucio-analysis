@@ -32,10 +32,10 @@ test-replication:
       - PIC-INJECT
       - SARA-DCACHE
     scope: rucio-testing
-test-replicate-dir:
-  description: "Test uploading/replication of directory to RSEs."
-  module_name: "tests.replicate_dir"
-  class_name: "TestReplicateDir"
+test-replication-bulk:
+  description: "Test parallel uploading/replication of files to RSEs."
+  module_name: "tests.replication_bulk"
+  class_name: "TestReplicationBulk"
   enabled: false
   args:
   kwargs:
