@@ -16,7 +16,7 @@ test-replication:
     n_files: 1
     sizes:
       - 100000 # bytes
-    lifetime: 2592000 # seconds                
+    lifetime: 2592000 # seconds
     rses:
       - ALPAMED-DPM
       - CNAF-STORM
@@ -36,24 +36,14 @@ test-replication-bulk:
   description: "Test parallel uploading/replication of files to RSEs."
   module_name: "tests.replication_bulk"
   class_name: "TestReplicationBulk"
-  enabled: false
+  enabled: true
   args:
   kwargs:
-    n_files: 3
-    file_size: 13000 # bytes
-    lifetime: 3600 # seconds                
-    rses:
-      # - ALPAMED-DPM
-      # - CNAF-STORM
-      - DESY-DCACHE
-      # - EULAKE-1
-      # - EULAKE-2
-      # - GSI-ROOT
-      # - IN2P3-CC-DCACHE
-      # - INFN-NA-DPM
-      # - LAPP-DCACHE
-      # - LAPP-DPM
-      # - PIC-DCACHE
-      # - PIC-INJECT
-      - SARA-DCACHE
+    n_workers: 8 # Number of parallel processes uploading files
+    n_dirs: 16 # Number of directories of files to create (each on different process)
+    n_files: 10 # Number of files per directory
+    file_size: 15000 # bytes
+    lifetime: 3600 # seconds
+    source_rse: DESY-DCACHE
+    dest_rse: SARA-DCACHE
     scope: rucio-testing
