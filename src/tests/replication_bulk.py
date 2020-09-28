@@ -31,7 +31,7 @@ class TestReplicationBulk(Test):
             fileSize = kwargs["file_size"]
             lifetime = kwargs["lifetime"]
             rseSrc = kwargs["source_rse"]
-            rseDest = kwargs["dest_rse"]
+            rsesDst = kwargs["dest_rses"]
             scope = kwargs["scope"]
 
         except KeyError as e:
@@ -78,7 +78,7 @@ class TestReplicationBulk(Test):
             (
                 loggerName,
                 rseSrc,
-                rseDest,
+                rsesDst,
                 nFiles,
                 fileSize,
                 scope,
@@ -102,7 +102,7 @@ class TestReplicationBulk(Test):
 def upload_dir(
     loggerName,
     rseSrc,
-    rseDst,
+    rsesDst,
     nFiles,
     fileSize,
     scope,
@@ -112,8 +112,8 @@ def upload_dir(
     nDirs=1,
 ):
     """
-    Upload a dir containing <nFiles> of <fileSize> to <rseSrc>,
-    attaching to <datasetDID>, add replication rules for <rseDst>.
+    Upload a dir containing <nFiles> of <fileSize> to <rseSrc>, attaching
+    to <datasetDID>, add replication rules for each of <rsesDst>.
     """
     logger = logging.getLogger(loggerName)
     logger.debug("    Uploading directory {} of {}".format(dirIdx, nDirs))
@@ -138,19 +138,22 @@ def upload_dir(
     logger.debug("    Upload complete")
 
     # Add replication rules for other RSEs
-    for filename in os.listdir(dirPath):
-        fileDID = "{}:{}".format(scope, filename)
-        logger.debug("    Adding replication rule for {}".format(fileDID))
-        logger.debug(
-            bcolors.OKGREEN + "    RSE (dst): {}".format(rseDst) + bcolors.ENDC
-        )
-        try:
-            rtn = rucio.addRule(fileDID, 1, rseDst, lifetime=lifetime)
-            logger.debug(
-                "      Rule ID: {}".format(rtn.stdout.decode("UTF-8").rstrip("\n"))
-            )
-        except Exception as e:
-            logger.warning(repr(e))
+    for rseDst in rsesDst:
+        if rseSrc == rseDst:
             continue
+        for filename in os.listdir(dirPath):
+            fileDID = "{}:{}".format(scope, filename)
+            logger.debug("    Adding replication rule for {}".format(fileDID))
+            logger.debug(
+                bcolors.OKGREEN + "    RSE (dst): {}".format(rseDst) + bcolors.ENDC
+            )
+            try:
+                rtn = rucio.addRule(fileDID, 1, rseDst, lifetime=lifetime)
+                logger.debug(
+                    "      Rule ID: {}".format(rtn.stdout.decode("UTF-8").rstrip("\n"))
+                )
+            except Exception as e:
+                logger.warning(repr(e))
+                continue
     logger.debug("    All replication rules added")
     shutil.rmtree(dirPath)

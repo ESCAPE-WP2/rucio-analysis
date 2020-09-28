@@ -45,5 +45,7 @@ test-replication-bulk:
     file_size: 15000 # bytes
     lifetime: 3600 # seconds
     source_rse: DESY-DCACHE
-    dest_rse: SARA-DCACHE
+    dest_rses:
+      - SARA-DCACHE
+      - EULAKE-2
     scope: rucio-testing
