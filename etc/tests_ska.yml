@@ -1,0 +1,17 @@
+test-replication-bulk:
+  description: "Test parallel uploading/replication of files to RSEs."
+  module_name: "tests.replication_bulk"
+  class_name: "TestReplicationBulk"
+  enabled: false
+  args:
+  kwargs:
+    n_workers: 4 # Number of parallel processes uploading files
+    n_dirs: 16 # Number of directories of files to create (each on different process)
+    n_files: 10 # Number of files per directory
+    file_size: 15000 # bytes
+    lifetime: 3600 # seconds
+    source_rse: DESY-DCACHE
+    dest_rses:
+      - SARA-DCACHE
+      - EULAKE-2
+    scope: rucio-testing
