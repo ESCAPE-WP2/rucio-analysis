@@ -2,7 +2,7 @@ test-replication-bulk:
   description: "Test parallel uploading/replication of files to RSEs."
   module_name: "tests.replication_bulk"
   class_name: "TestReplicationBulk"
-  enabled: false
+  enabled: true
   args:
   kwargs:
     n_workers: 4 # Number of parallel processes uploading files
