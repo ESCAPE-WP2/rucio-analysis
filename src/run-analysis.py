@@ -2,8 +2,6 @@ import argparse
 import importlib
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-# Suppress CryptoDeprecationWarnings https://github.com/paramiko/paramiko/issues/1386
-warnings.filterwarnings(action='ignore', module='.*paramiko.*')
 
 from logger import Logger
 from session import Session
