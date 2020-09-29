@@ -14,4 +14,4 @@ test-replication-bulk:
     dest_rses:
       - SARA-DCACHE
       - EULAKE-2
-    scope: ska_skao_jcollinson
+    scope: SKA_SKAO_COLLINSON
