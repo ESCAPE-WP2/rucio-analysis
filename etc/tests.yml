@@ -22,7 +22,6 @@ test-replication:
       - CNAF-STORM
       - DESY-DCACHE
       - EULAKE-1
-      - EULAKE-2
       - GSI-ROOT
       - IN2P3-CC-DCACHE
       - INFN-NA-DPM
@@ -31,7 +30,7 @@ test-replication:
       - PIC-DCACHE
       - PIC-INJECT
       - SARA-DCACHE
-    scope: rucio-testing
+    scope: SKA_SKAO_BARNSLEY-testing
 test-replication-bulk:
   description: "Test parallel uploading/replication of files to RSEs."
   module_name: "tests.replication_bulk"
@@ -47,5 +46,5 @@ test-replication-bulk:
     source_rse: DESY-DCACHE
     dest_rses:
       - SARA-DCACHE
-      - EULAKE-2
-    scope: rucio-testing
+      - EULAKE-1
+    scope: SKA_SKAO_BARNSLEY-testing
