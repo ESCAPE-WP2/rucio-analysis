@@ -13,5 +13,5 @@ test-replication-bulk:
     source_rse: DESY-DCACHE
     dest_rses:
       - SARA-DCACHE
-      - EULAKE-2
+      - EULAKE-1
     scope: SKA_SKAO_COLLINSON
