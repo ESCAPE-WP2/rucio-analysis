@@ -26,7 +26,6 @@ test-replication:
       - IN2P3-CC-DCACHE
       - INFN-NA-DPM
       - LAPP-DCACHE
-      - LAPP-DPM
       - PIC-DCACHE
       - PIC-INJECT
       - SARA-DCACHE
