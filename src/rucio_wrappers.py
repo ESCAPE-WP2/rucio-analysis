@@ -5,36 +5,66 @@ import subprocess
 import gfal2
 from rucio.client.client import Client
 from rucio.client.uploadclient import UploadClient
+from rucio.client.downloadclient import DownloadClient
 from rucio.common.exception import *
 
 class RucioWrappers():
     @abc.abstractstaticmethod
-    def addDataset(did):
+    def addDataset():
         raise NotImplementedError
 
 
     @abc.abstractstaticmethod
-    def addRule(did, copies, rse, lifetime):
+    def addRule():
         raise NotImplementedError
 
 
     @abc.abstractstaticmethod
-    def attach(todid, dids):
+    def attach():
         raise NotImplementedError
 
 
     @abc.abstractstaticmethod
-    def listDIDs(scope, name="*", filt=None):
-        raise NotImplementedError
-              
-
-    @abc.abstractstaticmethod
-    def upload(rse, scope, filePath, lifetime):
+    def detach():
         raise NotImplementedError
 
 
     @abc.abstractstaticmethod
-    def uploadDir(rse, scope, dirPath, lifetime, parentDid):
+    def download():
+        raise NotImplementedError
+
+
+    @abc.abstractstaticmethod
+    def erase():
+        raise NotImplementedError
+
+
+    @abc.abstractstaticmethod
+    def listDIDs():
+        raise NotImplementedError
+
+
+    @abc.abstractstaticmethod
+    def listFileReplicas():
+        raise NotImplementedError
+
+
+    @abc.abstractstaticmethod
+    def listReplicationRules():
+        raise NotImplementedError
+
+
+    @abc.abstractstaticmethod
+    def listReplicationRulesFull():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def upload():
+        raise NotImplementedError
+
+
+    @abc.abstractstaticmethod
+    def uploadDir():
         raise NotImplementedError
 
 
@@ -71,15 +101,15 @@ class RucioWrappersCLI(RucioWrappers):
 
 
     @staticmethod
-    def listDIDs(scope, name="*", filt=None):
-        if filt is None:
+    def listDIDs(scope, name="*", filters=None):
+        if filters is None:
             rtn = subprocess.run(
                 ['rucio', 'list-dids', '{}:{}'.format(scope, name), '--short'],
                 stdout=subprocess.PIPE)
         else:
             rtn = subprocess.run(
                 ['rucio', 'list-dids', '{}:{}'.format(scope, name), '--short',
-                '--filter', filt],
+                '--filter', filters],
                 stdout=subprocess.PIPE)
         if rtn.returncode != 0:
             raise Exception("Non-zero return code")
@@ -136,7 +166,9 @@ class RucioWrappersAPI(RucioWrappers):
         try:
             client = Client()
             client.add_replication_rule(
-                [{'scope': scope, 'name': name}], copies, rse, lifetime=lifetime)
+                dids=[{'scope': scope, 'name': name}], 
+                copies=copies, rse_expression=rse, 
+                lifetime=lifetime)
         except RucioException as error:
             raise Exception(error)
 
@@ -146,11 +178,11 @@ class RucioWrappersAPI(RucioWrappers):
         try:
             client = Client()
             tokens = todid.split(':')
-            toscope = tokens[0]; toname = tokens[1]
+            toScope = tokens[0]; toName = tokens[1]
 
             attachment = {
-                'scope': toscope,
-                'name': toname,
+                'scope': toScope,
+                'name': toName,
                 'dids': []
             }
             for did in dids.split(' '):
@@ -160,25 +192,122 @@ class RucioWrappersAPI(RucioWrappers):
                     'scope': scope,
                     'name': name
                 })
-            client.attach_dids_to_dids([attachment])
+            client.attach_dids_to_dids(attachments=[attachment])
         except RucioException as error:
             raise Exception(error)
 
 
     @staticmethod
-    def listDIDs(scope, name="*", filt=None):
+    def detach(fromdid, dids):
         try:
             client = Client()
-            filt_dict = {}
-            if filt is not None:
-                for pair in filt.split(','):
-                    tokens = pair.split('=')
-                    key = tokens[0]; val = tokens[1]
-                    filt_dict[key] = val
+            tokens = fromdid.split(':')
+            fromScope = tokens[0]; fromName = tokens[1]
+
+            detachments = []
+            for did in dids.split(' '):
+                tokens = did.split(':')
+                scope = tokens[0]; name = tokens[1]    
+                detachments.append({
+                    'scope': scope,
+                    'name': name
+                })
+            client.detach_dids(
+                scope=fromScope, name=fromName, dids=detachments)
+        except RucioException as error:
+            raise Exception(error)
+
+    
+    @staticmethod
+    def download(did, base_dir='download'):
+        try:
+            client = DownloadClient()
+            items = [{
+                'did': did,
+                'base_dir': base_dir
+            }]
+            client.download_dids(items=items)
+        except RucioException as error:
+            raise Exception(error)  
+
+
+    @staticmethod  
+    def erase(did):
+        try:
+            api = RucioWrappersAPI()
+            rules = api.listReplicationRules(did)
+            rids = set()
+            for rule in rules:
+                rids.add(rule['id'])
+            client = Client()
+            for rid in rids:
+                client.delete_replication_rule(rule_id=rid, purge_replicas=True)
+        except RucioException as error:
+            raise Exception(error)                      
+
+
+    @staticmethod
+    def listDIDs(scope, name="*", filters=None):
+        try:
+            client = Client()
+            filters_dict = {}
+            if filters is not None:
+                if isinstance(filters, str):
+                    for pair in filters.split(','):
+                        tokens = pair.split('=')
+                        key = tokens[0].strip(); val = tokens[1].strip()
+                        filters_dict[key] = val
+                else:
+                    filters_dict = filters
             dids = []
-            for did in client.list_dids(scope=scope, filters=filt_dict):
+            for did in client.list_dids(scope=scope, filters=filters_dict):
                 dids.append(did)
             return dids
+        except RucioException as error:
+            raise Exception(error)
+
+
+    @staticmethod
+    def listFileReplicas(did):
+        try:
+            client = Client()
+            tokens = did.split(':')
+            scope = tokens[0]; name = tokens[1]
+            replicas = []
+            for replica in client.list_replicas(
+                dids=[{'scope': scope, 'name': name}]):
+                replicas.append(replica)
+            return replicas
+        except RucioException as error:
+            raise Exception(error)
+
+
+    @staticmethod
+    def listReplicationRules(did):
+        try:
+            client = Client()
+            tokens = did.split(':')
+            scope = tokens[0]; name = tokens[1]
+            rules = []
+            for rule in client.list_replication_rules(
+                filters={'scope': scope, 'name': name}):
+                rules.append(rule)
+            return rules
+        except RucioException as error:
+            raise Exception(error)
+
+
+    @staticmethod
+    def listReplicationRulesFull(did):
+        try:
+            client = Client()
+            tokens = did.split(':')
+            scope = tokens[0]; name = tokens[1]
+            rules = []
+            for rule in client.list_replication_rule_full_history(
+                scope=scope, name=name):
+                rules.append(rule)
+            return rules
         except RucioException as error:
             raise Exception(error)
 
@@ -194,6 +323,6 @@ class RucioWrappersAPI(RucioWrappers):
         })
         try:
             client = UploadClient()
-            client.upload(items)
+            client.upload(items=items)
         except RucioException as error:
             raise Exception(error)

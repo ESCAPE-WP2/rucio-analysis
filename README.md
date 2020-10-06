@@ -122,7 +122,7 @@ The procedure for creating a new tests is as follows:
 2. Add an entry to `etc/tests.yml` with `module_name` (including `tests.` prefix) and `class_name` set accordingly. To inject parameters into the test's entry point, `run()`, assign them in the `args` and `kwargs` keys. Note that the `description`, `module_name`, `class_name`, `enabled`, `args` and `kwargs` keys **must** all be set. 
 3. Amend the `run()` function as desired.
 
-The stub function, `src/stub.py` and corresponding entry (test-stub) in `etc/tests.yml` illustrate this usage.
+The stub function, `src/stub.py` and corresponding entry (test-stub) in `etc/tests.stub.yml` illustrate this usage.
 
 If you are creating a new yml e.g. for different cadence tests, a new script will need to be written in `etc/cron/jobs` and `etc/cron/crontab` amended accordingly.
 
