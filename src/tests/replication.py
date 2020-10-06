@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from rucio import Rucio
+from rucio_wrappers import RucioWrappersCLI
 from utility import bcolors, generateRandomFile
 
 from tests import Test
@@ -29,9 +29,9 @@ class TestReplication(Test):
             self.logger.critical(repr(e))
             exit()
 
-        # Instantiate Rucio class to allow access to static methods.
+        # Instantiate RucioWrappers class to allow access to static methods.
         #
-        rucio = Rucio()
+        rucio = RucioWrappersCLI()
 
         # Create a dataset to house the data, named with today's date
         # and scope <scope>.
@@ -93,7 +93,7 @@ class TestReplication(Test):
                         "    Attaching file {} to {}".format(fileDID, datasetDID)
                     )
                     try:
-                        rucio.attach(scope=scope, todid=datasetDID, dids=fileDID)
+                        rucio.attach(todid=datasetDID, dids=fileDID)
                     except Exception as e:
                         self.logger.warning(repr(e))
                         break
