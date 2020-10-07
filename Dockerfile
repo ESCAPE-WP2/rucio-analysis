@@ -3,6 +3,7 @@ FROM projectescape/rucio-client:latest
 USER root
 
 RUN yum -y install wget vim 
+RUN yum -y install python3
 RUN yum -y install git
 
 COPY . /opt/rucio-analysis
