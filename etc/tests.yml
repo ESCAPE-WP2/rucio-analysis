@@ -20,5 +20,6 @@ test-replication:
       - LAPP-DCACHE
       - PIC-DCACHE
       - SARA-DCACHE
+      - LAPP-WEBDAV
     scope: SKA_SKAO_BARNSLEY-testing
 
