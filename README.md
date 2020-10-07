@@ -1,11 +1,15 @@
 # rucio-analysis
 
-Modular toolkit to perform Rucio stress tests.
+A modular toolkit to perform Rucio stress tests.
 
-Currently supported tests include:
-  - test-replication: Iteratively upload files to each RSE add add replication rules to the other RSEs. 
+# Available tests
 
-# Production
+| Class               | Module           | Description                                                                       |
+| :------------------ | :--------------- | :-------------------------------------------------------------------------------- |
+| TestReplication     | replication      | Iteratively upload files to each RSE add add replication rules to the other RSEs. |
+| TestReplicationBulk | replication_bulk | Bulk upload files to each RSE add add replication rules to the other RSEs.        |
+
+# Production deployment
 
 First, export the root directory path: 
 
@@ -17,6 +21,13 @@ and build the image:
 
 ```bash
 eng@ubuntu:~/ESCAP/167/rucio-analysis$ make latest
+```
+
+or pull the latest from the DockerHub projectescape org:
+
+```bash
+eng@ubuntu:~$ docker pull projectescape/rucio-analysis:latest
+eng@ubuntu:~$ docker tag projectescape/rucio-analysis:latest rucio-analysis:latest
 ```
 
 Commands can be ran directly inside a dockerised environment, e.g.:
@@ -35,13 +46,13 @@ Note that upload tests require a valid X509 certificate to be bound inside the c
 
 To keep the container single purpose & minimal, automated testing is invoked via cron on the host. 
 
-The latest production crontab is `etc/cron/crontab`. It can be installed by:
+An example production crontab is `etc/cron/crontab`. It can be installed by:
 
 ```bash
 eng@ubuntu:~$ etc/install-crontab.sh
 ```
 
-:warning: this will overwrite the existing crontab.
+:warning: this will overwrite the existing crontab!
 
 Jobs in the crontab should call `docker run` on the `rucio-analysis` image, passing in scripts from `etc/cron/jobs`. These scripts are designed to be ran inside the dockerised environment.
 
