@@ -119,7 +119,7 @@ def uploadDir(
     logger.debug("    Uploading directory {} of {}".format(dirIdx, nDirs))
 
     # Instantiate Rucio
-    rucio = Rucio()
+    rucio = RucioWrappersCLI()
 
     logger.info(bcolors.OKBLUE + "RSE (src): {}".format(rseSrc) + bcolors.ENDC)
 
