@@ -19,7 +19,6 @@ test-replication:
       - INFN-NA-DPM
       - LAPP-DCACHE
       - PIC-DCACHE
-      - PIC-INJECT
       - SARA-DCACHE
     scope: SKA_SKAO_BARNSLEY-testing
 
