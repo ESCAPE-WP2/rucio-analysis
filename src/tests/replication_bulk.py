@@ -4,7 +4,7 @@ import shutil
 from datetime import datetime
 from multiprocessing import Pool
 
-from rucio import Rucio
+from rucio_wrappers import RucioWrappersCLI
 from utility import bcolors, generateDirRandomFiles
 
 from tests import Test
@@ -39,9 +39,9 @@ class TestReplicationBulk(Test):
             self.logger.critical(repr(e))
             exit()
 
-        # Instantiate Rucio class to allow access to static methods.
+        # Instantiate RucioWrappers class to allow access to static methods.
         #
-        rucio = Rucio()
+        rucio = RucioWrappersCLI()
 
         # Create a dataset to house the data, named with today's date
         # and scope <scope>.
@@ -92,14 +92,14 @@ class TestReplicationBulk(Test):
 
         # Launch pool of worker processes, and join() to wait for all to complete
         with Pool(processes=nWorkers) as pool:
-            pool.starmap(upload_dir, args_arr)
+            pool.starmap(uploadDir, args_arr)
         pool.join()
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))
 
 
-def upload_dir(
+def uploadDir(
     loggerName,
     rseSrc,
     rsesDst,
@@ -119,7 +119,7 @@ def upload_dir(
     logger.debug("    Uploading directory {} of {}".format(dirIdx, nDirs))
 
     # Instantiate Rucio
-    rucio = Rucio()
+    rucio = RucioWrappersCLI()
 
     logger.info(bcolors.OKBLUE + "RSE (src): {}".format(rseSrc) + bcolors.ENDC)
 
@@ -130,7 +130,7 @@ def upload_dir(
     logger.debug("    Uploading dir {} and attaching to {}".format(dirPath, datasetDID))
 
     try:
-        rucio.upload_dir(rseSrc, scope, dirPath, lifetime, datasetDID)
+        rucio.uploadDir(rseSrc, scope, dirPath, lifetime, datasetDID)
     except Exception as e:
         logger.warning(repr(e))
         shutil.rmtree(dirPath)

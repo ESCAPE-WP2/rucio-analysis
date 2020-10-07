@@ -19,6 +19,8 @@ class TestStub(Test):
             self.logger.critical("Could not find necessary kwarg for test.")
             self.logger.critical(repr(e))
             exit()
+            
+        # Your code here.
         self.logger.info(text)
 
         self.toc()
