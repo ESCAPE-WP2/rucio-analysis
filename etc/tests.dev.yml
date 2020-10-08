@@ -1,0 +1,10 @@
+test-replication-qos:
+  description: "Test replication by QoS"
+  module_name: "tests.replication_qos"
+  class_name: "TestReplicationQos"
+  enabled: true
+  args:
+  kwargs:
+    qos_source: "CHEAP-ANALYSIS"
+    qos_dest: "OPPORTUNISTIC"
+    scope: "SKA_SKAO_COLL-testing"

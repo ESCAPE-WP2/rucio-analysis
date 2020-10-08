@@ -155,6 +155,21 @@ class RucioWrappersCLI(RucioWrappers):
             raise Exception("Non-zero return code")
         return rtn
 
+    @staticmethod
+    def admin_rse_get_attr(rse):
+        rtn = subprocess.run(
+            [
+                "rucio-admin",
+                "rse",
+                "get-attribute",
+                rse,
+            ],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
 
 class RucioWrappersAPI(RucioWrappers):
     @staticmethod
@@ -242,6 +257,21 @@ class RucioWrappersAPI(RucioWrappers):
                 client.delete_replication_rule(rule_id=rid, purge_replicas=True)
         except RucioException as error:
             raise Exception(error)
+
+    @staticmethod
+    def list_rse_attributes(rse):
+        # (Add error catching code)try:
+        client = Client()
+        rse_dict = client.list_rse_attributes(rse)
+
+        return rse_dict
+
+    @staticmethod
+    def list_rses(rse_expression=None):
+        client = Client()
+        rses = client.list_rses(rse_expression)
+
+        return rses
 
     @staticmethod
     def listDIDs(scope, name="*", filters=None):
