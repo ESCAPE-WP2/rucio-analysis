@@ -8,7 +8,7 @@ test-replication:
     n_files: 1
     sizes:
       - 100000 # bytes
-    lifetime: 2592000 # seconds
+    lifetime: 3600 # seconds
     rses:
       - ALPAMED-DPM
       - CNAF-STORM
@@ -19,7 +19,7 @@ test-replication:
       - INFN-NA-DPM
       - LAPP-DCACHE
       - PIC-DCACHE
-      - PIC-INJECT
       - SARA-DCACHE
+      - LAPP-WEBDAV
     scope: SKA_SKAO_BARNSLEY-testing
 
