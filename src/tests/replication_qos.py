@@ -3,7 +3,7 @@ from rucio_helper import list_rse_qos, create_did
 from rucio_wrappers import RucioWrappersAPI, RucioWrappersCLI
 from utility import generateRandomFile, bcolors
 import os
-import time
+import numpy as np
 
 
 class TestReplicationQos(Test):
@@ -18,13 +18,13 @@ class TestReplicationQos(Test):
         try:
             # Assign variables from test.yml kwargs.
             #
-            qos_source = kwargs["qos_source"]
-            qos_dest = kwargs["qos_dest"]
+            qos = kwargs["qos"]
             scope = kwargs["scope"]
-            size = 14000  # kB
-            lifetime = 3600  # s
-
-            # rses = kwargs["rses"]
+            total_lifecycle = kwargs["total_lifecycle"]
+            size = 14500  # kB
+            data_lifecycle = np.asarray(
+                np.array([0.15, 1.0, 0.33, 0.66]) * total_lifecycle, dtype=int
+            )
             pass
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for test.")
@@ -32,15 +32,15 @@ class TestReplicationQos(Test):
             exit()
 
         # Your code here.
-        self.logger.info(qos_source)
-
+        self.logger.info(qos[0])
+        # List of RSEs with the <qos_source> label
         source_rses = [
-            rse["rse"]
-            for rse in RucioWrappersAPI.list_rses("QOS={}".format(qos_source))
+            rse["rse"] for rse in RucioWrappersAPI.list_rses("QOS={}".format(qos[0]))
         ]
 
-        source_rse = source_rses[0]  # TODO: Pick one at random
-
+        # TODO: cycle through the source_rses until successful upload achieved
+        # (also, this could throw out of range error)
+        source_rse = source_rses[1]
         # TODO: Other replication tests can use this helper
         datasetDID = create_did(self.logger, scope)
 
@@ -50,10 +50,10 @@ class TestReplicationQos(Test):
         fileDID = "{}:{}".format(scope, os.path.basename(f.name))
 
         # Upload to <rseSrc>
-        self.logger.debug("    Uploading file {}".format(f.name))
+        self.logger.debug("    Uploading file {} to RSE {}".format(f.name, source_rse))
         try:
             rucio.upload(
-                rse=source_rse, scope=scope, filePath=f.name, lifetime=lifetime
+                rse=source_rse, scope=scope, filePath=f.name, lifetime=data_lifecycle[0]
             )
             self.logger.debug("    Upload complete")
             os.remove(f.name)
@@ -71,6 +71,35 @@ class TestReplicationQos(Test):
 
         # Add replication rules for destination QoS
         self.logger.debug("    Adding replication rules...")
+
+        self.logger.debug(
+            "    Replicate to destination with QOS {} with lifetime {} sec".format(
+                qos[1], data_lifecycle[1]
+            ),
+            data_lifecycle[1],
+        )
+        self.addQoSRule(rucio, fileDID, qos[1], data_lifecycle[1])
+
+        self.logger.debug(
+            "    Replicate to destination with QOS {} with lifetime {} sec".format(
+                qos[2], data_lifecycle[2]
+            ),
+            data_lifecycle[2],
+        )
+        self.addQoSRule(rucio, fileDID, qos[2], data_lifecycle[2])
+
+        self.logger.debug(
+            "    Replicate to destination with QOS {} with lifetime {} sec".format(
+                qos[3], data_lifecycle[3]
+            ),
+            data_lifecycle[3],
+        )
+        self.addQoSRule(rucio, fileDID, qos[3], data_lifecycle[3])
+
+        self.toc()
+        self.logger.info("Finished in {}s".format(round(self.elapsed)))
+
+    def addQoSRule(self, rucio, fileDID, qos_dest, lifetime):
         self.logger.debug(
             bcolors.OKGREEN + "    RSE (QoS dst): {}".format(qos_dest) + bcolors.ENDC
         )
@@ -86,6 +115,3 @@ class TestReplicationQos(Test):
             self.logger.debug("    Replication rules added")
         except Exception as e:
             self.logger.warning(repr(e))
-
-        self.toc()
-        self.logger.info("Finished in {}s".format(round(self.elapsed)))

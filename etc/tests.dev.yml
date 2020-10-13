@@ -5,6 +5,10 @@ test-replication-qos:
   enabled: true
   args:
   kwargs:
-    qos_source: "CHEAP-ANALYSIS"
-    qos_dest: "OPPORTUNISTIC"
-    scope: "SKA_SKAO_COLL-testing"
+    qos: 
+      - OPPORTUNISTIC
+      - SAFE
+      - FAST
+      - CHEAP-ANALYSIS
+    total_lifecycle: 86400 # seconds
+    scope: "SKA_SKAO_JOSHI-testing"
