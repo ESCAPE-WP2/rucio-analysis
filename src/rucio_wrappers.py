@@ -116,6 +116,7 @@ class RucioWrappersCLI(RucioWrappers):
         rtn = subprocess.run(
             [
                 "rucio",
+                "-v",
                 "upload",
                 "--rse",
                 rse,
@@ -123,6 +124,7 @@ class RucioWrappersCLI(RucioWrappers):
                 scope,
                 "--lifetime",
                 str(lifetime),
+                "--register-after-upload",
                 filePath,
             ],
             stdout=subprocess.PIPE,
