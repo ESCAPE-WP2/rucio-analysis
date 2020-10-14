@@ -261,6 +261,18 @@ class RucioWrappersAPI(RucioWrappers):
             raise Exception(error)
 
     @staticmethod
+    def get_metadata(did):
+        try:
+            client = Client()
+            tokens = did.split(":")
+            scope = tokens[0]
+            name = tokens[1]
+            metadata = client.get_metadata(scope, name)
+            return metadata
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
     def list_rse_attributes(rse):
         # (Add error catching code)try:
         client = Client()
