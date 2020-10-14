@@ -33,6 +33,10 @@ class RucioWrappers:
         raise NotImplementedError
 
     @abc.abstractstaticmethod
+    def get_metadata():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
     def listDIDs():
         raise NotImplementedError
 
@@ -47,6 +51,14 @@ class RucioWrappers:
     @abc.abstractstaticmethod
     def listReplicationRulesFull():
         raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def list_rses():
+        raise NotImplementedError()
+
+    @abc.abstractstaticmethod
+    def list_rse_attributes(rse):
+        raise NotImplementedError()
 
     @abc.abstractstaticmethod
     def upload():
@@ -116,7 +128,6 @@ class RucioWrappersCLI(RucioWrappers):
         rtn = subprocess.run(
             [
                 "rucio",
-                "-v",
                 "upload",
                 "--rse",
                 rse,
@@ -150,21 +161,6 @@ class RucioWrappersCLI(RucioWrappers):
                 scope,
                 parentDid,
                 dirPath,
-            ],
-            stdout=subprocess.PIPE,
-        )
-        if rtn.returncode != 0:
-            raise Exception("Non-zero return code")
-        return rtn
-
-    @staticmethod
-    def admin_rse_get_attr(rse):
-        rtn = subprocess.run(
-            [
-                "rucio-admin",
-                "rse",
-                "get-attribute",
-                rse,
             ],
             stdout=subprocess.PIPE,
         )
@@ -274,18 +270,21 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def list_rse_attributes(rse):
-        # (Add error catching code)try:
-        client = Client()
-        rse_dict = client.list_rse_attributes(rse)
-
-        return rse_dict
+        try:
+            client = Client()
+            rse_dict = client.list_rse_attributes(rse)
+            return rse_dict
+        except RucioException as error:
+            raise Exception(error)
 
     @staticmethod
     def list_rses(rse_expression=None):
-        client = Client()
-        rses = client.list_rses(rse_expression)
-
-        return rses
+        try:
+            client = Client()
+            rses = client.list_rses(rse_expression)
+            return rses
+        except RucioException as error:
+            raise Exception(error)
 
     @staticmethod
     def listDIDs(scope, name="*", filters=None):

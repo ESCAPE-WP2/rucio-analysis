@@ -5,10 +5,6 @@ test-replication-qos:
   enabled: true
   args:
   kwargs:
-    qos: 
-      - OPPORTUNISTIC
-      - SAFE
-      - FAST
-      - CHEAP-ANALYSIS
-    total_lifecycle: 86400 # seconds
+    lifetime: 3600 # seconds in each QoS
+    size: 17000 # bytes
     scope: "SKA_SKAO_JOSHI-testing"

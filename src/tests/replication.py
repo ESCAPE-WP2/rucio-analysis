@@ -1,6 +1,6 @@
 import os
-from datetime import datetime
 
+from rucio_helper import create_did
 from rucio_wrappers import RucioWrappersCLI
 from utility import bcolors, generateRandomFile
 
@@ -36,27 +36,7 @@ class TestReplication(Test):
         # Create a dataset to house the data, named with today's date
         # and scope <scope>.
         #
-        # Does not try to create a dataset if it already exists.
-        #
-        todaysDate = datetime.now().strftime("%d-%m-%Y")
-        datasetDID = "{}:{}".format(scope, todaysDate)
-        self.logger.info("Checking for dataset ({})".format(datasetDID))
-        try:
-            dids = rucio.listDIDs(scope=scope)
-        except Exception as e:
-            self.logger.critical("Error listing dataset")
-            self.logger.critical(repr(e))
-            exit()
-        if datasetDID not in dids:
-            self.logger.debug("Adding dataset")
-            try:
-                rucio.addDataset(did=datasetDID)
-            except Exception as e:
-                self.logger.critical("Error adding dataset")
-                self.logger.critical(repr(e))
-                exit()
-        else:
-            self.logger.debug("Dataset already exists")
+        datasetDID = create_did(self.logger.name, scope)
 
         # Iteratively upload a file of size from <sizes> to each
         # RSE, attach to the dataset, add replication rules to the

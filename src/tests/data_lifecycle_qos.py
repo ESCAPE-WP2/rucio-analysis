@@ -44,8 +44,7 @@ class DataLifecycleQos(Test):
             "    RSEs available for uploading to QOS {}:{}".format(qos[0], source_rses)
         )
         source_rse = source_rses[1]
-        # TODO: Other replication tests can use this helper
-        datasetDID = create_did(self.logger, scope)
+        datasetDID = create_did(self.logger.name, scope)
 
         rucio = RucioWrappersCLI()
 
