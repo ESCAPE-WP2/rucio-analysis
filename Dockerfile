@@ -1,4 +1,4 @@
-FROM projectescape/rucio-client:latest
+FROM projectescape/rucio-client:py3
 
 USER root
 
