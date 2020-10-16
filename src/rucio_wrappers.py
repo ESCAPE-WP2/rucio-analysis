@@ -184,6 +184,7 @@ class RucioWrappersCLI(RucioWrappers):
                 str(lifetime),
                 "--scope",
                 scope,
+                "--register-after-upload",
                 parentDid,
                 dirPath,
             ],
@@ -406,6 +407,6 @@ class RucioWrappersAPI(RucioWrappers):
         )
         try:
             client = UploadClient()
-            client.upload(items=items)
+            client.upload(items=items, register_after_upload=True)
         except RucioException as error:
             raise Exception(error)
