@@ -20,11 +20,14 @@ class DataLifecycleQos(Test):
             # Assign variables from test.yml kwargs.
             #
             qos = kwargs["qos"]
+            qos_src = qos[0]
+            qos_dst = qos[1:]
             scope = kwargs["scope"]
             total_lifecycle = kwargs["total_lifecycle"]
             size = 14500  # kB
-            data_lifecycle = np.asarray(
-                np.array([0.25, 0.5, 0.75, 1.0]) * total_lifecycle, dtype=int
+            data_lifecycle_src = int(0.25 * total_lifecycle)
+            data_lifecycle_dst = np.asarray(
+                np.array([0.5, 0.75, 1.0]) * total_lifecycle, dtype=int
             )
             pass
         except KeyError as e:
@@ -32,18 +35,18 @@ class DataLifecycleQos(Test):
             self.logger.critical(repr(e))
             exit()
 
-        # List of RSEs with the <qos_source> label
+        # List of RSEs with the <qos_src> label
         source_rses = [
-            rse["rse"] for rse in RucioWrappersAPI.list_rses("QOS={}".format(qos[0]))
+            rse["rse"] for rse in RucioWrappersAPI.list_rses("QOS={}".format(qos_src))
         ]
 
         # TODO: cycle through the source_rses until successful upload achieved
         # (also, this could throw out of range error)
 
         self.logger.debug(
-            "    RSEs available for uploading to QOS {}:{}".format(qos[0], source_rses)
+            "    RSEs available for uploading to QOS {}:{}".format(qos_src, source_rses)
         )
-        source_rse = source_rses[1]
+        source_rse = source_rses[0]
         datasetDID = create_did(self.logger.name, scope)
 
         rucio = RucioWrappersCLI()
@@ -55,7 +58,10 @@ class DataLifecycleQos(Test):
         self.logger.debug("    Uploading file {} to RSE {}".format(f.name, source_rse))
         try:
             rucio.upload(
-                rse=source_rse, scope=scope, filePath=f.name, lifetime=data_lifecycle[0]
+                rse=source_rse,
+                scope=scope,
+                filePath=f.name,
+                lifetime=data_lifecycle_src,
             )
             self.logger.debug("    Upload complete")
             os.remove(f.name)
@@ -74,27 +80,14 @@ class DataLifecycleQos(Test):
         # Add replication rules for destination QoS
         self.logger.debug("    Adding replication rules...")
 
-        self.logger.debug(
-            "    Replicate to destination with QOS {0} with lifetime {1} sec".format(
-                qos[1], data_lifecycle[1]
+        for qos, life in zip(qos_dst, data_lifecycle_dst):
+            self.logger.debug(
+                "    Replicate to destination with QOS {0} with lifetime {1} s".format(
+                    qos, life
+                )
             )
-        )
-        self.addQoSRule(rucio, fileDID, qos[1], data_lifecycle[1])
-
-        # TODO: maybe add rule with QoS on source RSE as well
-        self.logger.debug(
-            "    Replicate to destination with QOS {0} with lifetime {1} sec".format(
-                qos[2], data_lifecycle[2]
-            )
-        )
-        self.addQoSRule(rucio, fileDID, qos[2], data_lifecycle[2])
-
-        self.logger.debug(
-            "    Replicate to destination with QOS {0} with lifetime {1} sec".format(
-                qos[3], data_lifecycle[3]
-            )
-        )
-        self.addQoSRule(rucio, fileDID, qos[3], data_lifecycle[3])
+            # Replicate to each of the destination QoS from the source QoS
+            self.addQoSRule(rucio, fileDID, qos, life, qos_src)
 
         # Interact with the data by downloading it and verifying checksum
         self.logger.debug("    Downloading file {}".format(fileDID))
@@ -117,15 +110,19 @@ class DataLifecycleQos(Test):
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))
 
-    def addQoSRule(self, rucio, fileDID, qos_dest, lifetime):
+    def addQoSRule(self, rucio, fileDID, qos_dest, lifetime, qos_source):
         self.logger.debug(
             bcolors.OKGREEN + "    RSE (QoS dst): {}".format(qos_dest) + bcolors.ENDC
         )
         try:
-            # TODO: Either add separate method or specify in addRule method that it
-            # can take either RSE or RSE expression
-            rtn = rucio.addRule(
-                fileDID, 1, "QOS={}".format(qos_dest), lifetime=lifetime
+            # CLI method being used since resulting rule ID is easy to extract
+            rtn = rucio.addRuleWithOptions(
+                fileDID,
+                1,
+                "QOS={}".format(qos_dest),
+                lifetime=lifetime,
+                activity="Debug",
+                source_rse_expr="QOS={}".format(qos_source),
             )
             self.logger.debug(
                 "      Rule ID: {}".format(rtn.stdout.decode("UTF-8").rstrip("\n"))

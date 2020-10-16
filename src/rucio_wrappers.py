@@ -88,6 +88,31 @@ class RucioWrappersCLI(RucioWrappers):
         return rtn
 
     @staticmethod
+    def addRuleWithOptions(
+        did, copies, rse, lifetime, activity=None, source_rse_expr=None
+    ):
+        rtn = subprocess.run(
+            [
+                "rucio",
+                "-v",
+                "add-rule",
+                "--lifetime",
+                str(lifetime),
+                "--activity",
+                activity,
+                "--source-replica-expression",
+                source_rse_expr,
+                did,
+                str(copies),
+                rse,
+            ],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
+    @staticmethod
     def attach(todid, dids):
         rtn = subprocess.run(["rucio", "attach", todid, dids], stdout=subprocess.PIPE)
         if rtn.returncode != 0:
@@ -182,7 +207,7 @@ class RucioWrappersAPI(RucioWrappers):
             raise Exception(error)
 
     @staticmethod
-    def addRule(did, copies, rse, lifetime):
+    def addRule(did, copies, rse_expression, lifetime):
         tokens = did.split(":")
         scope = tokens[0]
         name = tokens[1]
@@ -191,8 +216,28 @@ class RucioWrappersAPI(RucioWrappers):
             client.add_replication_rule(
                 dids=[{"scope": scope, "name": name}],
                 copies=copies,
-                rse_expression=rse,
+                rse_expression=rse_expression,
                 lifetime=lifetime,
+            )
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
+    def addRuleWithOptions(
+        did, copies, rse_expression, lifetime, activity=None, source_rse_expr=None
+    ):
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        try:
+            client = Client()
+            client.add_replication_rule(
+                dids=[{"scope": scope, "name": name}],
+                copies=copies,
+                rse_expression=rse_expression,
+                lifetime=lifetime,
+                activity=activity,
+                source_replica_expression=source_rse_expr,
             )
         except RucioException as error:
             raise Exception(error)
