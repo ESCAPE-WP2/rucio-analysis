@@ -1,10 +1,76 @@
-test-replication-qos:
-  description: "Test replication by QoS"
+test-replication-qos-oppo:
+  description: "Test replication by QoS, starting with OPPORTUNISTIC"
   module_name: "tests.replication_qos"
   class_name: "TestReplicationQos"
   enabled: true
   args:
   kwargs:
-    lifetime: 3600 # seconds in each QoS
     size: 17000 # bytes
-    scope: "SKA_SKAO_JOSHI-testing"
+    qos: # QoS labels, in the order the data reaches them
+      - OPPORTUNISTIC
+      - FAST
+      - CHEAP-ANALYSIS
+      - SAFE
+    lifetimes: # seconds in each QoS
+      - 3600
+      - 3600
+      - 3600
+      - 3600
+    scope: "SKA_SKAO_COLL-testing"
+test-replication-qos-fast:
+  description: "Test replication by QoS, starting with FAST"
+  module_name: "tests.replication_qos"
+  class_name: "TestReplicationQos"
+  enabled: true
+  args:
+  kwargs:
+    size: 17000 # bytes
+    qos: # QoS labels, in the order the data reaches them
+      - FAST
+      - OPPORTUNISTIC
+      - CHEAP-ANALYSIS
+      - SAFE
+    lifetimes: # seconds in each QoS
+      - 3600
+      - 3600
+      - 3600
+      - 3600
+    scope: "SKA_SKAO_COLL-testing"
+test-replication-qos-cheap:
+  description: "Test replication by QoS, starting with CHEAP-ANALYSIS"
+  module_name: "tests.replication_qos"
+  class_name: "TestReplicationQos"
+  enabled: true
+  args:
+  kwargs:
+    size: 17000 # bytes
+    qos: # QoS labels, in the order the data reaches them
+      - CHEAP-ANALYSIS
+      - FAST
+      - OPPORTUNISTIC
+      - SAFE
+    lifetimes: # seconds in each QoS
+      - 3600
+      - 3600
+      - 3600
+      - 3600
+    scope: "SKA_SKAO_COLL-testing"
+test-replication-qos-safe:
+  description: "Test replication by QoS, starting with SAFE"
+  module_name: "tests.replication_qos"
+  class_name: "TestReplicationQos"
+  enabled: true
+  args:
+  kwargs:
+    size: 17000 # bytes
+    qos: # QoS labels, in the order the data reaches them
+      - SAFE
+      - FAST
+      - CHEAP-ANALYSIS
+      - OPPORTUNISTIC
+    lifetimes: # seconds in each QoS
+      - 3600
+      - 3600
+      - 3600
+      - 3600
+    scope: "SKA_SKAO_COLL-testing"

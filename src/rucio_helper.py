@@ -105,24 +105,3 @@ def create_did(
         logger.debug("Dataset already exists")
 
     return datasetDID
-
-
-def list_rse_qos(logger, rses):
-    """ Return QoS for given list of RSEs """
-
-    # Instantiate RucioWrappers class to access to static methods.
-    #
-    rucio = RucioWrappersAPI()
-
-    rse_qos = {}
-    for rse in rses:
-        rse_attr = rucio.list_rse_attributes(rse)
-        try:
-            qos = rse_attr["QOS"]
-        except Exception as e:
-            logger.warning(
-                "Unable to determine QoS for RSE {} ({})".format(rse, repr(e))
-            )
-            qos = None
-        rse_qos[rse] = qos
-    return rse_qos

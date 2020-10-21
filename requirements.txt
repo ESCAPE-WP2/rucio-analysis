@@ -1,3 +1,2 @@
-gfal2-python
 pyyaml
 rucio-clients

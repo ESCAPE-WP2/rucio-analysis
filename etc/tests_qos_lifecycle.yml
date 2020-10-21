@@ -1,14 +1,19 @@
 test-replication-qos:
   description: "Simulate data lifecyle by replication based on QoS"
-  module_name: "tests.data_lifecycle_qos"
-  class_name: "DataLifecycleQos"
+  module_name: "tests.replication_qos"
+  class_name: "TestReplicationQos"
   enabled: true
   args:
   kwargs:
+    size: 15000
     qos:
       - OPPORTUNISTIC
       - FAST
       - CHEAP-ANALYSIS
       - SAFE
-    total_lifecycle: 86400 # seconds
+    lifetimes:
+      - 21600
+      - 43200
+      - 64800
+      - 86400
     scope: "SKA_SKAO_JOSHI-testing"
