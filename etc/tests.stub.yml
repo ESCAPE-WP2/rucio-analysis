@@ -1,8 +1,0 @@
-test-stub:
-    description: "Test stub"
-    module_name: "tests.stub"
-    class_name: "TestStub"
-    enabled: false
-    args:
-    kwargs:
-      text: "Hello World!"

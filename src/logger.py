@@ -7,19 +7,43 @@ class Logger:
         self,
         name="root",
         level="DEBUG",
-        format="%(asctime)s %(levelname)s\t%(process)d\t%(message)s",
+        fmt="%(asctime)s [%(name)s] %(levelname)s %(process)d %(message)s",
+        fmt_prefix='',
+        fmt_suffix='',
+        addConsoleHandler=True
     ):
-
+        self._fmt = fmt
         self._name = name
-        self.logger = self._get()
-        self.logger.setLevel(logging.DEBUG)
+        self._level = level
+        self.formatter = logging.Formatter(self.fmt)
 
-        # console handler
+        # logger must capture all logging (DEBUG), handlers can restrict this.
+        self.get().setLevel("DEBUG")
+
+        self._clearHandlers()
+        if addConsoleHandler:
+            self.addConsoleHandler()
+
+    def _clearHandlers(self):
+        self.get().handlers = []
+
+    def addConsoleHandler(self):
         ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(level)
-        formatter = logging.Formatter(format)
-        ch.setFormatter(fmt=formatter)
-        self.logger.addHandler(ch)
+        ch.setLevel(self.level)
+        ch.setFormatter(fmt=self.formatter)
+        self.get().addHandler(ch)
 
-    def _get(self):
-        return logging.getLogger(self._name)
+    @property
+    def fmt(self):
+        return self._fmt
+
+    def get(self):
+        return logging.getLogger(self.name)
+
+    @property
+    def level(self):
+        return self._level
+
+    @property
+    def name(self):
+        return self._name
