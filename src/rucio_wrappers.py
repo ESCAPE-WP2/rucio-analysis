@@ -33,6 +33,10 @@ class RucioWrappers:
         raise NotImplementedError
 
     @abc.abstractstaticmethod
+    def get_metadata():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
     def listDIDs():
         raise NotImplementedError
 
@@ -47,6 +51,14 @@ class RucioWrappers:
     @abc.abstractstaticmethod
     def listReplicationRulesFull():
         raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def list_rses():
+        raise NotImplementedError()
+
+    @abc.abstractstaticmethod
+    def list_rse_attributes(rse):
+        raise NotImplementedError()
 
     @abc.abstractstaticmethod
     def upload():
@@ -73,6 +85,31 @@ class RucioWrappersCLI(RucioWrappers):
     def addRule(did, copies, rse, lifetime):
         rtn = subprocess.run(
             ["rucio", "add-rule", "--lifetime", str(lifetime), did, str(copies), rse],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
+    @staticmethod
+    def addRuleWithOptions(
+        did, copies, rse, lifetime, activity=None, source_rse_expr=None
+    ):
+        rtn = subprocess.run(
+            [
+                "rucio",
+                "-v",
+                "add-rule",
+                "--lifetime",
+                str(lifetime),
+                "--activity",
+                activity,
+                "--source-replica-expression",
+                source_rse_expr,
+                did,
+                str(copies),
+                rse,
+            ],
             stdout=subprocess.PIPE,
         )
         if rtn.returncode != 0:
@@ -127,6 +164,7 @@ class RucioWrappersCLI(RucioWrappers):
                 scope,
                 "--lifetime",
                 str(lifetime),
+                "--register-after-upload",
                 filePath,
             ],
             stdout=subprocess.PIPE,
@@ -150,6 +188,7 @@ class RucioWrappersCLI(RucioWrappers):
                 str(lifetime),
                 "--scope",
                 scope,
+                "--register-after-upload",
                 parentDid,
                 dirPath,
             ],
@@ -187,6 +226,26 @@ class RucioWrappersAPI(RucioWrappers):
                 lifetime=lifetime,
             )
             return rtn
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
+    def addRuleWithOptions(
+        did, copies, rse_expression, lifetime, activity=None, source_rse_expr=None
+    ):
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        try:
+            client = Client()
+            client.add_replication_rule(
+                dids=[{"scope": scope, "name": name}],
+                copies=copies,
+                rse_expression=rse_expression,
+                lifetime=lifetime,
+                activity=activity,
+                source_replica_expression=source_rse_expr,
+            )
         except RucioException as error:
             raise Exception(error)
 
@@ -246,6 +305,36 @@ class RucioWrappersAPI(RucioWrappers):
             client = Client()
             for rid in rids:
                 client.delete_replication_rule(rule_id=rid, purge_replicas=True)
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
+    def get_metadata(did):
+        try:
+            client = Client()
+            tokens = did.split(":")
+            scope = tokens[0]
+            name = tokens[1]
+            metadata = client.get_metadata(scope, name)
+            return metadata
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
+    def list_rse_attributes(rse):
+        try:
+            client = Client()
+            rse_dict = client.list_rse_attributes(rse)
+            return rse_dict
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
+    def list_rses(rse_expression=None):
+        try:
+            client = Client()
+            rses = client.list_rses(rse_expression)
+            return rses
         except RucioException as error:
             raise Exception(error)
 
@@ -334,7 +423,7 @@ class RucioWrappersAPI(RucioWrappers):
         )
         try:
             client = UploadClient()
-            client.upload(items=items)
+            client.upload(items=items, register_after_upload=True)
         except RucioException as error:
             raise Exception(error)
 

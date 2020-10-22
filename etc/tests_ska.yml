@@ -15,6 +15,3 @@ test-replication-bulk:
       - SARA-DCACHE
       - EULAKE-1
     scope: SKA_SKAO_COLLINSON
-
-
-
