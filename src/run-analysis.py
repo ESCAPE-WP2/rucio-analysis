@@ -8,15 +8,15 @@ from session import Session
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()  
-    parser.add_argument('-t', help="tests file path", default="../etc/tests.yml", 
+    parser.add_argument('-t', help="tests file path", default="../etc/tests.yml",
         type=str)
     parser.add_argument('-v', help="verbose?", action='store_true')
     iargs = parser.parse_args()
 
     if iargs.v:
-        logger = Logger(level='DEBUG').logger
+        logger = Logger(level='DEBUG').get()
     else:
-        logger = Logger(level='INFO').logger
+        logger = Logger(level='INFO').get()
 
     session = Session(tests=iargs.t, logger=logger)
     for test in session.tests:
@@ -27,6 +27,12 @@ if __name__ == "__main__":
             enabled = session.tests[test]['enabled']
             args = session.tests[test]['args']
             kwargs = session.tests[test]['kwargs']
+
+            if iargs.v:
+                logger = Logger(name='{}'.format(class_name), level='DEBUG').get()
+            else:
+                logger = Logger(name='{}'.format(class_name), level='INFO').get()
+
             if not enabled:
                 logger.warning("Test is not enabled!")
                 continue
@@ -40,13 +46,10 @@ if __name__ == "__main__":
             except AttributeError as e:
                 logger.critical("Class not found.")
                 logger.critical(repr(e))
-                exit() 
+                exit()
 
             test.run(args, kwargs)
         except KeyError as e:
             logger.critical("Required key not found in config.")
             logger.critical(repr(e))
             exit()
-            
-
-
