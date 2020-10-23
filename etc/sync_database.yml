@@ -1,6 +1,6 @@
 sync-database-with-datalake:
     description: "Sync external database with rule information in datalake"
-    module_name: "tasks.replication_sync_db"
+    module_name: "tasks.sync"
     class_name: "SyncDatabaseReplication"
     enabled: true
     args:
@@ -10,7 +10,7 @@ sync-database-with-datalake:
         uri: http://130.246.214.144:80/monit/metadata/
         index: "[replication]"
         search_range_lte: now
-        search_range_gte: now-24h
+        search_range_gte: now-1h
         max_rows: 10000
       
   
