@@ -5,7 +5,7 @@ from tasks import Task
 from utility import generateRandomFile
 
 
-class TestStubHelloWorld(Task):
+class StubHelloWorld(Task):
     """ Hello World test class stub. """
     def __init__(self, logger):
         super().__init__(logger)
@@ -32,7 +32,7 @@ class TestStubHelloWorld(Task):
             round(self.elapsed)))
 
 
-class TestStubRucioAPI(Task):
+class StubRucioAPI(Task):
     """ Rucio API test class stub. """
     def __init__(self, logger):
         super().__init__(logger)

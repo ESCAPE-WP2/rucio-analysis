@@ -1,6 +1,6 @@
 test-upload:
   description: "Test uploading via different protocols to RSEs."
-  module_name: "tasks.upload"
+  module_name: "tasks.tests"
   class_name: "TestUpload"
   enabled: true
   args:

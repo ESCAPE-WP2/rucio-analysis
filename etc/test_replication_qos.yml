@@ -1,6 +1,6 @@
 test-replication-qos-oppo:
   description: "Test replication by QoS, starting with OPPORTUNISTIC"
-  module_name: "tasks.replication"
+  module_name: "tasks.tests"
   class_name: "TestReplicationQos"
   enabled: true
   args:
@@ -19,7 +19,7 @@ test-replication-qos-oppo:
     scope: "SKA_SKAO_COLL-testing"
 test-replication-qos-fast:
   description: "Test replication by QoS, starting with FAST"
-  module_name: "tasks.replication_qos"
+  module_name: "tasks.tests"
   class_name: "TestReplicationQos"
   enabled: true
   args:
@@ -38,7 +38,7 @@ test-replication-qos-fast:
     scope: "SKA_SKAO_COLL-testing"
 test-replication-qos-cheap:
   description: "Test replication by QoS, starting with CHEAP-ANALYSIS"
-  module_name: "tasks.replication_qos"
+  module_name: "tasks.tests"
   class_name: "TestReplicationQos"
   enabled: true
   args:
@@ -57,7 +57,7 @@ test-replication-qos-cheap:
     scope: "SKA_SKAO_COLL-testing"
 test-replication-qos-safe:
   description: "Test replication by QoS, starting with SAFE"
-  module_name: "tasks.replication_qos"
+  module_name: "tasks.tests"
   class_name: "TestReplicationQos"
   enabled: true
   args:

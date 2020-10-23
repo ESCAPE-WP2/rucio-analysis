@@ -1,6 +1,6 @@
-sync-database-with-datalake:
+sync-database:
     description: "Sync external database with rule information in datalake"
-    module_name: "tasks.sync"
+    module_name: "tasks.comms"
     class_name: "SyncDatabaseReplication"
     enabled: true
     args:
