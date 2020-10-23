@@ -400,7 +400,7 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def upload(rse, scope, filePath, lifetime, registerAfterUpload=True,
-    forceScheme=None, logger=None):
+    forceScheme=None, transferTimeout=30, logger=None):
         items = []
         items.append(
             {
@@ -409,7 +409,8 @@ class RucioWrappersAPI(RucioWrappers):
                 "did_scope": scope,
                 "lifetime": lifetime,
                 "register_after_upload": True,
-                "force_scheme": forceScheme
+                "force_scheme": forceScheme,
+                "transfer_timeout": transferTimeout
             }
         )
         try:
