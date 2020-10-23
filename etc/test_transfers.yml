@@ -33,7 +33,7 @@ test-upload:
 
 test-replication:
   description: "Test replication between RSEs."
-  module_name: "tasks.replication"
+  module_name: "tasks.tests"
   class_name: "TestReplication"
   enabled: true
   args:
