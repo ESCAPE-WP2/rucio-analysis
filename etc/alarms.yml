@@ -1,0 +1,17 @@
+alarm-rules:
+    description: "Send alarms about rule statuses"
+    module_name: "tasks.alarms"
+    class_name: "AlarmReportStuck"
+    enabled: true
+    args:
+    kwargs:
+      database:
+        type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        search_range_lte: now
+        search_range_gte: now-24h
+        max_rows: 10000
+      webhooks:
+        - type: slack
+          url: 

@@ -2,8 +2,8 @@ from db import ES
 from tasks import Task
 
 
-class SyncDatabaseReplication(Task):
-    """ Update ES database with replication statuses. """
+class SyncDatabaseRules(Task):
+    """ Update ES database with replication rule statuses. """
 
     def __init__(self, logger):
         super().__init__(logger)

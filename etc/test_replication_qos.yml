@@ -1,6 +1,6 @@
 test-replication-qos-oppo:
   description: "Test replication by QoS, starting with OPPORTUNISTIC"
-  module_name: "tasks.replication_qos"
+  module_name: "tasks.replication"
   class_name: "TestReplicationQos"
   enabled: true
   args:
