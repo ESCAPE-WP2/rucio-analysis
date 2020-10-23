@@ -1,16 +1,12 @@
-import datetime
 import os
 
-from elasticsearch import Elasticsearch
-
 from rucio_wrappers import RucioWrappersAPI
-from tests import Test
+from tasks import Task
 from utility import generateRandomFile
 
 
-class TestStubHelloWorld(Test):
-    """ Hello World test class stub.
-    """
+class TestStubHelloWorld(Task):
+    """ Hello World test class stub. """
     def __init__(self, logger):
         super().__init__(logger)
 
@@ -18,27 +14,26 @@ class TestStubHelloWorld(Test):
         super().run()
         self.tic()
         try:
-            # Assign variables from test.yml kwargs.
+            # Assign variables from tests.stubs.yml kwargs.
             #
             text = kwargs['text']
         except KeyError as e:
-            self.logger.critical("Could not find necessary kwarg for test.")
+            self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
             exit()
 
         # Your code here.
-        # ---------------
+        # START ---------------
         self.logger.info(text)
-        # ---------------
+        # END ---------------
 
         self.toc()
         self.logger.info("Finished in {}s".format(
             round(self.elapsed)))
 
 
-class TestStubRucioAPI(Test):
-    """ Rucio API test class stub.
-    """
+class TestStubRucioAPI(Task):
+    """ Rucio API test class stub. """
     def __init__(self, logger):
         super().__init__(logger)
 
@@ -60,9 +55,9 @@ class TestStubRucioAPI(Test):
             exit()
 
         # Your code here.
-        # ---------------
+        # START --------------- 
         rucio = RucioWrappersAPI()
-        self.logger.info(rucio.whoami())
+        self.logger.info(rucio.whoAmI())
 
         # Generate random file of size <size> and upload.
         #
@@ -70,23 +65,23 @@ class TestStubRucioAPI(Test):
         did = "{}:{}".format(scope, os.path.basename(f.name))
         try:
             self.logger.debug("Uploading file ({}) to {}...".format(did, upload_to))
-            rucio.upload(rse=upload_to, scope=scope, filePath=f.name, lifetime=lifetime)
-            self.logger.debug("  Upload complete")
+            rucio.upload(rse=upload_to, scope=scope, filePath=f.name, 
+                lifetime=lifetime, logger=self.logger)
+            self.logger.debug("Upload complete")
             if replicate_to is not None:
                 self.logger.debug("Replicating file ({}) to {}...".format(did,
                     replicate_to))
                 rucio.addRule(did, 1, replicate_to, lifetime=lifetime,
-                    src_rse=upload_to)
-                self.logger.debug("  Replication complete")
+                    src=upload_to)
+                self.logger.debug("Replication complete")
             if download:
                 self.logger.debug("Downloading file ({})...".format(did))
                 rucio.download(did)
-                self.logger.debug("  Download complete")
+                self.logger.debug("Download complete")
         except Exception as e:
             self.logger.warning(repr(e))
         os.remove(f.name)
-        # ---------------
+        # END ---------------
 
         self.toc()
-        self.logger.info("Finished in {}s".format(
-            round(self.elapsed)))
+        self.logger.info("Finished in {}s".format(round(self.elapsed)))

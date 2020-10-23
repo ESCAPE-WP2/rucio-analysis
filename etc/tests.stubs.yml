@@ -1,6 +1,6 @@
 test-hello-world-stub:
     description: "Test hello world stub"
-    module_name: "tests.stubs"
+    module_name: "tasks.stubs"
     class_name: "TestStubHelloWorld"
     enabled: true
     args:
@@ -9,7 +9,7 @@ test-hello-world-stub:
 
 test-rucio-api-stub:
   description: "Test Rucio API stub"
-  module_name: "tests.stubs"
+  module_name: "tasks.stubs"
   class_name: "TestStubRucioAPI"
   enabled: true
   args:

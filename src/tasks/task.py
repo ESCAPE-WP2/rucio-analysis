@@ -2,8 +2,8 @@ import abc
 import inspect
 import time
 
-class Test():
-    """ Base class for all tests.
+class Task():
+    """ Base class for all tasks.
     """
     def __init__(self, logger):
         self.logger = logger
@@ -21,7 +21,7 @@ class Test():
 
     @abc.abstractmethod
     def run(self):
-        """ Entry point for all derived test classes. """
+        """ Entry point for all derived task classes. """
         self.logger.info("Executing {}.{}()".format(
             type(self).__name__, inspect.stack()[0][3]))
 

@@ -33,7 +33,7 @@ class RucioWrappers:
         raise NotImplementedError
 
     @abc.abstractstaticmethod
-    def get_metadata():
+    def getMetadata():
         raise NotImplementedError
 
     @abc.abstractstaticmethod
@@ -53,11 +53,11 @@ class RucioWrappers:
         raise NotImplementedError
 
     @abc.abstractstaticmethod
-    def list_rses():
+    def listRSEs():
         raise NotImplementedError()
 
     @abc.abstractstaticmethod
-    def list_rse_attributes(rse):
+    def listRSEAttributes(rse):
         raise NotImplementedError()
 
     @abc.abstractstaticmethod
@@ -69,7 +69,7 @@ class RucioWrappers:
         raise NotImplementedError
 
     @abc.abstractstaticmethod
-    def whoami():
+    def whoAmI():
         raise NotImplementedError
 
 
@@ -93,7 +93,7 @@ class RucioWrappersCLI(RucioWrappers):
 
     @staticmethod
     def addRuleWithOptions(
-        did, copies, rse, lifetime, activity=None, source_rse_expr=None
+        did, copies, dst, lifetime, activity=None, src=None
     ):
         rtn = subprocess.run(
             [
@@ -105,10 +105,10 @@ class RucioWrappersCLI(RucioWrappers):
                 "--activity",
                 activity,
                 "--source-replica-expression",
-                source_rse_expr,
+                src,
                 did,
                 str(copies),
-                rse,
+                dst,
             ],
             stdout=subprocess.PIPE,
         )
@@ -212,7 +212,9 @@ class RucioWrappersAPI(RucioWrappers):
             raise Exception(error)
 
     @staticmethod
-    def addRule(did, copies, dst_rse, lifetime, src_rse=None):
+    def addRule(
+        did, copies, dst, lifetime, activity=None, src=None
+    ):
         tokens = did.split(":")
         scope = tokens[0]
         name = tokens[1]
@@ -221,31 +223,12 @@ class RucioWrappersAPI(RucioWrappers):
             rtn = client.add_replication_rule(
                 dids=[{"scope": scope, "name": name}],
                 copies=copies,
-                source_replica_expression=src_rse,
-                rse_expression=dst_rse,
-                lifetime=lifetime,
-            )
-            return rtn
-        except RucioException as error:
-            raise Exception(error)
-
-    @staticmethod
-    def addRuleWithOptions(
-        did, copies, rse_expression, lifetime, activity=None, source_rse_expr=None
-    ):
-        tokens = did.split(":")
-        scope = tokens[0]
-        name = tokens[1]
-        try:
-            client = Client()
-            client.add_replication_rule(
-                dids=[{"scope": scope, "name": name}],
-                copies=copies,
-                rse_expression=rse_expression,
+                rse_expression=dst,
                 lifetime=lifetime,
                 activity=activity,
-                source_replica_expression=source_rse_expr,
+                source_replica_expression=src,
             )
+            return rtn
         except RucioException as error:
             raise Exception(error)
 
@@ -286,10 +269,10 @@ class RucioWrappersAPI(RucioWrappers):
             raise Exception(error)
 
     @staticmethod
-    def download(did, base_dir="download"):
+    def download(did, baseDir="download", logger=None):
         try:
-            client = DownloadClient()
-            items = [{"did": did, "base_dir": base_dir}]
+            client = DownloadClient(logger=logger)
+            items = [{"did": did, "base_dir": baseDir}]
             client.download_dids(items=items)
         except RucioException as error:
             raise Exception(error)
@@ -309,7 +292,7 @@ class RucioWrappersAPI(RucioWrappers):
             raise Exception(error)
 
     @staticmethod
-    def get_metadata(did):
+    def getMetadata(did):
         try:
             client = Client()
             tokens = did.split(":")
@@ -317,24 +300,6 @@ class RucioWrappersAPI(RucioWrappers):
             name = tokens[1]
             metadata = client.get_metadata(scope, name)
             return metadata
-        except RucioException as error:
-            raise Exception(error)
-
-    @staticmethod
-    def list_rse_attributes(rse):
-        try:
-            client = Client()
-            rse_dict = client.list_rse_attributes(rse)
-            return rse_dict
-        except RucioException as error:
-            raise Exception(error)
-
-    @staticmethod
-    def list_rses(rse_expression=None):
-        try:
-            client = Client()
-            rses = client.list_rses(rse_expression)
-            return rses
         except RucioException as error:
             raise Exception(error)
 
@@ -368,7 +333,7 @@ class RucioWrappersAPI(RucioWrappers):
             name = tokens[1]
             replicas = []
             for replica in client.list_replicas(dids=[{"scope": scope, "name": name}],
-                rse_expression=rse):
+            rse_expression=rse):
                 replicas.append(replica)
             return replicas
         except RucioException as error:
@@ -407,28 +372,54 @@ class RucioWrappersAPI(RucioWrappers):
             raise Exception(error)
 
     @staticmethod
-    def ruleInfo(rule_id):
+    def listRSEs(rse=None):
         try:
             client = Client()
-            info = client.get_replication_rule(rule_id)
+            rses = client.list_rses(rse)
+            return rses
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
+    def listRSEAttributes(rse):
+        try:
+            client = Client()
+            rseDict = client.list_rse_attributes(rse)
+            return rseDict
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
+    def ruleInfo(ruleID):
+        try:
+            client = Client()
+            info = client.get_replication_rule(ruleID)
             return info
         except RucioException as error:
             raise Exception(error)
 
     @staticmethod
-    def upload(rse, scope, filePath, lifetime):
+    def upload(rse, scope, filePath, lifetime, registerAfterUpload=True,
+    forceScheme=None, logger=None):
         items = []
         items.append(
-            {"path": filePath, "rse": rse, "did_scope": scope, "lifetime": lifetime}
+            {
+                "path": filePath,
+                "rse": rse,
+                "did_scope": scope,
+                "lifetime": lifetime,
+                "register_after_upload": True,
+                "force_scheme": forceScheme
+            }
         )
         try:
-            client = UploadClient()
-            client.upload(items=items, register_after_upload=True)
+            client = UploadClient(logger=logger)
+            client.upload(items=items)
         except RucioException as error:
             raise Exception(error)
 
     @staticmethod
-    def whoami():
+    def whoAmI():
         try:
             client = Client()
             return client.whoami()

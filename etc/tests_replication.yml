@@ -1,6 +1,6 @@
 test-replication:
   description: "Test uploading/replication to RSEs."
-  module_name: "tests.replication"
+  module_name: "tasks.replication"
   class_name: "TestReplication"
   enabled: true
   args:
@@ -12,15 +12,15 @@ test-replication:
     rses:
       - ALPAMED-DPM
       - CNAF-STORM
-      - DESY-DCACHE
-      - EULAKE-1
-      - GSI-ROOT
-      - IN2P3-CC-DCACHE
-      - INFN-NA-DPM
-      - LAPP-DCACHE
-      - PIC-DCACHE
-      - SARA-DCACHE
-      - LAPP-WEBDAV
+    #  - DESY-DCACHE
+    #  - EULAKE-1
+    #  - GSI-ROOT
+    #  - IN2P3-CC-DCACHE
+    #  - INFN-NA-DPM
+    #  - LAPP-DCACHE
+    #  - PIC-DCACHE
+    #  - SARA-DCACHE
+    #  - LAPP-WEBDAV
     scope: SKA_SKAO_BARNSLEY-testing
     databases:
       - type: es 
