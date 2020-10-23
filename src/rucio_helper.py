@@ -3,11 +3,11 @@ import os
 import shutil
 from datetime import datetime
 
-from rucio_wrappers import RucioWrappersAPI, RucioWrappersCLI
+from rucio_wrappers import RucioWrappersCLI
 from utility import bcolors, generateDirRandomFiles
 
 
-def upload_dir_replicate(
+def uploadDirReplicate(
     loggerName,
     rseSrc,
     rsesDst,
@@ -24,7 +24,7 @@ def upload_dir_replicate(
     to <datasetDID>, add replication rules for each of <rsesDst>.
     """
     logger = logging.getLogger(loggerName)
-    logger.debug("    Uploading directory {} of {}".format(dirIdx, nDirs))
+    logger.debug("Uploading directory {} of {}".format(dirIdx, nDirs))
 
     # Instantiate Rucio
     rucio = RucioWrappersCLI()
@@ -35,7 +35,7 @@ def upload_dir_replicate(
     dirPath = generateDirRandomFiles(nFiles, fileSize, dirIdx)
 
     # Upload to <rseSrc>
-    logger.debug("    Uploading dir {} and attaching to {}".format(dirPath, datasetDID))
+    logger.debug("Uploading dir {} and attaching to {}".format(dirPath, datasetDID))
 
     try:
         rucio.uploadDir(rseSrc, scope, dirPath, lifetime, datasetDID)
@@ -43,7 +43,7 @@ def upload_dir_replicate(
         logger.warning(repr(e))
         shutil.rmtree(dirPath)
         return
-    logger.debug("    Upload complete")
+    logger.debug("Upload complete")
 
     # Add replication rules for other RSEs
     for rseDst in rsesDst:
@@ -51,23 +51,23 @@ def upload_dir_replicate(
             continue
         for filename in os.listdir(dirPath):
             fileDID = "{}:{}".format(scope, filename)
-            logger.debug("    Adding replication rule for {}".format(fileDID))
+            logger.debug("Adding replication rule for {}".format(fileDID))
             logger.debug(
-                bcolors.OKGREEN + "    RSE (dst): {}".format(rseDst) + bcolors.ENDC
+                bcolors.OKGREEN + "RSE (dst): {}".format(rseDst) + bcolors.ENDC
             )
             try:
                 rtn = rucio.addRule(fileDID, 1, rseDst, lifetime=lifetime)
                 logger.debug(
-                    "      Rule ID: {}".format(rtn.stdout.decode("UTF-8").rstrip("\n"))
+                    "Rule ID: {}".format(rtn.stdout.decode("UTF-8").rstrip("\n"))
                 )
             except Exception as e:
                 logger.warning(repr(e))
                 continue
-    logger.debug("    All replication rules added")
+    logger.debug("All replication rules added")
     shutil.rmtree(dirPath)
 
 
-def create_did(
+def createDID(
     loggerName,
     scope,
 ):

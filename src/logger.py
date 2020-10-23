@@ -7,7 +7,7 @@ class Logger:
         self,
         name="root",
         level="DEBUG",
-        fmt="%(asctime)s [%(name)s] %(levelname)s %(process)d %(message)s",
+        fmt="%(asctime)s [%(name)s] %(levelname).4s\t%(process)d\t%(message)s",
         fmt_prefix='',
         fmt_suffix='',
         addConsoleHandler=True

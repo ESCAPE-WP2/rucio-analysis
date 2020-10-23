@@ -1,32 +1,30 @@
 import yaml
 
+
 class Session():
-    def __init__(self, tests, logger):
+    def __init__(self, tasks, logger):
         self.logger = logger
-        self._tests = None
+        self._tasks = None
 
-        self._parseTestsFile(tests)
+        self._parseTasksFile(tasks)
 
-
-    def _parseTestsFile(self, path):
-        """ Parse a tests yaml file. """
-        self.logger.info("Parsing tests file")
+    def _parseTasksFile(self, path):
+        """ Parse a configuration yaml file. """
+        self.logger.info("Parsing tasks file")
         try:
             with open(path) as f:
                 contents = f.read()
                 try:
-                    self._tests = yaml.safe_load(contents)
+                    self._tasks = yaml.safe_load(contents)
                 except yaml.scanner.ScannerError as e:
                     self.logger.critical("Could not parse yaml.")
                     self.logger.critical(repr(e))
-                    exit()                    
+                    exit()
         except IOError as e:
             self.logger.critical("Configuration file not found.")
             self.logger.critical(repr(e))
             exit()
 
-
     @property
-    def tests(self):
-        return self._tests
-
+    def tasks(self):
+        return self._tasks

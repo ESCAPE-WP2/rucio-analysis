@@ -1,11 +1,10 @@
 from multiprocessing import Pool
 
-from rucio_helper import create_did, upload_dir_replicate
+from rucio_helper import createDID, uploadDirReplicate
+from tasks import Task
 
-from tests import Test
 
-
-class TestReplicationBulk(Test):
+class TestReplicationBulk(Task):
     """
     Rucio upload directories of files in parallel to a source RSE and
     replicate on a destination RSE.
@@ -18,8 +17,6 @@ class TestReplicationBulk(Test):
         super().run()
         self.tic()
         try:
-            # Assign variables from test.yml kwargs.
-            #
             nWorkers = kwargs["n_workers"]
             nDirs = kwargs["n_dirs"]
             nFiles = kwargs["n_files"]
@@ -30,7 +27,7 @@ class TestReplicationBulk(Test):
             scope = kwargs["scope"]
 
         except KeyError as e:
-            self.logger.critical("Could not find necessary kwarg for test.")
+            self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
             exit()
 
@@ -39,7 +36,7 @@ class TestReplicationBulk(Test):
         # Create a dataset to house the data, named with today's date
         # and scope <scope>.
         #
-        datasetDID = create_did(loggerName, scope)
+        datasetDID = createDID(loggerName, scope)
 
         self.logger.debug("Launching pool of {} workers".format(nWorkers))
 
@@ -62,8 +59,9 @@ class TestReplicationBulk(Test):
         ]
 
         # Launch pool of worker processes, and join() to wait for all to complete
+        #
         with Pool(processes=nWorkers) as pool:
-            pool.starmap(upload_dir_replicate, args_arr)
+            pool.starmap(uploadDirReplicate, args_arr)
         pool.join()
 
         self.toc()

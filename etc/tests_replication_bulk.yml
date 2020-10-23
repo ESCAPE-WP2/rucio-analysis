@@ -1,6 +1,6 @@
 test-replication-bulk:
   description: "Test parallel uploading/replication of files to RSEs."
-  module_name: "tests.replication_bulk"
+  module_name: "tasks.replication_bulk"
   class_name: "TestReplicationBulk"
   enabled: true
   args:
