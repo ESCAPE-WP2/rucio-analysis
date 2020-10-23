@@ -2,7 +2,7 @@ test-replication-qos:
   description: "Simulate data lifecyle by replication based on QoS"
   module_name: "tasks.replication_qos"
   class_name: "TestReplicationQos"
-  enabled: true
+  enabled: false
   args:
   kwargs:
     size: 15000
