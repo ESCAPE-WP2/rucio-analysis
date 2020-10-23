@@ -98,6 +98,7 @@ class TestReplication(Task):
                             continue
                     self.logger.debug("Replication rules added")
 
+                    # Push corresponding rules to database
                     for database in databases:
                         if database['type'] == 'es':
                             self.logger.debug("Injecting rules into ES database...")

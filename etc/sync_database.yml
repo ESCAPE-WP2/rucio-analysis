@@ -1,5 +1,5 @@
-sync-database-replication:
-    description: "Sync database with replication tests done on the datalake"
+sync-database-with-datalake:
+    description: "Sync external database with rule information in datalake"
     module_name: "tasks.replication_sync_db"
     class_name: "SyncDatabaseReplication"
     enabled: true
