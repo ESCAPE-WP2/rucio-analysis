@@ -14,4 +14,4 @@ alarm-rules:
         max_rows: 10000
       webhooks:
         - type: slack
-          url: https://hooks.slack.com/services/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
+          url: 
