@@ -4,7 +4,7 @@ from db import ES
 from tasks import Task
 
 
-class AlarmReportStuck(Task):
+class AlarmStuck(Task):
     """ Send alarms about rule statuses. """
 
     def __init__(self, logger):
@@ -31,7 +31,6 @@ class AlarmReportStuck(Task):
 
             # Query ES database for documents that are in a "STUCK" state
             #
-            self.logger.info("Querying database for documents to be updated...")
             res = es.search(index=databaseIndex, maxRows=databaseMaxRows, body={
                 "query": {
                     "bool": {
@@ -51,7 +50,6 @@ class AlarmReportStuck(Task):
                 }
             })
             nStuckDocs = len(res['hits']['hits'])
-            self.logger.info("Found {} documents".format(nStuckDocs))
 
             # For each of these documents, add information about the alarm
             #

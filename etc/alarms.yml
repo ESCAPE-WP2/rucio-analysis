@@ -1,7 +1,7 @@
 alarm-rules:
     description: "Send alarms about rule statuses"
     module_name: "tasks.alarms"
-    class_name: "AlarmReportStuck"
+    class_name: "AlarmStuck"
     enabled: true
     args:
     kwargs:
@@ -14,4 +14,4 @@ alarm-rules:
         max_rows: 10000
       webhooks:
         - type: slack
-          url: 
+          url: https://hooks.slack.com/services/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
