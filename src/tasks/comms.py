@@ -34,7 +34,7 @@ class SyncDatabaseRules(Task):
                     "bool": {
                         "filter": [{
                             "term": {
-                                "is_submitted": 1
+                                'task_name.keyword': 'test-replication'
                             }
                         }, {
                             "term": {
