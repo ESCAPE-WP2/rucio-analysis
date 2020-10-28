@@ -107,7 +107,7 @@ class TestReplication(Task):
                             self.logger.debug("Injecting rules into ES database...")
                             es = ES(database['uri'], self.logger)
                             es.pushRulesForDID(fileDID, index=database['index'], 
-                                extraEntries={
+                                baseEntry={
                                     'task_name': taskName
                                 })
 
