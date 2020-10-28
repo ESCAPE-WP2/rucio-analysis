@@ -34,6 +34,10 @@ class SyncDatabaseRules(Task):
                     "bool": {
                         "filter": [{
                             "term": {
+                                "is_submitted": 1
+                            }
+                        }, {
+                            "term": {
                                 "is_done": 0
                             }
                         }, {

@@ -24,11 +24,13 @@ class ES():
         except Exception as e:
             self.logger.warning("Failed to update database: {}".format(e))
 
-    def pushRulesForDID(self, did, index, extraEntries={}):
+    def pushRulesForDID(self, did, index, baseEntry={}):
         rules = self.rucio.listReplicationRules(did)
-        for rule in rules:
-            try:
+        entries = []
+        if len(rules) > 0:
+            for rule in rules:
                 entry = {
+                    '@timestamp': int(datetime.now().strftime("%s"))*1000,
                     'rule_id': rule['id'],
                     'scope': rule['scope'],
                     'name': rule['name'],
@@ -40,16 +42,6 @@ class ES():
                     'state': rule['state'],
                     'error': rule['error']
                 }
-                entry = {**entry, **extraEntries}
-
-                entry['is_done'] = 1 if entry['state'] == \
-                    'OK' else 0
-                entry['is_replicating'] = 1 if entry['state'] == \
-                    'REPLICATING' else 0
-                entry['is_stuck'] = 1 if entry['state'] == \
-                    'STUCK' else 0
-                entry['is_submitted'] = 1
-
                 try:
                     replica = self.rucio.listFileReplicas(did, rse=entry['to_rse'])
                     protocol = replica[0]['rses'][entry['to_rse']][0].split(':')[0]
@@ -60,8 +52,23 @@ class ES():
                 entry['endpoint'] = endpoint
                 entry['protocol'] = protocol
 
-                entry['@timestamp'] = int(datetime.now().strftime("%s"))*1000
+                entries.append(entry)
+        else:
+            now = datetime.now()
+            entries.append({
+                '@timestamp': int(now.strftime("%s"))*1000,
+            })
 
+        for entry in entries:
+            entry = {**entry, **baseEntry}
+            entry['is_submitted'] = 1
+            entry['is_done'] = 1 if entry['state'] == 'OK' else 0
+            entry['is_replicating'] = 1 if entry['state'] == 'REPLICATING' else 0
+            entry['is_stuck'] = 1 if entry['state'] == 'STUCK' else 0
+            entry['is_upload_failed'] = 1 if entry['state'] == 'UPLOAD-FAILED' else 0
+            entry['is_upload_successful'] = 1 if entry['state'] == 'UPLOAD-SUCCESSFUL' \
+                else 0
+            try:
                 self._index(index=index, documentID=entry['rule_id'], body=entry)
             except Exception as e:
                 self.logger.warning("Failed to push rule: {}".format(e))

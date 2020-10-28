@@ -1,6 +1,7 @@
 from multiprocessing import Pool
 import os
 import random
+import uuid
 
 from db import ES
 from rucio_helper import createDID, uploadDirReplicate
@@ -323,9 +324,9 @@ class TestUpload(Task):
         # RSE, attach to the dataset, add replication rules to the
         # other listed RSEs.
         #
-        for rseSrc in rses:
+        for rseDst in rses:
             self.logger.info(
-                bcolors.OKBLUE + "RSE (src): {}".format(rseSrc) + bcolors.ENDC
+                bcolors.OKBLUE + "RSE (dst): {}".format(rseDst) + bcolors.ENDC
             )
             for protocol in protocols:
                 for size in sizes:
@@ -335,43 +336,53 @@ class TestUpload(Task):
                         f = generateRandomFile(size)
                         fileDID = "{}:{}".format(scope, os.path.basename(f.name))
 
-                        # Upload to <rseSrc>
+                        # Upload to <rseDst>
                         self.logger.debug(
                             "Uploading file {} of {} with protocol {}".format(
                                 idx + 1, nFiles, protocol)
                         )
+
+                        entry = {
+                            'task_name': taskName,
+                            'file_size': size
+                        }
                         try:
                             rucio.upload(
-                                rse=rseSrc, scope=scope, filePath=f.name, 
+                                rse=rseDst, scope=scope, filePath=f.name,
                                 lifetime=lifetime, forceScheme=protocol
                             )
-                        except Exception as e:
-                            self.logger.warning(repr(e))
-                            os.remove(f.name)
-                            break
-                        self.logger.debug("Upload complete")
-                        os.remove(f.name)
+                            entry['state'] = 'UPLOAD-SUCCESSFUL'
+                            self.logger.debug("Upload complete")
 
-                        # Attach to dataset
-                        self.logger.debug(
-                            "Attaching file {} to {}".format(fileDID, datasetDID)
-                        )
-                        try:
-                            rucio.attach(todid=datasetDID, dids=fileDID)
+                            # Attach to dataset
+                            self.logger.debug(
+                                "Attaching file {} to {}".format(fileDID, datasetDID)
+                            )
+                            try:
+                                rucio.attach(todid=datasetDID, dids=fileDID)
+                            except Exception as e:
+                                self.logger.warning(repr(e))
+                                break
+                            self.logger.debug("Attached file to dataset")
                         except Exception as e:
-                            self.logger.warning(repr(e))
-                            break
-                        self.logger.debug("Attached file to dataset")
+                            self.logger.warning("Upload failed: {}".format(e))
+                            entry['rule_id'] = str(uuid.uuid4()),
+                            entry['scope'] = scope,
+                            entry['name'] = os.path.basename(f.name),
+                            entry['to_rse'] = rseDst,
+                            entry['error'] = repr(e.__class__.__name__).strip("'")
+                            entry['protocol'] = protocol
+                            entry['state'] = 'UPLOAD-FAILED'
+                        os.remove(f.name)
 
                         # Push corresponding rules to database
                         for database in databases:
                             if database['type'] == 'es':
-                                self.logger.debug("Injecting rules into ES database...")
+                                self.logger.debug(
+                                    "Injecting rules into ES database...")
                                 es = ES(database['uri'], self.logger)
-                                es.pushRulesForDID(fileDID, index=database['index'], 
-                                    extraEntries={
-                                        'task_name': taskName
-                                    })
+                                es.pushRulesForDID(fileDID, index=database['index'],
+                                    baseEntry=entry)
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))
