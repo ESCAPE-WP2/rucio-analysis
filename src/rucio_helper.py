@@ -3,7 +3,7 @@ import os
 import shutil
 from datetime import datetime
 
-from rucio_wrappers import RucioWrappersCLI
+from rucio_wrappers import RucioWrappersCLI, RucioWrappersAPI
 from utility import bcolors, generateDirRandomFiles
 
 
@@ -15,7 +15,7 @@ def uploadDirReplicate(
     fileSize,
     scope,
     lifetime,
-    datasetDID,
+    parentDID,
     dirIdx=1,
     nDirs=1,
 ):
@@ -34,8 +34,22 @@ def uploadDirReplicate(
     # Generate directory:
     dirPath = generateDirRandomFiles(nFiles, fileSize, dirIdx)
 
+    # Create dataset DID based on directory name
+    datasetName = os.path.basename(dirPath)
+    datasetDID = createDID(
+        loggerName, scope, "DATASET", "{}:{}".format(scope, datasetName)
+    )
+
+    # Attach dir dataset to container DID
+    logger.debug("Attaching DID {} to {}".format(datasetDID, parentDID))
+    try:
+        rucio.attach(todid=parentDID, dids=datasetDID)
+    except Exception as e:
+        logger.warning(repr(e))
+    logger.debug("Attached DID to collection")
+
     # Upload to <rseSrc>
-    logger.debug("Uploading dir {} and attaching to {}".format(dirPath, datasetDID))
+    logger.debug("Uploading dir {} and attaching to {}".format(dirPath, parentDID))
 
     try:
         rucio.uploadDir(rseSrc, scope, dirPath, lifetime, datasetDID)
@@ -67,41 +81,41 @@ def uploadDirReplicate(
     shutil.rmtree(dirPath)
 
 
-def createDID(
-    loggerName,
-    scope,
-):
+def createDID(loggerName, scope, type="DATASET", DID=None):
     """ Create a new DID in the passed scope """
 
     logger = logging.getLogger(loggerName)
 
     # Instantiate RucioWrappers class to access to static methods.
     #
-    rucio = RucioWrappersCLI()
-
-    # Create a dataset to house the data, named with today's date
+    rucio = RucioWrappersAPI()
+    # Create a collection to house the data,
+    # Default is dataset named with today's date
     # and scope <scope>.
     #
-    # Does not try to create a dataset if it already exists.
+    # Does not try to create a collection if it already exists.
     #
-    todaysDate = datetime.now().strftime("%d-%m-%Y")
-    datasetDID = "{}:{}".format(scope, todaysDate)
-    logger.info("Checking for dataset ({})".format(datasetDID))
+    if DID is None:
+        todaysDate = datetime.now().strftime("%d-%m-%Y")
+        DID = "{}:{}".format(scope, todaysDate)
+    logger.info("Checking for DID ({})".format(DID))
+
     try:
         dids = rucio.listDIDs(scope=scope)
     except Exception as e:
-        logger.critical("Error listing dataset")
+        logger.critical("Error listing Collection")
         logger.critical(repr(e))
         exit()
-    if datasetDID not in dids:
-        logger.debug("Adding dataset")
+
+    if DID not in dids:
+        logger.debug("Adding DID {} of type {}".format(DID, type))
         try:
-            rucio.addDataset(did=datasetDID)
+            rucio.addDID(DID, type)
         except Exception as e:
-            logger.critical("Error adding dataset")
+            logger.critical("Error adding collection")
             logger.critical(repr(e))
             exit()
     else:
-        logger.debug("Dataset already exists")
+        logger.debug("Collection already exists")
 
-    return datasetDID
+    return DID

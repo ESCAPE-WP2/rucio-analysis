@@ -25,8 +25,8 @@ class TestReplication(Task):
             scope = kwargs["scope"]
             lifetime = kwargs["lifetime"]
             sizes = kwargs["sizes"]
-            databases = kwargs['databases']
-            taskName = kwargs['task_name']
+            databases = kwargs["databases"]
+            taskName = kwargs["task_name"]
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -35,7 +35,7 @@ class TestReplication(Task):
         # Instantiate RucioWrappers class to allow access to static methods.
         #
         rucio = RucioWrappersAPI()
-
+        print("Databases {}".format(databases))
         # Create a dataset to house the data, named with today's date
         # and scope <scope>.
         #
@@ -57,9 +57,7 @@ class TestReplication(Task):
                     fileDID = "{}:{}".format(scope, os.path.basename(f.name))
 
                     # Upload to <rseSrc>
-                    self.logger.debug(
-                        "Uploading file {} of {}".format(idx + 1, nFiles)
-                    )
+                    self.logger.debug("Uploading file {} of {}".format(idx + 1, nFiles))
                     try:
                         rucio.upload(
                             rse=rseSrc, scope=scope, filePath=f.name, lifetime=lifetime
@@ -93,8 +91,9 @@ class TestReplication(Task):
                             + bcolors.ENDC
                         )
                         try:
-                            rtn = rucio.addRule(fileDID, 1, rseDst, lifetime=lifetime, 
-                                src=rseSrc)
+                            rtn = rucio.addRule(
+                                fileDID, 1, rseDst, lifetime=lifetime, src=rseSrc
+                            )
                             self.logger.debug("Rule ID: {}".format(rtn[0]))
                         except Exception as e:
                             self.logger.warning(repr(e))
@@ -103,13 +102,14 @@ class TestReplication(Task):
 
                     # Push corresponding rules to database
                     for database in databases:
-                        if database['type'] == 'es':
+                        if database["type"] == "es":
                             self.logger.debug("Injecting rules into ES database...")
-                            es = ES(database['uri'], self.logger)
-                            es.pushRulesForDID(fileDID, index=database['index'], 
-                                baseEntry={
-                                    'task_name': taskName
-                                })
+                            es = ES(database["uri"], self.logger)
+                            es.pushRulesForDID(
+                                fileDID,
+                                index=database["index"],
+                                baseEntry={"task_name": taskName},
+                            )
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))
@@ -136,6 +136,7 @@ class TestReplicationBulk(Task):
             rseSrc = kwargs["source_rse"]
             rsesDst = kwargs["dest_rses"]
             scope = kwargs["scope"]
+            container_name = kwargs["container_name"]
 
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
@@ -144,10 +145,14 @@ class TestReplicationBulk(Task):
 
         loggerName = self.logger.name
 
-        # Create a dataset to house the data, named with today's date
+        # Create a DID to group the data, named with today's date
         # and scope <scope>.
         #
-        datasetDID = createDID(loggerName, scope)
+        if container_name is None:
+            parentDID = createDID(loggerName, scope, "CONTAINER")
+        else:
+            container_DID = "{}:{}".format(scope, container_name)
+            parentDID = createDID(loggerName, scope, "CONTAINER", container_DID)
 
         self.logger.debug("Launching pool of {} workers".format(nWorkers))
 
@@ -162,7 +167,7 @@ class TestReplicationBulk(Task):
                 fileSize,
                 scope,
                 lifetime,
-                datasetDID,
+                parentDID,
                 dirIdx,
                 nDirs,
             )
@@ -234,9 +239,7 @@ class TestReplicationQos(Task):
 
         # Upload to <rseSrc>
         self.logger.debug(
-            "Uploading file {} to RSE {} (QoS: {})".format(
-                f.name, source_rse, qos_src
-            )
+            "Uploading file {} to RSE {} (QoS: {})".format(f.name, source_rse, qos_src)
         )
         try:
             rucio_cli.upload(
@@ -303,9 +306,9 @@ class TestUpload(Task):
             scope = kwargs["scope"]
             lifetime = kwargs["lifetime"]
             sizes = kwargs["sizes"]
-            protocols = kwargs['protocols']
-            databases = kwargs['databases']
-            taskName = kwargs['task_name']
+            protocols = kwargs["protocols"]
+            databases = kwargs["databases"]
+            taskName = kwargs["task_name"]
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -339,19 +342,20 @@ class TestUpload(Task):
                         # Upload to <rseDst>
                         self.logger.debug(
                             "Uploading file {} of {} with protocol {}".format(
-                                idx + 1, nFiles, protocol)
+                                idx + 1, nFiles, protocol
+                            )
                         )
 
-                        entry = {
-                            'task_name': taskName,
-                            'file_size': size
-                        }
+                        entry = {"task_name": taskName, "file_size": size}
                         try:
                             rucio.upload(
-                                rse=rseDst, scope=scope, filePath=f.name,
-                                lifetime=lifetime, forceScheme=protocol
+                                rse=rseDst,
+                                scope=scope,
+                                filePath=f.name,
+                                lifetime=lifetime,
+                                forceScheme=protocol,
                             )
-                            entry['state'] = 'UPLOAD-SUCCESSFUL'
+                            entry["state"] = "UPLOAD-SUCCESSFUL"
                             self.logger.debug("Upload complete")
 
                             # Attach to dataset
@@ -366,23 +370,23 @@ class TestUpload(Task):
                             self.logger.debug("Attached file to dataset")
                         except Exception as e:
                             self.logger.warning("Upload failed: {}".format(e))
-                            entry['rule_id'] = str(uuid.uuid4()),
-                            entry['scope'] = scope,
-                            entry['name'] = os.path.basename(f.name),
-                            entry['to_rse'] = rseDst,
-                            entry['error'] = repr(e.__class__.__name__).strip("'")
-                            entry['protocol'] = protocol
-                            entry['state'] = 'UPLOAD-FAILED'
+                            entry["rule_id"] = (str(uuid.uuid4()),)
+                            entry["scope"] = (scope,)
+                            entry["name"] = (os.path.basename(f.name),)
+                            entry["to_rse"] = (rseDst,)
+                            entry["error"] = repr(e.__class__.__name__).strip("'")
+                            entry["protocol"] = protocol
+                            entry["state"] = "UPLOAD-FAILED"
                         os.remove(f.name)
 
                         # Push corresponding rules to database
                         for database in databases:
-                            if database['type'] == 'es':
-                                self.logger.debug(
-                                    "Injecting rules into ES database...")
-                                es = ES(database['uri'], self.logger)
-                                es.pushRulesForDID(fileDID, index=database['index'],
-                                    baseEntry=entry)
+                            if database["type"] == "es":
+                                self.logger.debug("Injecting rules into ES database...")
+                                es = ES(database["uri"], self.logger)
+                                es.pushRulesForDID(
+                                    fileDID, index=database["index"], baseEntry=entry
+                                )
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))

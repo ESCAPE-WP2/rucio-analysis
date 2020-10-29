@@ -92,9 +92,7 @@ class RucioWrappersCLI(RucioWrappers):
         return rtn
 
     @staticmethod
-    def addRuleWithOptions(
-        did, copies, dst, lifetime, activity=None, src=None
-    ):
+    def addRuleWithOptions(did, copies, dst, lifetime, activity=None, src=None):
         rtn = subprocess.run(
             [
                 "rucio",
@@ -208,11 +206,19 @@ class RucioWrappersAPI(RucioWrappers):
         name = tokens[1]
         client.add_dataset(scope=scope, name=name)
 
+    @staticmethod
+    def addDID(did, type):
+        try:
+            client = Client()
+            tokens = did.split(":")
+            scope = tokens[0]
+            name = tokens[1]
+            client.add_did(scope=scope, name=name, type=type)
+        except RucioException as error:
+            raise Exception(error)
 
     @staticmethod
-    def addRule(
-        did, copies, dst, lifetime, activity=None, src=None
-    ):
+    def addRule(did, copies, dst, lifetime, activity=None, src=None):
         tokens = did.split(":")
         scope = tokens[0]
         name = tokens[1]
@@ -285,7 +291,20 @@ class RucioWrappersAPI(RucioWrappers):
         return metadata
 
     @staticmethod
-    def listDIDs(scope, name="*", filters=None):
+    def listFileReplicas(did, rse=None):
+        client = Client()
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        replicas = []
+        for replica in client.list_replicas(
+            dids=[{"scope": scope, "name": name}], rse_expression=rse
+        ):
+            replicas.append(replica)
+        return replicas
+
+    @staticmethod
+    def listDIDs(scope, name="*", filters=None, type="collection"):
         client = Client()
         filters_dict = {}
         if filters is not None:
@@ -298,21 +317,9 @@ class RucioWrappersAPI(RucioWrappers):
             else:
                 filters_dict = filters
         dids = []
-        for name in client.list_dids(scope=scope, filters=filters_dict):
-            dids.append('{}:{}'.format(scope, name))
+        for name in client.list_dids(scope=scope, filters=filters_dict, type=type):
+            dids.append("{}:{}".format(scope, name))
         return dids
-
-    @staticmethod
-    def listFileReplicas(did, rse=None):
-        client = Client()
-        tokens = did.split(":")
-        scope = tokens[0]
-        name = tokens[1]
-        replicas = []
-        for replica in client.list_replicas(dids=[{"scope": scope, "name": name}],
-        rse_expression=rse):
-            replicas.append(replica)
-        return replicas
 
     @staticmethod
     def listReplicationRules(did):
@@ -334,9 +341,7 @@ class RucioWrappersAPI(RucioWrappers):
         scope = tokens[0]
         name = tokens[1]
         rules = []
-        for rule in client.list_replication_rule_full_history(
-            scope=scope, name=name
-        ):
+        for rule in client.list_replication_rule_full_history(scope=scope, name=name):
             rules.append(rule)
         return rules
 
@@ -359,8 +364,16 @@ class RucioWrappersAPI(RucioWrappers):
         return info
 
     @staticmethod
-    def upload(rse, scope, filePath, lifetime, registerAfterUpload=True,
-    forceScheme=None, transferTimeout=30, logger=None):
+    def upload(
+        rse,
+        scope,
+        filePath,
+        lifetime,
+        registerAfterUpload=True,
+        forceScheme=None,
+        transferTimeout=30,
+        logger=None,
+    ):
         items = []
         items.append(
             {
@@ -370,7 +383,7 @@ class RucioWrappersAPI(RucioWrappers):
                 "lifetime": lifetime,
                 "register_after_upload": True,
                 "force_scheme": forceScheme,
-                "transfer_timeout": transferTimeout
+                "transfer_timeout": transferTimeout,
             }
         )
         client = UploadClient(logger=logger)
@@ -380,4 +393,3 @@ class RucioWrappersAPI(RucioWrappers):
     def whoAmI():
         client = Client()
         return client.whoami()
-
