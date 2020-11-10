@@ -136,7 +136,7 @@ class TestReplicationBulk(Task):
             rseSrc = kwargs["source_rse"]
             rsesDst = kwargs["dest_rses"]
             scope = kwargs["scope"]
-            container_name = kwargs["container_name"]
+            container_name = kwargs.get("container_name", None)
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
