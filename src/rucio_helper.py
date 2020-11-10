@@ -81,7 +81,7 @@ def uploadDirReplicate(
     shutil.rmtree(dirPath)
 
 
-def createDID(loggerName, scope, type="DATASET", DID=None):
+def createDID(loggerName, scope, collectionType="DATASET", DID=None):
     """ Create a new DID in the passed scope """
 
     logger = logging.getLogger(loggerName)
@@ -108,9 +108,9 @@ def createDID(loggerName, scope, type="DATASET", DID=None):
         exit()
 
     if DID not in dids:
-        logger.debug("Adding DID {} of type {}".format(DID, type))
+        logger.debug("Adding DID {} of type {}".format(DID, collectionType))
         try:
-            rucio.addDID(DID, type)
+            rucio.addDID(DID, collectionType)
         except Exception as e:
             logger.critical("Error adding collection")
             logger.critical(repr(e))
