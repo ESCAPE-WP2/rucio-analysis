@@ -63,20 +63,16 @@ def uploadDirReplicate(
     for rseDst in rsesDst:
         if rseSrc == rseDst:
             continue
-        for filename in os.listdir(dirPath):
-            fileDID = "{}:{}".format(scope, filename)
-            logger.debug("Adding replication rule for {}".format(fileDID))
+        try:
+            rtn = rucio.addRule(datasetDID, 1, rseDst, lifetime=lifetime)
             logger.debug(
-                bcolors.OKGREEN + "RSE (dst): {}".format(rseDst) + bcolors.ENDC
+                "Added Rule ID: {} for DID {} and RSE {}".format(
+                    rtn.stdout.decode("UTF-8").rstrip("\n"), datasetDID, rseDst
+                ),
             )
-            try:
-                rtn = rucio.addRule(fileDID, 1, rseDst, lifetime=lifetime)
-                logger.debug(
-                    "Rule ID: {}".format(rtn.stdout.decode("UTF-8").rstrip("\n"))
-                )
-            except Exception as e:
-                logger.warning(repr(e))
-                continue
+        except Exception as e:
+            logger.warning(repr(e))
+            continue
     logger.debug("All replication rules added")
     shutil.rmtree(dirPath)
 
