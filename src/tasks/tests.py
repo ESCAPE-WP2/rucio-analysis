@@ -137,7 +137,6 @@ class TestReplicationBulk(Task):
             rsesDst = kwargs["dest_rses"]
             scope = kwargs["scope"]
             container_name = kwargs["container_name"]
-
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -145,7 +144,7 @@ class TestReplicationBulk(Task):
 
         loggerName = self.logger.name
 
-        # Create a DID to group the data, named with today's date
+        # Create a DID to group the data, by default named with today's date
         # and scope <scope>.
         #
         if container_name is None:
