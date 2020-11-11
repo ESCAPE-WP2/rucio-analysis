@@ -83,7 +83,7 @@ sync-database-test-replication-qos-safe:
         search_range_gte: now-1h
         max_rows: 10000
       
- sync-database-test-replication-bulk:
+sync-database-test-replication-bulk:
     description: "Sync external database with rule information in datalake (test-replication-bulk)"
     module_name: "tasks.sync"
     class_name: "SyncDatabase"
