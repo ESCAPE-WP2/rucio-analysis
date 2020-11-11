@@ -16,7 +16,7 @@ test-replication-qos-fast:
       - 3600
       - 3600
       - 3600
-    scope: "SKA_SKAO_COLL-testing"
+    scope: "SKA_SKAO_BARNSLEY-testing"
     databases:
       - type: es 
         uri: http://130.246.214.144:80/monit/metadata/
@@ -39,7 +39,7 @@ test-replication-qos-cheap:
       - 3600
       - 3600
       - 3600
-    scope: "SKA_SKAO_COLL-testing"
+    scope: "SKA_SKAO_BARNSLEY-testing"
     databases:
       - type: es 
         uri: http://130.246.214.144:80/monit/metadata/
@@ -62,7 +62,7 @@ test-replication-qos-safe:
       - 3600
       - 3600
       - 3600
-    scope: "SKA_SKAO_COLL-testing"
+    scope: "SKA_SKAO_BARNSLEY-testing"
     databases:
       - type: es 
         uri: http://130.246.214.144:80/monit/metadata/
