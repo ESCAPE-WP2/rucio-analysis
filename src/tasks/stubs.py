@@ -20,7 +20,7 @@ class StubHelloWorld(Task):
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
-            exit()
+            return False
 
         # Your code here.
         # START ---------------
@@ -52,7 +52,7 @@ class StubRucioAPI(Task):
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for test.")
             self.logger.critical(repr(e))
-            exit()
+            return False
 
         # Your code here.
         # START --------------- 

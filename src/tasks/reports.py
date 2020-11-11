@@ -28,7 +28,7 @@ class ReportDaily(Task):
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
-            exit()
+            return False
 
         if databaseType == 'es':
             es = ES(databaseUri, self.logger)
