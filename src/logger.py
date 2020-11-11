@@ -34,6 +34,10 @@ class Logger:
         self.get().addHandler(ch)
 
     @property
+    def config(self):
+        return self.get().config
+
+    @property
     def fmt(self):
         return self._fmt
 

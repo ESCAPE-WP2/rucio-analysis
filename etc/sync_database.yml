@@ -1,10 +1,12 @@
-sync-database:
-    description: "Sync external database with rule information in datalake"
-    module_name: "tasks.comms"
-    class_name: "SyncDatabaseRules"
+sync-database-test-replication:
+    description: "Sync external database with rule information in datalake (test-replication)"
+    module_name: "tasks.sync"
+    class_name: "SyncDatabase"
     enabled: true
     args:
     kwargs:
+      task_name_to_update: test-replication
+      n_workers: 6
       database:
         type: es
         uri: http://130.246.214.144:80/monit/metadata/
@@ -13,4 +15,73 @@ sync-database:
         search_range_gte: now-1h
         max_rows: 10000
       
+sync-database-test-replication-qos-cheap:
+    description: "Sync external database with rule information in datalake (test-replication-qos-cheap)"
+    module_name: "tasks.sync"
+    class_name: "SyncDatabase"
+    enabled: true
+    args:
+    kwargs:
+      task_name_to_update: test-replication-qos-cheap
+      n_workers: 6
+      database:
+        type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        search_range_lte: now
+        search_range_gte: now-3h
+        max_rows: 10000
+
+sync-database-test-replication-qos-fast:
+    description: "Sync external database with rule information in datalake (test-replication-qos-fast)"
+    module_name: "tasks.sync"
+    class_name: "SyncDatabase"
+    enabled: true
+    args:
+    kwargs:
+      task_name_to_update: test-replication-qos-fast
+      n_workers: 6
+      database:
+        type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        search_range_lte: now
+        search_range_gte: now-3h
+        max_rows: 10000
+
+sync-database-test-replication-qos-oppo:
+    description: "Sync external database with rule information in datalake (test-replication-qos-oppo)"
+    module_name: "tasks.sync"
+    class_name: "SyncDatabase"
+    enabled: true
+    args:
+    kwargs:
+      task_name_to_update: test-replication-qos-oppo
+      n_workers: 6
+      database:
+        type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        search_range_lte: now
+        search_range_gte: now-3h
+        max_rows: 10000
+  
+sync-database-test-replication-qos-safe:
+    description: "Sync external database with rule information in datalake (test-replication-qos-safe)"
+    module_name: "tasks.sync"
+    class_name: "SyncDatabase"
+    enabled: true
+    args:
+    kwargs:
+      task_name_to_update: test-replication-qos-safe
+      n_workers: 6
+      database:
+        type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        search_range_lte: now
+        search_range_gte: now-3h
+        max_rows: 10000
+      
+  
   

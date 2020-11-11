@@ -1,4 +1,5 @@
 from multiprocessing import Pool
+import logging
 import os
 import random
 import uuid
@@ -197,6 +198,8 @@ class TestReplicationQos(Task):
             scope = kwargs["scope"]
             lifetimes = kwargs["lifetimes"]
             size = kwargs["size"]
+            databases = kwargs['databases']
+            taskName = kwargs["task_name"]
             if len(qos) != len(lifetimes):
                 self.logger.critical(
                     "{} qos and {} lifetimes passed. "
@@ -283,6 +286,16 @@ class TestReplicationQos(Task):
             except Exception as e:
                 self.logger.warning(repr(e))
                 continue
+
+            # Push corresponding rules to database
+            for database in databases:
+                if database["type"] == "es":
+                    self.logger.debug("Injecting rules into ES database...")
+                    es = ES(database["uri"], self.logger)
+                    es.pushRulesForDID(
+                        fileDID, index=database["index"], 
+                        baseEntry={"task_name": taskName}
+                    )
 
         self.logger.debug("Replication rules added for source QoS {}".format(qos_src))
 

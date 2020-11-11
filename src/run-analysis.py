@@ -28,7 +28,6 @@ if __name__ == "__main__":
             enabled = session.tasks[task]['enabled']
             args = session.tasks[task]['args']
             kwargs = session.tasks[task]['kwargs']
-            
             kwargs['task_name'] = task
 
             if iargs.v:

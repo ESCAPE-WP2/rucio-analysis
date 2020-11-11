@@ -1,4 +1,4 @@
-alarm-rules:
+reports:
     description: "Send daily report"
     module_name: "tasks.reports"
     class_name: "ReportDaily"
