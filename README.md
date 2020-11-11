@@ -26,7 +26,7 @@ eng@ubuntu:~$ docker tag projectescape/rucio-analysis:latest rucio-analysis:late
 Commands can be ran directly inside a dockerised environment, e.g.:
 
 ```bash
-eng@ubuntu:~$ docker run -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -it --name=rucio-analysis rucio-analysis:latest
+eng@ubuntu:~$ docker run --rm -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -it --name=rucio-analysis rucio-analysis:latest
 ```
 
 Note that upload tasks require a valid X509 certificate to be bound inside the container (as shown above) and will require initialising a `voms-proxy` inside the container:

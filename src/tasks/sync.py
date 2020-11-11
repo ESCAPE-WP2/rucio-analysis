@@ -1,17 +1,28 @@
+import logging
+from multiprocessing import Pool
+
 from db import ES
 from tasks import Task
 
 
-class SyncDatabaseRules(Task):
-    """ Update ES database with replication rule statuses. """
+class SyncDatabase(Task):
+    """ Update ES database rules. """
 
     def __init__(self, logger):
         super().__init__(logger)
+
+    @staticmethod
+    def _updateDBAsync(loggerName, databaseUri, ruleID, databaseIndex):
+        logger = logging.getLogger(loggerName)
+        es = ES(databaseUri, logger)
+        es.updateRuleWithDID(ruleID, databaseIndex)
 
     def run(self, args, kwargs):
         super().run()
         self.tic()
         try:
+            taskNameToUpdate = kwargs['task_name_to_update']
+            nWorkers = kwargs['n_workers']
             databaseType = kwargs['database']['type']
             databaseUri = kwargs['database']['uri']
             databaseIndex = kwargs['database']['index'] 
@@ -34,7 +45,7 @@ class SyncDatabaseRules(Task):
                     "bool": {
                         "filter": [{
                             "term": {
-                                'task_name.keyword': 'test-replication'
+                                'task_name.keyword': taskNameToUpdate
                             }
                         }, {
                             "term": {
@@ -54,13 +65,15 @@ class SyncDatabaseRules(Task):
             nDocs = len(res['hits']['hits'])
             self.logger.info("Found {} documents".format(nDocs))
 
-            # For each of these documents, try to update fields
-            # in the ES database.
+            # For each of these documents, try to update fields in the ES database.
             #
+            pool = Pool(nWorkers)
             for idx, hit in enumerate(res['hits']['hits']):
-                self.logger.info("Processing document {} of {}".format(idx+1, nDocs))
                 ruleID = hit['_source']['rule_id']
-                es.updateRuleWithDID(ruleID, databaseIndex)
+                pool.apply_async(self._updateDBAsync, args=(
+                    self.logger.name, databaseUri, ruleID, databaseIndex))
+            pool.close()
+            pool.join()
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))

@@ -1,7 +1,7 @@
-alarm-rules:
-    description: "Send alarms about rule statuses"
-    module_name: "tasks.alarms"
-    class_name: "AlarmStuck"
+alerts:
+    description: "Send alerts about rule statuses"
+    module_name: "tasks.alerts"
+    class_name: "AlertStuck"
     enabled: true
     args:
     kwargs:

@@ -17,6 +17,11 @@ test-replication-qos-oppo:
       - 3600
       - 3600
     scope: "SKA_SKAO_COLL-testing"
+    databases:
+      - type: es 
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+
 test-replication-qos-fast:
   description: "Test replication by QoS, starting with FAST"
   module_name: "tasks.tests"
@@ -36,6 +41,11 @@ test-replication-qos-fast:
       - 3600
       - 3600
     scope: "SKA_SKAO_COLL-testing"
+    databases:
+      - type: es 
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+
 test-replication-qos-cheap:
   description: "Test replication by QoS, starting with CHEAP-ANALYSIS"
   module_name: "tasks.tests"
@@ -55,6 +65,11 @@ test-replication-qos-cheap:
       - 3600
       - 3600
     scope: "SKA_SKAO_COLL-testing"
+    databases:
+      - type: es 
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        
 test-replication-qos-safe:
   description: "Test replication by QoS, starting with SAFE"
   module_name: "tasks.tests"
@@ -74,3 +89,7 @@ test-replication-qos-safe:
       - 3600
       - 3600
     scope: "SKA_SKAO_COLL-testing"
+    databases:
+      - type: es 
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
