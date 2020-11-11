@@ -16,10 +16,12 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
-def generateRandomFile(size):
+def generateRandomFile(size, prefix=""):
     """ Generate a randomly named file of size <size> with random contents. """
+    if prefix:
+        prefix += "_"
     todaysDatetime = datetime.now().strftime("%d%m%yT%H.%M.%S")
-    basename = "{}KB_{}".format(size // 1000, todaysDatetime)
+    basename = "{}{}KB_{}".format(prefix, size // 1000, todaysDatetime)
     absFilename = os.path.join(tempfile.gettempdir(), basename)
     with open(absFilename, "wb") as f:
         f.write(os.urandom(size))

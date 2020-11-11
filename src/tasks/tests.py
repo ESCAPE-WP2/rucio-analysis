@@ -28,6 +28,7 @@ class TestReplication(Task):
             sizes = kwargs["sizes"]
             databases = kwargs["databases"]
             taskName = kwargs["task_name"]
+            data_tag = kwargs.get("data_tag", "")
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -54,7 +55,7 @@ class TestReplication(Task):
                 self.logger.debug("File size: {} bytes".format(size))
                 for idx in range(nFiles):
                     # Generate random file of size <size>
-                    f = generateRandomFile(size)
+                    f = generateRandomFile(size, prefix=data_tag)
                     fileDID = "{}:{}".format(scope, os.path.basename(f.name))
 
                     # Upload to <rseSrc>
@@ -212,6 +213,7 @@ class TestReplicationQos(Task):
             size = kwargs["size"]
             databases = kwargs["databases"]
             taskName = kwargs["task_name"]
+            data_tag = kwargs.get("data_tag", "")
             if len(qos) != len(lifetimes):
                 self.logger.critical(
                     "{} qos and {} lifetimes passed. "
@@ -248,7 +250,7 @@ class TestReplicationQos(Task):
             self.logger.critical(repr(e))
             exit()
 
-        f = generateRandomFile(size)
+        f = generateRandomFile(size, prefix=data_tag)
         fileDID = "{}:{}".format(scope, os.path.basename(f.name))
 
         # Upload to <rseSrc>
@@ -338,6 +340,7 @@ class TestUpload(Task):
             protocols = kwargs["protocols"]
             databases = kwargs["databases"]
             taskName = kwargs["task_name"]
+            data_tag = kwargs.get("data_tag", "")
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -365,7 +368,7 @@ class TestUpload(Task):
                     self.logger.debug("File size: {} bytes".format(size))
                     for idx in range(nFiles):
                         # Generate random file of size <size>
-                        f = generateRandomFile(size)
+                        f = generateRandomFile(size, prefix=data_tag)
                         fileDID = "{}:{}".format(scope, os.path.basename(f.name))
 
                         # Upload to <rseDst>
