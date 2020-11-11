@@ -148,6 +148,6 @@ class ES():
         entry['endpoint'] = endpoint
         entry['protocol'] = protocol
 
-        self.logger.info("Updating rule...")
+        self.logger.info("Updating rule ({})...".format(ruleID))
         self._update(index=index, documentID=ruleID, body={"doc": entry})
         self.logger.info("Update complete")

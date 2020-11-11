@@ -61,11 +61,9 @@ class TestReplication(Task):
                     # Upload to <rseSrc>
                     self.logger.debug("Uploading file {} of {}".format(idx + 1, nFiles))
                     try:
-                        st = time.time()
                         rucio.upload(
                             rse=rseSrc, scope=scope, filePath=f.name, lifetime=lifetime
                         )
-                        uploadDuration = time.time() - st
                     except Exception as e:
                         self.logger.warning(repr(e))
                         os.remove(f.name)

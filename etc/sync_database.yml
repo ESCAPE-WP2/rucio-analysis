@@ -29,7 +29,7 @@ sync-database-test-replication-qos-cheap:
         uri: http://130.246.214.144:80/monit/metadata/
         index: "[replication]"
         search_range_lte: now
-        search_range_gte: now-3h
+        search_range_gte: now-1h
         max_rows: 10000
 
 sync-database-test-replication-qos-fast:
@@ -46,7 +46,7 @@ sync-database-test-replication-qos-fast:
         uri: http://130.246.214.144:80/monit/metadata/
         index: "[replication]"
         search_range_lte: now
-        search_range_gte: now-3h
+        search_range_gte: now-1h
         max_rows: 10000
 
 sync-database-test-replication-qos-oppo:
@@ -63,7 +63,7 @@ sync-database-test-replication-qos-oppo:
         uri: http://130.246.214.144:80/monit/metadata/
         index: "[replication]"
         search_range_lte: now
-        search_range_gte: now-3h
+        search_range_gte: now-1h
         max_rows: 10000
   
 sync-database-test-replication-qos-safe:
@@ -80,7 +80,7 @@ sync-database-test-replication-qos-safe:
         uri: http://130.246.214.144:80/monit/metadata/
         index: "[replication]"
         search_range_lte: now
-        search_range_gte: now-3h
+        search_range_gte: now-1h
         max_rows: 10000
       
   
