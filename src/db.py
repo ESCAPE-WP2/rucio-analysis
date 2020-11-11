@@ -11,16 +11,22 @@ class ES():
         self.rucio = RucioWrappersAPI()
         self.logger = logger
 
+    def _get(self, index, documentID):
+        try:
+            return self.es.get(index=index, id=documentID)
+        except Exception as e:
+            self.logger.warning("Failed to get document: {}".format(e))
+
     def _index(self, index, documentID, body):
         try:
             self.es.index(index=index, id=documentID, body=body)
         except Exception as e:
-            self.logger.warning("Failed to index: {}".format(e))
+            self.logger.critical("Failed to index: {}".format(e))
             exit()
 
     def _update(self, index, documentID, body):
         try:
-            res = self.es.update(index=index, id=documentID, body=body)
+            self.es.update(index=index, id=documentID, body=body)
         except Exception as e:
             self.logger.warning("Failed to update database: {}".format(e))
 
@@ -40,13 +46,15 @@ class ES():
                     'updated_at': rule['updated_at'],
                     'expires_at': rule['expires_at'],
                     'state': rule['state'],
-                    'error': rule['error']
+                    'error': rule['error'],
                 }
+
+                # Add protocol and endpoint details
                 try:
                     replica = self.rucio.listFileReplicas(did, rse=entry['to_rse'])
                     protocol = replica[0]['rses'][entry['to_rse']][0].split(':')[0]
                     endpoint = replica[0]['rses'][entry['to_rse']][0]
-                except KeyError:    # if the rule doesn't exist
+                except Exception:    # if the rule doesn't exist
                     endpoint = None
                     protocol = None
                 entry['endpoint'] = endpoint
@@ -61,13 +69,22 @@ class ES():
 
         for entry in entries:
             entry = {**entry, **baseEntry}
-            entry['is_submitted'] = 1
-            entry['is_done'] = 1 if entry['state'] == 'OK' else 0
-            entry['is_replicating'] = 1 if entry['state'] == 'REPLICATING' else 0
-            entry['is_stuck'] = 1 if entry['state'] == 'STUCK' else 0
-            entry['is_upload_failed'] = 1 if entry['state'] == 'UPLOAD-FAILED' else 0
-            entry['is_upload_successful'] = 1 if entry['state'] == 'UPLOAD-SUCCESSFUL' \
-                else 0
+
+            # Add boolean flags for state
+            try:
+                entry['is_submitted'] = 1
+                entry['is_done'] = 1 if entry['state'] == 'OK' else 0
+                entry['is_replicating'] = 1 if entry['state'] \
+                    == 'REPLICATING' else 0
+                entry['is_stuck'] = 1 if entry['state'] \
+                    == 'STUCK' else 0
+                entry['is_upload_failed'] = 1 if entry['state'] \
+                    == 'UPLOAD-FAILED' else 0
+                entry['is_upload_successful'] = 1 if entry['state'] \
+                    == 'UPLOAD-SUCCESSFUL' else 0
+            except KeyError:        # may be the case if <state> isn't passed through
+                pass
+
             try:
                 self._index(index=index, documentID=entry['rule_id'], body=entry)
             except Exception as e:
@@ -104,16 +121,28 @@ class ES():
         }
         entry = {**entry, **extraEntries}
 
+        # Add "throughput" from REPLICATING -> OK state change
+        if entry['state'] == 'OK':
+            rtn = self._get(index, ruleID)
+            if rtn['_source']['state'] == 'REPLICATING':
+                doneAt = entry['updated_at']
+                startedReplicationAt = datetime.strptime(
+                    rtn['_source']['updated_at'], "%Y-%m-%dT%H:%M:%S")
+                entry['replication_duration'] = (
+                    doneAt-startedReplicationAt).total_seconds()
+
+        # Add boolean flags for state
         entry['is_done'] = 1 if entry['state'] == 'OK' else 0
         entry['is_replicating'] = 1 if entry['state'] == 'REPLICATING' else 0
         entry['is_stuck'] = 1 if entry['state'] == 'STUCK' else 0
 
+        # Add protocol and endpoint details
         did = "{}:{}".format(entry['scope'], entry['name'])
         try:
             replica = self.rucio.listFileReplicas(did, rse=entry['to_rse'])
             protocol = replica[0]['rses'][entry['to_rse']][0].split(':')[0]
             endpoint = replica[0]['rses'][entry['to_rse']][0]
-        except KeyError:    # if the rule doesn't exist
+        except Exception:    # if the rule doesn't exist
             endpoint = None
             protocol = None
         entry['endpoint'] = endpoint

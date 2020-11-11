@@ -17,3 +17,7 @@ test-replication-bulk:
     scope: SKA_SKAO_COLLINSON
     # container_name: test_container # [Optional] Specify a name for the parent container
     # data_tag: data_prefix # [Optional] Specify a prefix tag for files/directories
+    databases:
+      - type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"

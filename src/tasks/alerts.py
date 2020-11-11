@@ -4,8 +4,8 @@ from db import ES
 from tasks import Task
 
 
-class AlarmStuck(Task):
-    """ Send alarms about rule statuses. """
+class AlertStuck(Task):
+    """ Send alerts about rule statuses. """
 
     def __init__(self, logger):
         super().__init__(logger)
@@ -51,7 +51,7 @@ class AlarmStuck(Task):
             })
             nStuckDocs = len(res['hits']['hits'])
 
-            # For each of these documents, add information about the alarm
+            # For each of these documents, add information about the alert
             #
             attachments = []
             for idx, hit in enumerate(res['hits']['hits']):
@@ -89,7 +89,7 @@ class AlarmStuck(Task):
                             ]
                         })
 
-            # For each webhook, process the alarm
+            # For each webhook, process the alert
             #
             for webhook in webhooks:
                 if webhook['type'] == 'slack':
