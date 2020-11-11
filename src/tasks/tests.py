@@ -1,7 +1,7 @@
 from multiprocessing import Pool
-import logging
 import os
 import random
+import time
 import uuid
 
 from db import ES
@@ -36,7 +36,7 @@ class TestReplication(Task):
         # Instantiate RucioWrappers class to allow access to static methods.
         #
         rucio = RucioWrappersAPI()
-        print("Databases {}".format(databases))
+
         # Create a dataset to house the data, named with today's date
         # and scope <scope>.
         #
@@ -60,9 +60,11 @@ class TestReplication(Task):
                     # Upload to <rseSrc>
                     self.logger.debug("Uploading file {} of {}".format(idx + 1, nFiles))
                     try:
+                        st = time.time()
                         rucio.upload(
                             rse=rseSrc, scope=scope, filePath=f.name, lifetime=lifetime
                         )
+                        uploadDuration = time.time() - st
                     except Exception as e:
                         self.logger.warning(repr(e))
                         os.remove(f.name)
@@ -109,7 +111,11 @@ class TestReplication(Task):
                             es.pushRulesForDID(
                                 fileDID,
                                 index=database["index"],
-                                baseEntry={"task_name": taskName},
+                                baseEntry={
+                                    "task_name": taskName,
+                                    "file_size": size,
+                                    "type": "file"
+                                },
                             )
 
         self.toc()
@@ -138,6 +144,8 @@ class TestReplicationBulk(Task):
             rsesDst = kwargs["dest_rses"]
             scope = kwargs["scope"]
             container_name = kwargs.get("container_name", None)
+            databases = kwargs["databases"]
+            taskName = kwargs["task_name"]
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -160,7 +168,9 @@ class TestReplicationBulk(Task):
         #
         args_arr = [
             (
+                taskName,
                 loggerName,
+                databases,
                 rseSrc,
                 rsesDst,
                 nFiles,
@@ -287,15 +297,19 @@ class TestReplicationQos(Task):
                 self.logger.warning(repr(e))
                 continue
 
-            # Push corresponding rules to database
-            for database in databases:
-                if database["type"] == "es":
-                    self.logger.debug("Injecting rules into ES database...")
-                    es = ES(database["uri"], self.logger)
-                    es.pushRulesForDID(
-                        fileDID, index=database["index"], 
-                        baseEntry={"task_name": taskName}
-                    )
+        # Push corresponding rules to database
+        for database in databases:
+            if database["type"] == "es":
+                self.logger.debug("Injecting rules into ES database...")
+                es = ES(database["uri"], self.logger)
+                es.pushRulesForDID(
+                    fileDID, index=database["index"],
+                    baseEntry={
+                        "task_name": taskName,
+                        "file_size": size,
+                        "type": "file"
+                    }
+                )
 
         self.logger.debug("Replication rules added for source QoS {}".format(qos_src))
 
@@ -358,8 +372,13 @@ class TestUpload(Task):
                             )
                         )
 
-                        entry = {"task_name": taskName, "file_size": size}
+                        entry = {
+                            "task_name": taskName,
+                            "file_size": size,
+                            "type": "file"
+                        }
                         try:
+                            st = time.time()
                             rucio.upload(
                                 rse=rseDst,
                                 scope=scope,
@@ -367,6 +386,7 @@ class TestUpload(Task):
                                 lifetime=lifetime,
                                 forceScheme=protocol,
                             )
+                            entry['upload_duration'] = time.time() - st
                             entry["state"] = "UPLOAD-SUCCESSFUL"
                             self.logger.debug("Upload complete")
 

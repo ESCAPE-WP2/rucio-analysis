@@ -15,3 +15,7 @@ test-replication-bulk:
       - SARA-DCACHE
       - EULAKE-1
     scope: SKA_SKAO_COLLINSON
+    databases:
+      - type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"

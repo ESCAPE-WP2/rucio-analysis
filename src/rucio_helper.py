@@ -1,14 +1,19 @@
+from datetime import datetime
 import logging
 import os
 import shutil
-from datetime import datetime
+import time
+import uuid
 
+from db import ES
 from rucio_wrappers import RucioWrappersCLI, RucioWrappersAPI
 from utility import bcolors, generateDirRandomFiles
 
 
 def uploadDirReplicate(
+    taskName,
     loggerName,
+    databases,
     rseSrc,
     rsesDst,
     nFiles,
@@ -51,12 +56,39 @@ def uploadDirReplicate(
     # Upload to <rseSrc>
     logger.debug("Uploading dir {} and attaching to {}".format(dirPath, parentDID))
 
+    entry = {
+        "rule_id": str(uuid.uuid4()),
+        "task_name": taskName,
+        "file_size": fileSize,
+        "n_files": nFiles,
+        "type": "dataset",
+        "to_rse": rseSrc,
+        "scope": scope,
+        "name": os.path.basename(dirPath)
+    }
     try:
+        st = time.time()
         rucio.uploadDir(rseSrc, scope, dirPath, lifetime, datasetDID)
+        entry["upload_duration"] = time.time() - st
+        entry["state"] = "UPLOAD-SUCCESSFUL"
     except Exception as e:
-        logger.warning(repr(e))
+        logger.warning("Upload failed: {}".format(e))
+        entry["error"] = repr(e.__class__.__name__).strip("'")
+        entry["state"] = "UPLOAD-FAILED"
         shutil.rmtree(dirPath)
+
+    # Push corresponding upload rules to database
+    for database in databases:
+        if database["type"] == "es":
+            logger.debug("Injecting upload rules into ES database...")
+            es = ES(database["uri"], logger)
+            es.pushRulesForDID(
+                datasetDID, index=database["index"], baseEntry=entry
+            )
+
+    if not os.path.exists(dirPath):     # upload failed
         return
+
     logger.debug("Upload complete")
 
     # Add replication rules for other RSEs
@@ -73,6 +105,20 @@ def uploadDirReplicate(
         except Exception as e:
             logger.warning(repr(e))
             continue
+
+        # Push corresponding replication rules to database
+        for database in databases:
+            if database["type"] == "es":
+                logger.debug("Injecting replication rules into ES database... ")
+                es = ES(database["uri"], logger)
+                es.pushRulesForDID(
+                    datasetDID, index=database["index"], baseEntry={
+                        "task_name": taskName,
+                        "file_size": fileSize,
+                        "n_files": nFiles,
+                        "type": "dataset",
+                    }
+                )
     logger.debug("All replication rules added")
     shutil.rmtree(dirPath)
 

@@ -54,7 +54,7 @@ class ES():
                     replica = self.rucio.listFileReplicas(did, rse=entry['to_rse'])
                     protocol = replica[0]['rses'][entry['to_rse']][0].split(':')[0]
                     endpoint = replica[0]['rses'][entry['to_rse']][0]
-                except KeyError:    # if the rule doesn't exist
+                except Exception:    # if the rule doesn't exist
                     endpoint = None
                     protocol = None
                 entry['endpoint'] = endpoint
@@ -71,13 +71,20 @@ class ES():
             entry = {**entry, **baseEntry}
 
             # Add boolean flags for state
-            entry['is_submitted'] = 1
-            entry['is_done'] = 1 if entry['state'] == 'OK' else 0
-            entry['is_replicating'] = 1 if entry['state'] == 'REPLICATING' else 0
-            entry['is_stuck'] = 1 if entry['state'] == 'STUCK' else 0
-            entry['is_upload_failed'] = 1 if entry['state'] == 'UPLOAD-FAILED' else 0
-            entry['is_upload_successful'] = 1 if entry['state'] == 'UPLOAD-SUCCESSFUL' \
-                else 0
+            try:
+                entry['is_submitted'] = 1
+                entry['is_done'] = 1 if entry['state'] == 'OK' else 0
+                entry['is_replicating'] = 1 if entry['state'] \
+                    == 'REPLICATING' else 0
+                entry['is_stuck'] = 1 if entry['state'] \
+                    == 'STUCK' else 0
+                entry['is_upload_failed'] = 1 if entry['state'] \
+                    == 'UPLOAD-FAILED' else 0
+                entry['is_upload_successful'] = 1 if entry['state'] \
+                    == 'UPLOAD-SUCCESSFUL' else 0
+            except KeyError:        # may be the case if <state> isn't passed through
+                pass
+
             try:
                 self._index(index=index, documentID=entry['rule_id'], body=entry)
             except Exception as e:
@@ -135,7 +142,7 @@ class ES():
             replica = self.rucio.listFileReplicas(did, rse=entry['to_rse'])
             protocol = replica[0]['rses'][entry['to_rse']][0].split(':')[0]
             endpoint = replica[0]['rses'][entry['to_rse']][0]
-        except KeyError:    # if the rule doesn't exist
+        except Exception:    # if the rule doesn't exist
             endpoint = None
             protocol = None
         entry['endpoint'] = endpoint
