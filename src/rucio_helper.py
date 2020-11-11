@@ -18,6 +18,7 @@ def uploadDirReplicate(
     parentDID,
     dirIdx=1,
     nDirs=1,
+    data_tag="",
 ):
     """
     Upload a dir containing <nFiles> of <fileSize> to <rseSrc>, attaching
@@ -32,7 +33,7 @@ def uploadDirReplicate(
     logger.info(bcolors.OKBLUE + "RSE (src): {}".format(rseSrc) + bcolors.ENDC)
 
     # Generate directory:
-    dirPath = generateDirRandomFiles(nFiles, fileSize, dirIdx)
+    dirPath = generateDirRandomFiles(nFiles, fileSize, dirId=dirIdx, prefix=data_tag)
 
     # Create dataset DID based on directory name
     datasetName = os.path.basename(dirPath)
@@ -60,20 +61,23 @@ def uploadDirReplicate(
     logger.debug("Upload complete")
 
     # Add replication rules for other RSEs
-    for rseDst in rsesDst:
-        if rseSrc == rseDst:
-            continue
-        try:
-            rtn = rucio.addRule(datasetDID, 1, rseDst, lifetime=lifetime)
-            logger.debug(
-                "Added Rule ID: {} for DID {} and RSE {}".format(
-                    rtn.stdout.decode("UTF-8").rstrip("\n"), datasetDID, rseDst
-                ),
-            )
-        except Exception as e:
-            logger.warning(repr(e))
-            continue
-    logger.debug("All replication rules added")
+    if rsesDst is not None:
+        for rseDst in rsesDst:
+            if rseSrc == rseDst:
+                continue
+            try:
+                rtn = rucio.addRule(datasetDID, 1, rseDst, lifetime=lifetime)
+                logger.debug(
+                    "Added Rule ID: {} for DID {} and RSE {}".format(
+                        rtn.stdout.decode("UTF-8").rstrip("\n"), datasetDID, rseDst
+                    ),
+                )
+            except Exception as e:
+                logger.warning(repr(e))
+                continue
+        logger.debug("All replication rules added")
+    else:
+        logger.debug("No destination RSEs passed; no replication rules added")
     shutil.rmtree(dirPath)
 
 

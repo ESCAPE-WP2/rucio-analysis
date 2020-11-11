@@ -15,3 +15,5 @@ test-replication-bulk:
       - SARA-DCACHE
       - EULAKE-1
     scope: SKA_SKAO_COLLINSON
+    # container_name: test_container # [Optional] Specify a name for the parent container
+    # data_tag: data_prefix # [Optional] Specify a prefix tag for files/directories

@@ -137,6 +137,7 @@ class TestReplicationBulk(Task):
             rsesDst = kwargs["dest_rses"]
             scope = kwargs["scope"]
             container_name = kwargs.get("container_name", None)
+            data_tag = kwargs.get("data_tag", "")
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -169,6 +170,7 @@ class TestReplicationBulk(Task):
                 parentDID,
                 dirIdx,
                 nDirs,
+                data_tag,
             )
             for dirIdx in range(1, nDirs + 1)
         ]
