@@ -151,7 +151,7 @@ def createDID(loggerName, scope, collectionType="DATASET", DID=None):
     except Exception as e:
         logger.critical("Error listing Collection")
         logger.critical(repr(e))
-        exit()
+        return False
 
     if DID not in dids:
         logger.debug("Adding DID {} of type {}".format(DID, collectionType))
@@ -160,7 +160,7 @@ def createDID(loggerName, scope, collectionType="DATASET", DID=None):
         except Exception as e:
             logger.critical("Error adding collection")
             logger.critical(repr(e))
-            exit()
+            return False
     else:
         logger.debug("Collection already exists")
 

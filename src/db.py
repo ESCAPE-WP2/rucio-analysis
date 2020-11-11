@@ -22,7 +22,7 @@ class ES():
             self.es.index(index=index, id=documentID, body=body)
         except Exception as e:
             self.logger.critical("Failed to index: {}".format(e))
-            exit()
+            return False
 
     def _update(self, index, documentID, body):
         try:

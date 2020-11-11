@@ -32,7 +32,7 @@ class TestReplication(Task):
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
-            exit()
+            return False
 
         # Instantiate RucioWrappers class to allow access to static methods.
         #
@@ -149,7 +149,7 @@ class TestReplicationBulk(Task):
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
-            exit()
+            return False
 
         loggerName = self.logger.name
 
@@ -219,11 +219,11 @@ class TestReplicationQos(Task):
                         len(qos), len(lifetimes)
                     )
                 )
-                exit()
+                return False
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
-            exit()
+            return False
 
         # Instantiate RucioWrappers to make Rucio calls
         #
@@ -246,7 +246,7 @@ class TestReplicationQos(Task):
             )
         except Exception as e:
             self.logger.critical(repr(e))
-            exit()
+            return False
 
         f = generateRandomFile(size, prefix=data_tag)
         fileDID = "{}:{}".format(scope, os.path.basename(f.name))
@@ -264,7 +264,7 @@ class TestReplicationQos(Task):
         except Exception as e:
             self.logger.warning("Upload failed; ({})".format(repr(e)))
             os.remove(f.name)
-            exit()
+            return False
 
         # Attach to dataset
         self.logger.debug("Attaching file {} to {}".format(fileDID, datasetDID))
@@ -342,7 +342,7 @@ class TestUpload(Task):
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
-            exit()
+            return False
 
         # Instantiate RucioWrappers class to allow access to static methods.
         #
