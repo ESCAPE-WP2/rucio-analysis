@@ -66,6 +66,7 @@ def uploadDirReplicate(
         "to_rse": rseSrc,
         "scope": scope,
         "name": os.path.basename(dirPath),
+        "is_upload_submitted": 1
     }
     try:
         st = time.time()
@@ -119,6 +120,7 @@ def uploadDirReplicate(
                             "file_size": fileSize,
                             "n_files": nFiles,
                             "type": "dataset",
+                            "is_submitted": 1
                         },
                     )
         logger.debug("All replication rules added")

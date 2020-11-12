@@ -72,7 +72,6 @@ class ES():
 
             # Add boolean flags for state
             try:
-                entry['is_submitted'] = 1
                 entry['is_done'] = 1 if entry['state'] == 'OK' else 0
                 entry['is_replicating'] = 1 if entry['state'] \
                     == 'REPLICATING' else 0

@@ -114,6 +114,8 @@ class TestReplication(Task):
                                     "task_name": taskName,
                                     "file_size": size,
                                     "type": "file",
+                                    "n_files": 1,
+                                    "is_submitted": 1
                                 },
                             )
 
@@ -311,6 +313,8 @@ class TestReplicationQos(Task):
                         "task_name": taskName,
                         "file_size": size,
                         "type": "file",
+                        "n_files": 1,
+                        "is_submitted": 1
                     },
                 )
 
@@ -380,6 +384,8 @@ class TestUpload(Task):
                             "task_name": taskName,
                             "file_size": size,
                             "type": "file",
+                            "n_files": 1,
+                            "is_upload_submitted": 1
                         }
                         try:
                             st = time.time()
