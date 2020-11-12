@@ -17,14 +17,14 @@ test-upload:
       - ALPAMED-DPM
       - CNAF-STORM
       - DESY-DCACHE
-      #- EULAKE-1
+      - EULAKE-1
       - GSI-ROOT
       - IN2P3-CC-DCACHE
       - INFN-NA-DPM
-      #- LAPP-DCACHE
+      - LAPP-DCACHE
       - PIC-DCACHE
       - SARA-DCACHE
-      #- LAPP-WEBDAV
+      - LAPP-WEBDAV
     scope: SKA_SKAO_BARNSLEY-testing
     databases:
       - type: es 
@@ -46,14 +46,14 @@ test-replication:
       - ALPAMED-DPM
       - CNAF-STORM
       - DESY-DCACHE
-      #- EULAKE-1
+      - EULAKE-1
       - GSI-ROOT
       - IN2P3-CC-DCACHE
       - INFN-NA-DPM
-      #- LAPP-DCACHE
+      - LAPP-DCACHE
       - PIC-DCACHE
       - SARA-DCACHE
-      #- LAPP-WEBDAV
+      - LAPP-WEBDAV
     scope: SKA_SKAO_BARNSLEY-testing
     databases:
       - type: es 
