@@ -1,4 +1,4 @@
-test-replication:
+test-skao-sdc1:
     description: "Test transfers between RSEs."
     module_name: "tasks.tests"
     class_name: "TestReplication"
@@ -7,7 +7,7 @@ test-replication:
     kwargs:
         dids:
           - SKA_SKAO_TEAM:SDC1
-        lifetime: 3600 # seconds
+        lifetime: 1209600 # seconds
         rses:
           - QOS=FAST
         databases:

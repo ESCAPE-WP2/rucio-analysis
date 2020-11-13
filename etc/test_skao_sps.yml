@@ -13,7 +13,7 @@ test-skao-sps:
       source_rse: DESY-DCACHE
       dest_rses:
         - EULAKE-1
-      scope: SKA_SKAO_JOSHI-testing
+      scope: SKA_SKAO_TEAM_SPS
       container_name: sps_trial_13-11-20 # [Optional] Specify a name for the parent container
       data_tag: sps # [Optional] Specify a prefix tag for files/directories
       databases:
