@@ -99,4 +99,20 @@ sync-database-test-replication-bulk:
         search_range_lte: now
         search_range_gte: now-1h
         max_rows: 10000 
-  
+
+sync-database-test-skao-ps:
+    description: "Sync external database with rule information in datalake (test-skao-ps)"
+    module_name: "tasks.sync"
+    class_name: "SyncDatabase"
+    enabled: true
+    args:
+    kwargs:
+      task_name_to_update: test-skao-ps
+      n_workers: 6
+      database:
+        type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        search_range_lte: now
+        search_range_gte: now-1h
+        max_rows: 10000 
