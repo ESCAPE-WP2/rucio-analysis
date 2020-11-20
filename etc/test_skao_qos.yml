@@ -2,7 +2,7 @@ test-skao-qos:
     description: "Simulate data lifecyle by replication based on QoS"
     module_name: "tasks.tests"
     class_name: "TestReplicationQos"
-    enabled: false
+    enabled: true
     args:
     kwargs:
       size: 100000000 # 100 MB

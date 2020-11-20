@@ -14,7 +14,7 @@ test-skao-sps:
       dest_rses:
         - EULAKE-1
       scope: SKA_SKAO_TEAM_SPS
-      container_name: sps_trial_13-11-20 # [Optional] Specify a name for the parent container
+      container_name: sps_trial_17-11-20 # [Optional] Specify a name for the parent container
       data_tag: sps # [Optional] Specify a prefix tag for files/directories
       databases:
         - type: es
