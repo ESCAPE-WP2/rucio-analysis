@@ -449,6 +449,7 @@ class TestReplication(Task):
             lifetime = kwargs["lifetime"]
             databases = kwargs["databases"]
             taskName = kwargs["task_name"]
+            asynchronous = kwargs.get("asynchronous", False)
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -465,7 +466,9 @@ class TestReplication(Task):
                     bcolors.OKGREEN + "RSE (dst): {}".format(rse) + bcolors.ENDC
                 )
                 try:
-                    rtn = rucio.addRule(DID, 1, rse, lifetime=lifetime)
+                    rtn = rucio.addRule(
+                        DID, 1, rse, lifetime=lifetime, asynchronous=asynchronous
+                    )
                     self.logger.debug("Rule ID: {}".format(rtn[0]))
                 except Exception as e:
                     self.logger.warning(repr(e))
