@@ -1,0 +1,16 @@
+test-skao-ht:
+    description: "High throughput replication between RSEs."
+    module_name: "tasks.tests"
+    class_name: "TestReplication"
+    enabled: true
+    args:
+    kwargs:
+        dids:
+          - SKA_SKAO_JOSHI-testing:1G-files-stress-test
+        lifetime: 1209600  # in seconds, 60 days
+        rses:
+          - IN2P3-CC-DCACHE
+        databases:
+          - type: es
+            uri: http://130.246.214.144:80/monit/metadata/
+            index: "[replication]"
