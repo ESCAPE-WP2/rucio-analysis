@@ -173,7 +173,11 @@ if __name__ == "__main__":
                 text='\n'.join(dialog),
                 thread_ts=thread_ts
             )
+<<<<<<< HEAD
         elif 'show replications' in data['text']:
+=======
+        elif 'show replications for' in data['text']:
+>>>>>>> a4190c26545587736401c6cc5be8d026a5948e6f
             requestedRse = data['text'].split()[3].strip()
             dialog = []
             if args.dt == 'es':

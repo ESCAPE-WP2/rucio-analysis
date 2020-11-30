@@ -2,6 +2,7 @@ import abc
 import subprocess
 
 from rucio.client.client import Client
+from rucio.client.rseclient import RSEClient
 from rucio.client.downloadclient import DownloadClient
 from rucio.client.uploadclient import UploadClient
 from rucio.common.exception import RucioException
@@ -35,6 +36,18 @@ class RucioWrappers:
     @abc.abstractstaticmethod
     def getMetadata():
         raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def getRSELimits(rse):
+        raise NotImplementedError()
+
+    @abc.abstractstaticmethod
+    def getRSEProtocols(rse):
+        raise NotImplementedError()
+
+    @abc.abstractstaticmethod
+    def getRSEUsage(rse):
+        raise NotImplementedError()
 
     @abc.abstractstaticmethod
     def listDIDs():
@@ -289,6 +302,24 @@ class RucioWrappersAPI(RucioWrappers):
         name = tokens[1]
         metadata = client.get_metadata(scope, name)
         return metadata
+
+    @staticmethod
+    def getRSELimits(rse):
+        client = RSEClient()
+        limits = client.get_rse_limits(rse)
+        return limits
+
+    @staticmethod
+    def getRSEProtocols(rse):
+        client = RSEClient()
+        protocols = client.get_protocols(rse)
+        return protocols
+
+    @staticmethod
+    def getRSEUsage(rse):
+        client = RSEClient()
+        usage = client.get_rse_usage(rse)
+        return usage
 
     @staticmethod
     def listFileReplicas(did, rse=None):
