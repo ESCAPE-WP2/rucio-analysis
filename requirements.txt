@@ -1,3 +1,5 @@
 elasticsearch
 rucio-clients
+slackclient
+python-crontab
 pyyaml
