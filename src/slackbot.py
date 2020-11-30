@@ -8,7 +8,6 @@ from slack import RTMClient
 
 from db import ES
 from logger import Logger
-from rucio_wrappers import RucioWrappersAPI
 
 
 if __name__ == "__main__":
@@ -30,7 +29,6 @@ if __name__ == "__main__":
         logger = Logger(level='DEBUG').get()
     else:
         logger = Logger(level='INFO').get()
-    Logger(name="rucio", level='INFO')          # set Rucio logger format
 
     rses = args.rses.split(', ')
 
@@ -54,7 +52,6 @@ if __name__ == "__main__":
                 'hello': 'test bot aliveness',
                 'disable job *<job_idx>* for *<user>*': '',
                 'enable job *<job_idx>* for *<user>*': '',
-                'show information for *<rse>*': '',
                 'list commands': '',
                 'list jobs for *<user>*': '',
                 'list rses': '',
@@ -140,37 +137,6 @@ if __name__ == "__main__":
             web_client.chat_postMessage(
                 channel=channel_id,
                 text=text,
-                thread_ts=thread_ts
-            )
-        elif 'show information for' in data['text']:
-            requestedRse = data['text'].split()[3].strip()
-            dialog = []
-            rucio = RucioWrappersAPI()
-
-            try:
-                rucio.whoAmI()
-                dialog.append('*RSE Information*\n')
-                for u in rucio.getRSEUsage(requestedRse):
-                    if u['source'] == 'rucio':
-                        nfiles = u['files']
-                        used = u['used'] 
-                    elif u['source'] == 'storage':
-                        total = u['total']
-                dialog.append('Space free: {}%'.format(round(100-(100*used/total), 1)))
-                dialog.append('Number of files: {:.2e}'.format(nfiles))
-
-                protocolsSupported = []
-                for protocol in rucio.getRSEProtocols(requestedRse):
-                    protocolsSupported.append(protocol['scheme'])
-                dialog.append('Protocols supported: {}\n'.format(
-                    ', '.join(protocolsSupported)))
-            except Exception as e:
-                dialog.append('Could not communicate with Rucio server. {}'.format(
-                    repr(e)))
-            
-            web_client.chat_postMessage(
-                channel=channel_id,
-                text='\n'.join(dialog),
                 thread_ts=thread_ts
             )
         elif 'show replications' in data['text']:
