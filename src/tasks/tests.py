@@ -445,6 +445,7 @@ class TestReplication(Task):
         self.tic()
         try:
             DIDs = kwargs["dids"]
+            rseSrc = kwargs.get("source_rse", None)
             rses = kwargs["rses"]
             lifetime = kwargs["lifetime"]
             databases = kwargs["databases"]
@@ -467,7 +468,12 @@ class TestReplication(Task):
                 )
                 try:
                     rtn = rucio.addRule(
-                        DID, 1, rse, lifetime=lifetime, asynchronous=asynchronous
+                        DID,
+                        1,
+                        rse,
+                        lifetime=lifetime,
+                        src=rseSrc,
+                        asynchronous=asynchronous,
                     )
                     self.logger.debug("Rule ID: {}".format(rtn[0]))
                 except Exception as e:
