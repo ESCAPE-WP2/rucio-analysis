@@ -2,13 +2,10 @@ from datetime import datetime
 
 from elasticsearch import Elasticsearch
 
-from rucio_wrappers import RucioWrappersAPI
-
 
 class ES():
     def __init__(self, uri, logger):
         self.es = Elasticsearch([uri])
-        self.rucio = RucioWrappersAPI()
         self.logger = logger
 
     def _get(self, index, documentID):
@@ -31,7 +28,9 @@ class ES():
             self.logger.warning("Failed to update database: {}".format(e))
 
     def pushRulesForDID(self, did, index, baseEntry={}):
-        rules = self.rucio.listReplicationRules(did)
+        from rucio_wrappers import RucioWrappersAPI
+        rucio = RucioWrappersAPI()
+        rules = rucio.listReplicationRules(did)
         entries = []
         if len(rules) > 0:
             for rule in rules:
@@ -51,7 +50,7 @@ class ES():
 
                 # Add protocol and endpoint details
                 try:
-                    replica = self.rucio.listFileReplicas(did, rse=entry['to_rse'])
+                    replica = rucio.listFileReplicas(did, rse=entry['to_rse'])
                     protocol = replica[0]['rses'][entry['to_rse']][0].split(':')[0]
                     endpoint = replica[0]['rses'][entry['to_rse']][0]
                 except Exception:    # if the rule doesn't exist
@@ -99,9 +98,11 @@ class ES():
             exit()
 
     def updateRuleWithDID(self, ruleID, index, extraEntries={}):
+        from rucio_wrappers import RucioWrappersAPI
+        rucio = RucioWrappersAPI()
         try:
             self.logger.debug("Getting rule information...")
-            rule = self.rucio.ruleInfo(ruleID)
+            rule = rucio.ruleInfo(ruleID)
         except Exception as e:
             self.logger.warning("Error getting rule information, " +
                 "skipping: {}".format(repr(e)))
@@ -138,7 +139,7 @@ class ES():
         # Add protocol and endpoint details
         did = "{}:{}".format(entry['scope'], entry['name'])
         try:
-            replica = self.rucio.listFileReplicas(did, rse=entry['to_rse'])
+            replica = rucio.listFileReplicas(did, rse=entry['to_rse'])
             protocol = replica[0]['rses'][entry['to_rse']][0].split(':')[0]
             endpoint = replica[0]['rses'][entry['to_rse']][0]
         except Exception:    # if the rule doesn't exist

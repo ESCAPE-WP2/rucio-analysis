@@ -1,6 +1,8 @@
 from datetime import datetime
 import requests
 
+from slack import RTMClient
+
 from db import ES
 from tasks import Task
 
@@ -14,6 +16,7 @@ class ReportDaily(Task):
     def run(self, args, kwargs):
         super().run()
         self.tic()
+
         try:
             databaseType = kwargs['database']['type']
             databaseUri = kwargs['database']['uri']
@@ -50,14 +53,6 @@ class ReportDaily(Task):
                         percentageStuckWarningThreshold)
                 },
             })
-            '''blocks.append({
-                "type": "image",
-                "title": {
-                    "type": "plain_text",
-                    "text": "Cumulative Sum"
-                },
-                "image_url": "https://monit-grafana.cern.ch/render/d-solo/O8MinE5Gk/es-ska-rmb?orgId=51&from=now-24h&to=now&var-rses=All&panelId=5&width=480&height=300&tz=Europe%2FLondon&timeout=3600"
-            })'''
             blocks.append({
                 "type": "divider"
             })
