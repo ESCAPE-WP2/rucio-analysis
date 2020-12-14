@@ -1,0 +1,17 @@
+test-skao-transfer-million:
+    description: "Test transfers between RSEs."
+    module_name: "tasks.tests"
+    class_name: "TestReplication"
+    enabled: true
+    args:
+    kwargs:
+        dids:
+          - SKA_SKAO_TEAM_MFT:million
+        lifetime: 15552000  # in seconds, 6 months
+        rses:
+          - EULAKE-1
+        asynchronous: True
+        databases:
+          - type: es
+            uri: http://130.246.214.144:80/monit/metadata/
+            index: "[replication]"

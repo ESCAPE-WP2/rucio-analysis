@@ -1,0 +1,23 @@
+test-skao-qos:
+    description: "Simulate data lifecyle by replication based on QoS"
+    module_name: "tasks.tests"
+    class_name: "TestReplicationQos"
+    enabled: true
+    args:
+    kwargs:
+      size: 100000000 # 100 MB
+      qos:
+        - FAST
+        - CHEAP-ANALYSIS
+        - OPPORTUNISTIC
+        - SAFE
+      lifetimes:
+        - 302400
+        - 604800
+        - 907200
+        - 1209600
+      scope: SKA_SKAO_TEAM_QOS24
+      databases:
+        - type: es
+          uri: http://130.246.214.144:80/monit/metadata/
+          index: "[replication]"

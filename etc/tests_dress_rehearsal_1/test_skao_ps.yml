@@ -1,0 +1,22 @@
+test-skao-ps:
+  description: "Test parallel uploading/replication of files to RSEs."
+  module_name: "tasks.tests"
+  class_name: "TestReplicationBulk"
+  enabled: true
+  args:
+  kwargs:
+    n_workers: 10 # Number of parallel processes uploading files
+    n_dirs: 350 # Number of directories of files to create (each on different process)
+    n_files: 10 # Number of files per directory
+    file_size: 50000000 # bytes
+    lifetime: 1209600 # seconds
+    source_rse: DESY-DCACHE
+    dest_rses:
+      - EULAKE-1
+    scope: SKA_SKAO_TEAM_PSS
+    container_name: ps_trial_17-11-20 # [Optional] Specify a name for the parent container
+    data_tag: ps # [Optional] Specify a prefix tag for files/directories
+    databases:
+      - type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"

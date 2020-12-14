@@ -231,7 +231,9 @@ class RucioWrappersAPI(RucioWrappers):
             raise Exception(error)
 
     @staticmethod
-    def addRule(did, copies, dst, lifetime, activity=None, src=None):
+    def addRule(
+        did, copies, dst, lifetime, activity=None, src=None, asynchronous=False
+    ):
         tokens = did.split(":")
         scope = tokens[0]
         name = tokens[1]
@@ -244,6 +246,7 @@ class RucioWrappersAPI(RucioWrappers):
             lifetime=lifetime,
             activity=activity,
             source_replica_expression=src,
+            asynchronous=asynchronous,
         )
         return rtn
 

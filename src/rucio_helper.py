@@ -144,8 +144,10 @@ def createDID(loggerName, scope, collectionType="DATASET", DID=None):
     # Does not try to create a collection if it already exists.
     #
     if DID is None:
-        todaysDate = datetime.now().strftime("%d-%m-%Y")
-        DID = "{}:{}".format(scope, todaysDate)
+        DIDName = datetime.now().strftime("%d-%m-%Y")
+        if collectionType == "CONTAINER":
+            DIDName = "container_{}".format(DIDName)
+        DID = "{}:{}".format(scope, DIDName)
     logger.info("Checking for DID ({})".format(DID))
 
     try:

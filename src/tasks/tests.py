@@ -11,7 +11,7 @@ from tasks import Task
 from utility import bcolors, generateRandomFile
 
 
-class TestReplication(Task):
+class TestUploadReplication(Task):
     """ Rucio file upload/replication to a list of RSEs. """
 
     def __init__(self, logger):
@@ -115,7 +115,7 @@ class TestReplication(Task):
                                     "file_size": size,
                                     "type": "file",
                                     "n_files": 1,
-                                    "is_submitted": 1
+                                    "is_submitted": 1,
                                 },
                             )
 
@@ -314,7 +314,7 @@ class TestReplicationQos(Task):
                         "file_size": size,
                         "type": "file",
                         "n_files": 1,
-                        "is_submitted": 1
+                        "is_submitted": 1,
                     },
                 )
 
@@ -385,7 +385,7 @@ class TestUpload(Task):
                             "file_size": size,
                             "type": "file",
                             "n_files": 1,
-                            "is_upload_submitted": 1
+                            "is_upload_submitted": 1,
                         }
                         try:
                             st = time.time()
@@ -429,6 +429,71 @@ class TestUpload(Task):
                                 es.pushRulesForDID(
                                     fileDID, index=database["index"], baseEntry=entry
                                 )
+
+        self.toc()
+        self.logger.info("Finished in {}s".format(round(self.elapsed)))
+
+
+class TestReplication(Task):
+    """ Rucio DID replication to a list of RSEs. """
+
+    def __init__(self, logger):
+        super().__init__(logger)
+
+    def run(self, args, kwargs):
+        super().run()
+        self.tic()
+        try:
+            DIDs = kwargs["dids"]
+            rses = kwargs["rses"]
+            lifetime = kwargs["lifetime"]
+            databases = kwargs["databases"]
+            taskName = kwargs["task_name"]
+            asynchronous = kwargs.get("asynchronous", False)
+        except KeyError as e:
+            self.logger.critical("Could not find necessary kwarg for task.")
+            self.logger.critical(repr(e))
+            return False
+
+        # Instantiate RucioWrappers class to allow access to static methods.
+        #
+        rucio = RucioWrappersAPI()
+
+        for DID in DIDs:
+            self.logger.debug("Adding replication rules...")
+            for rse in rses:
+                self.logger.debug(
+                    bcolors.OKGREEN + "RSE (dst): {}".format(rse) + bcolors.ENDC
+                )
+                try:
+                    rtn = rucio.addRule(
+                        DID, 1, rse, lifetime=lifetime, asynchronous=asynchronous
+                    )
+                    self.logger.debug("Rule ID: {}".format(rtn[0]))
+                except Exception as e:
+                    self.logger.warning(repr(e))
+                    continue
+                self.logger.debug("Replication rules added")
+
+                # Get information about the DID: size and did_type
+                metadata = rucio.getMetadata(DID)
+
+                # Push corresponding rules to database
+                for database in databases:
+                    if database["type"] == "es":
+                        self.logger.debug("Injecting rules into ES database...")
+                        es = ES(database["uri"], self.logger)
+                        es.pushRulesForDID(
+                            DID,
+                            index=database["index"],
+                            baseEntry={
+                                "task_name": taskName,
+                                "file_size": metadata["bytes"],
+                                "type": metadata["did_type"].lower(),
+                                "n_files": 1,
+                                "is_submitted": 1,
+                            },
+                        )
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))
