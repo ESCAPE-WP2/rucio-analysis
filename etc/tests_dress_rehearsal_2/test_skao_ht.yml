@@ -8,6 +8,7 @@ test-skao-ht:
         dids:
           - SKA_SKAO_JOSHI-testing:1G-files-stress-test
         lifetime: 604800 # in seconds, 7 days
+        source_rse: EULAKE-1
         rses:
           - INFN-NA-DPM
         databases:

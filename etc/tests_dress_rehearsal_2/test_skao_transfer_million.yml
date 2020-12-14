@@ -8,6 +8,7 @@ test-skao-transfer-million:
         dids:
           - SKA_SKAO_TEAM_MFT:million
         lifetime:  1209600  # in seconds, 14 days
+        source_rse: EULAKE-1
         rses:
           - IN2P3-CC-DCACHE 
         asynchronous: True
