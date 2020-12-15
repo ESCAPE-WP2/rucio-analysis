@@ -10,7 +10,7 @@ test-skao-ht:
         lifetime: 604800 # in seconds, 7 days
         source_rse: EULAKE-1
         rses:
-          - INFN-NA-DPM
+          - FAIR-ROOT
         databases:
           - type: es
             uri: http://130.246.214.144:80/monit/metadata/
