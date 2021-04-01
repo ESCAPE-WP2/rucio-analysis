@@ -1,15 +1,15 @@
+from session import Session
+from logger import Logger
 import argparse
 import importlib
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-from logger import Logger
-from session import Session
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()  
+    parser = argparse.ArgumentParser()
     parser.add_argument('-t', help="tasks file path", default="../etc/tests.yml",
-        type=str)
+                        type=str)
     parser.add_argument('-v', help="verbose?", action='store_true')
     iargs = parser.parse_args()
 
@@ -44,7 +44,7 @@ if __name__ == "__main__":
             except ImportError as e:
                 logger.critical("Module not found.")
                 logger.critical(repr(e))
-                exit()          
+                exit()
             except AttributeError as e:
                 logger.critical("Class not found.")
                 logger.critical(repr(e))

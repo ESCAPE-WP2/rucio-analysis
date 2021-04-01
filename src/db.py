@@ -105,7 +105,7 @@ class ES():
             rule = rucio.ruleInfo(ruleID)
         except Exception as e:
             self.logger.warning("Error getting rule information, " +
-                "skipping: {}".format(repr(e)))
+                                "skipping: {}".format(repr(e)))
             return
 
         # Form JSON to inject as update body.

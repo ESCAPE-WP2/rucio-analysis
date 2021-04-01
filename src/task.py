@@ -6,6 +6,7 @@ import time
 class Task():
     """ Base class for all tasks.
     """
+
     def __init__(self, logger):
         self.logger = logger
         self.start = None
@@ -33,7 +34,7 @@ class Task():
         self.end = time.time()
 
     @property
-    def elapsed(self): 
+    def elapsed(self):
         """ Get the elapsed time on the timer. """
         if self.start is None:
             return 0

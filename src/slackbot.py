@@ -1,6 +1,4 @@
 import argparse
-from datetime import datetime
-import os
 from subprocess import Popen, PIPE
 
 from crontab import CronTab
@@ -11,16 +9,22 @@ from logger import Logger
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()  
+    parser = argparse.ArgumentParser()
     parser.add_argument('-dt', help="Database type (ES)", default='es', action='store')
-    parser.add_argument('-du', help="Database URI", default='http://130.246.214.144:80/monit/metadata/', action='store')
-    parser.add_argument('-di', help="Database index", default='[replication]', action='store')
-    parser.add_argument('-dslte', help="Database search less than", default='now', action='store')
-    parser.add_argument('-dsgte', help="Database search greater than", default='now-24h', action='store')
+    parser.add_argument('-du', help="Database URI",
+                        default='http://130.246.214.144:80/monit/metadata/',
+                        action='store')
+    parser.add_argument('-di', help="Database index",
+                        default='[replication]', action='store')
+    parser.add_argument('-dslte', help="Database search less than",
+                        default='now', action='store')
+    parser.add_argument('-dsgte', help="Database search greater than",
+                        default='now-24h', action='store')
     parser.add_argument('-dsmr', help="Database max rows", default=1000, action='store')
-    parser.add_argument('-rses', help="Comma separated list of RSEs", 
-        default='ALPAMED-DPM, CNAF-STORM, DESY-DCACHE, EULAKE-1, GSI-ROOT, IN2P3-CC-DCACHE, INFN-NA-DPM, LAPP-DCACHE' + \
-            'PIC-DCACHE, SARA-DCACHE, LAPP-WEBDAV')
+    parser.add_argument('-rses', help="Comma separated list of RSEs",
+                        default='ALPAMED-DPM, CNAF-STORM, DESY-DCACHE, EULAKE-1, ' +
+                        'GSI-ROOT, IN2P3-CC-DCACHE, INFN-NA-DPM, LAPP-DCACHE' +
+                        'PIC-DCACHE, SARA-DCACHE, LAPP-WEBDAV')
     parser.add_argument('-t', help="Slack API token?", action='store')
     parser.add_argument('-v', help="verbose?", action='store_true')
     args = parser.parse_args()
@@ -60,7 +64,7 @@ if __name__ == "__main__":
             }
             web_client.chat_postMessage(
                 channel=channel_id,
-                text='\n'.join(['{}'.format(cmd, desc) for cmd, desc in cmds.items()]),
+                text='\n'.join(['{}'.format(cmd) for cmd, desc in cmds.items()]),
                 thread_ts=thread_ts
             )
         elif 'list jobs' in data['text']:
@@ -77,7 +81,8 @@ if __name__ == "__main__":
                     jobs = []
                     for idx, job in enumerate(cron):
                         if '#' in job.render():
-                            jobs.append('[*{:2}*] {} (DISABLED)'.format(idx, job.render()))
+                            jobs.append(
+                                '[*{:2}*] {} (DISABLED)'.format(idx, job.render()))
                         else:
                             jobs.append('[*{:2}*] {}'.format(idx, job.render()))
                     text = '\n'.join(jobs)
@@ -106,10 +111,11 @@ if __name__ == "__main__":
                     job_idx = int(data['text'].split()[2].strip())
                     cron = CronTab(user=user)
                     cron[job_idx].enable(False)
-                    
+
                     if cron[job_idx].is_valid():
                         cron.write()
-                    text = 'disabled job {} ({})'.format(job_idx, cron[job_idx].render())
+                    text = 'disabled job {} ({})'.format(
+                        job_idx, cron[job_idx].render())
 
             web_client.chat_postMessage(
                 channel=channel_id,
@@ -129,7 +135,7 @@ if __name__ == "__main__":
                     job_idx = int(data['text'].split()[2].strip())
                     cron = CronTab(user=user)
                     cron[job_idx].enable(True)
-                    
+
                     if cron[job_idx].is_valid():
                         cron.write()
                     text = 'enabled job {} ({})'.format(job_idx, cron[job_idx].render())
@@ -151,32 +157,33 @@ if __name__ == "__main__":
                     if requestedRse == dstRse:
                         continue
                     res = es.search(index=args.di, maxRows=args.dsmr,
-                        body={
-                            "query": {
-                                "bool": {
-                                    "filter": [{
-                                        "term": {
-                                            'task_name.keyword': 'test-replication'
-                                        }
-                                    }, {
-                                        "term": {
-                                            "from_rse.keyword": requestedRse
-                                        }
-                                    }, {
-                                        "term": {
-                                            "to_rse.keyword": dstRse
-                                        }
-                                    }, {
-                                        "range": {
-                                            "created_at": {
-                                                "gte": args.dsgte,
-                                                "lte": args.dslte
+                                    body={
+                                        "query": {
+                                            "bool": {
+                                                "filter": [{
+                                                    "term": {
+                                                        'task_name.keyword':
+                                                            'test-replication'
+                                                    }
+                                                }, {
+                                                    "term": {
+                                                        "from_rse.keyword": requestedRse
+                                                    }
+                                                }, {
+                                                    "term": {
+                                                        "to_rse.keyword": dstRse
+                                                    }
+                                                }, {
+                                                    "range": {
+                                                        "created_at": {
+                                                            "gte": args.dsgte,
+                                                            "lte": args.dslte
+                                                        }
+                                                    }
+                                                }]
                                             }
                                         }
-                                    }]
-                                }
-                            }
-                        })
+                                    })
 
                     isSubmitted = 0
                     isStuck = 0
@@ -204,32 +211,33 @@ if __name__ == "__main__":
                     if requestedRse == srcRse:
                         continue
                     res = es.search(index=args.di, maxRows=args.dsmr,
-                        body={
-                            "query": {
-                                "bool": {
-                                    "filter": [{
-                                        "term": {
-                                            'task_name.keyword': 'test-replication'
-                                        }
-                                    }, {
-                                        "term": {
-                                            "from_rse.keyword": srcRse
-                                        }
-                                    }, {
-                                        "term": {
-                                            "to_rse.keyword": requestedRse
-                                        }
-                                    }, {
-                                        "range": {
-                                            "created_at": {
-                                                "gte": args.dsgte,
-                                                "lte": args.dslte
+                                    body={
+                                        "query": {
+                                            "bool": {
+                                                "filter": [{
+                                                    "term": {
+                                                        'task_name.keyword':
+                                                            'test-replication'
+                                                    }
+                                                }, {
+                                                    "term": {
+                                                        "from_rse.keyword": srcRse
+                                                    }
+                                                }, {
+                                                    "term": {
+                                                        "to_rse.keyword": requestedRse
+                                                    }
+                                                }, {
+                                                    "range": {
+                                                        "created_at": {
+                                                            "gte": args.dsgte,
+                                                            "lte": args.dslte
+                                                        }
+                                                    }
+                                                }]
                                             }
                                         }
-                                    }]
-                                }
-                            }
-                        })
+                                    })
 
                     isSubmitted = 0
                     isStuck = 0

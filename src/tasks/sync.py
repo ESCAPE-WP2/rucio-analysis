@@ -25,7 +25,7 @@ class SyncDatabase(Task):
             nWorkers = kwargs['n_workers']
             databaseType = kwargs['database']['type']
             databaseUri = kwargs['database']['uri']
-            databaseIndex = kwargs['database']['index'] 
+            databaseIndex = kwargs['database']['index']
             databaseSearchRangeLTE = kwargs['database']['search_range_lte']
             databaseSearchRangeGTE = kwargs['database']['search_range_gte']
             databaseMaxRows = kwargs['database']['max_rows']

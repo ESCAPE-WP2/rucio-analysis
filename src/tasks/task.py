@@ -2,9 +2,11 @@ import abc
 import inspect
 import time
 
+
 class Task():
     """ Base class for all tasks.
     """
+
     def __init__(self, logger):
         self.logger = logger
         self.start = None
@@ -13,11 +15,9 @@ class Task():
         self.logger.debug("Constructing instance of {}()".format(
             type(self).__name__))
 
-    
     def __del__(self):
         self.logger.debug("Deconstructing instance of {}()".format(
             type(self).__name__))
-
 
     @abc.abstractmethod
     def run(self):
@@ -25,19 +25,16 @@ class Task():
         self.logger.info("Executing {}.{}()".format(
             type(self).__name__, inspect.stack()[0][3]))
 
-
     def tic(self):
         """ Start a timer. """
         self.start = time.time()
-
 
     def toc(self):
         """ End a timer. """
         self.end = time.time()
 
-
     @property
-    def elapsed(self): 
+    def elapsed(self):
         """ Get the elapsed time on the timer. """
         if self.start is None:
             return 0
