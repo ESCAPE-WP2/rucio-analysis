@@ -16,7 +16,7 @@ test-rucio-api-stub:
   kwargs:
     size: 1000 # bytes
     lifetime: 3600 # seconds
-    upload_to: EULAKE-1
-    replicate_to: DESY-DCACHE
+    upload_to: DESY-DCACHE
+    replicate_to: EULAKE-1
     download: false
     scope: SKA_SKAO_BARNSLEY-testing

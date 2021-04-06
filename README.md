@@ -1,80 +1,47 @@
 # rucio-analysis
 
-Modular toolkit to perform tasks on a Rucio datalake.
+A modular toolkit to perform structured tasks on a Rucio datalake.
 
-# Production deployment
+# Usage
 
-First, export the root directory path: 
+To use the toolkit, it is first required to set a few necessary environment variables. A brief description of each is given below:
+
+- RUCIO_ANALYSIS_ROOT: path to the root of this package
+- RUCIO_CFG_ACCOUNT: the rucio account under which the tasks are to be performed
+- RUCIO_CFG_X509_CERT_FILE_PATH: a valid X.509 certificate file with the necessary permissions on the datalake
+- RUCIO_CFG_X509_KEY_FILE_PATH: a valid X.509 key file with the necessary permissions on the datalake
+- RUCIO_VOMS: the VOMS that the user will authenticate against (default: 'escape')
+- RUCIO_ANALYSIS_IMAGE_TAG: tag of the dockerised image. This must correspond to a build instruction in the Makefile (default: 'escape').
+- RUCIO_ANALYSIS_LOG_PATH: path to cron outputted logs (default: '/var/log/cron/rucio-analysis')
+
+Next, make the rucio-analysis image:
 
 ```bash
-eng@ubuntu:~$ export RUCIO_ANALYSIS_ROOT=/home/eng/ESCAP/167/rucio-analysis
+eng@ubuntu:~/rucio-analysis$ make escape
 ```
 
-and build the image:
+Commands can then be ran directly inside a dockerised environment, e.g.:
 
 ```bash
-eng@ubuntu:~/ESCAP/167/rucio-analysis$ make latest
+eng@ubuntu:~/rucio-analysis$ docker run --rm -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -it --name=rucio-analysis --entrypoint /bin/bash rucio-analysis:escape
 ```
 
-or pull the latest from the DockerHub projectescape org:
+Or, mounting the package directly into the container (for development purposes):
 
 ```bash
-eng@ubuntu:~$ docker pull projectescape/rucio-analysis:latest
-eng@ubuntu:~$ docker tag projectescape/rucio-analysis:latest rucio-analysis:latest
+eng@ubuntu:~/rucio-analysis$ docker run --rm -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -v $RUCIO_ANALYSIS_ROOT:/opt/rucio-analysis -it --name=rucio-analysis --entrypoint /bin/bash rucio-analysis:escape
 ```
 
-Commands can be ran directly inside a dockerised environment, e.g.:
+Note that upload tasks require a valid X509 certificate to be bound inside the container (as shown above) and will require initialising a `voms-proxy`:
 
 ```bash
-eng@ubuntu:~$ docker run --rm -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -it --name=rucio-analysis rucio-analysis:latest
+[user@b802f5113379 rucio-analysis]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
 ```
 
-Note that upload tasks require a valid X509 certificate to be bound inside the container (as shown above) and will require initialising a `voms-proxy` inside the container:
+Tasks can then be executed manually via, e.g.:
 
 ```bash
-[user@b802f5113379 src]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
-```
-
-## Automating tasks
-
-To keep the container single purpose & minimal, automation should be invoked via cron on the host. An example production crontab is `etc/cron/crontab`. It can be installed by:
-
-```bash
-eng@ubuntu:~$ etc/install-crontab.sh
-``` 
-
-:warning: this will overwrite the existing crontab!
-
-Jobs in the crontab should call `docker run` on the `rucio-analysis` image, passing in scripts from `etc/cron/jobs`. These scripts are designed to be ran inside the dockerised environment.
-
-# Development environment
-
-As with the production environment, export the root directory path: 
-
-```bash
-eng@ubuntu:~$ export RUCIO_ANALYSIS_ROOT=/home/eng/ESCAP/167/rucio-analysis
-```
-
-and build the image:
-
-```bash
-eng@ubuntu:~/ESCAP/167/rucio-analysis$ make latest
-```
-
-Development can then be done dynamically by mounting the source inside a dockerised environment, e.g.:
-
-```bash
-eng@ubuntu:~$ docker run --rm -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.globus/client.crt:/opt/rucio/etc/client.crt -v /home/eng/.globus/client.key:/opt/rucio/etc/client.key -v $RUCIO_ANALYSIS_ROOT:/opt/rucio-analysis -it --name=rucio-analysis rucio-analysis:latest
-```
-
-##  Example invocation
-
-### Running the script with stub test tasks file, `etc/tests.stub.yml`
-
-```bash
-[user@b802f5113379 /]$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
-[user@b802f5113379 /]$ cd ~/rucio-analysis
-[root@b802f5113379 rucio-analysis]$ python3 src/run-analysis.py -t etc/tests.stubs.yml 
+[root@b802f5113379 rucio-analysis]$ python3 src/run-analysis.py -t etc/tasks/stubs.yml 
 2020-10-23 08:16:17,039 [root] INFO     9697    Parsing tasks file
 2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Executing TestStubHelloWorld.run()
 2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Hello World!
@@ -90,15 +57,25 @@ eng@ubuntu:~$ docker run --rm -e RUCIO_CFG_ACCOUNT=robbarnsley -v /home/eng/.glo
 2020-10-23 08:16:23,267 [TestStubRucioAPI] INFO 9697    Finished in 6s
 ```
 
-## Tasks
+## Automating tasks
 
-### Creating a new task
+To keep containers single purpose, task automation is achieved via cron on the host. To automate a task, the corresponding docker run command must be added to the host's crontab, passing in both the necessary credentials to authenticate with the Rucio server (taken from the environment variables) and the task file path from the perspective of the container.
+
+For simplicity, this crontab can be managed by ansible. To add or amend a job, configure the "loop" parameter in the playbook `etc/install.yml` and run the play:
+
+```bash
+eng@ubuntu:~/rucio-analysis$ ansible-playbook etc/install.yml
+```
+
+# Tasks
+
+## Creating a new task
 
 The procedure for creating a new tests is as follows:
 
 1. Take a copy of the `TestStubHelloWorld` class stub in `src/tasks/stubs.py` and rename it. 
-2. Create a new task definition file e.g. `etc/tests.yml` copying the format in `etc/tests.stubs.yml` with `module_name` (including `tasks.` prefix) and `class_name` set accordingly. To inject parameters into the task's entry point, `run()`, assign them in the `args` and `kwargs` keys. Note that the `description`, `module_name`, `class_name`, `enabled`, `args` and `kwargs` keys **must** all be set. 
-3. Amend the `run()` function as desired.
+2. Amend the `run()` function as desired.
+3. Create a new task definition file e.g. `etc/tasks/test.yml` copying the format in `etc/tasks/stubs.yml` with `module_name` (including `tasks.` prefix) and `class_name` set accordingly to match that redefined in the previous steps. To inject parameters into the task's entry point, `run()`, assign them in the `args` and `kwargs` keys. Note that the `description`, `module_name`, `class_name`, `enabled`, `args` and `kwargs` keys **must** all be set. 
 
 The stub function, `src/tasks/stubs.py` and corresponding definitions in `etc/tests.stubs.yml` illustrate usage.
 

@@ -1,7 +1,7 @@
 import os
 
 from rucio_wrappers import RucioWrappersAPI
-from tasks import Task
+from tasks.task import Task
 from utility import generateRandomFile
 
 

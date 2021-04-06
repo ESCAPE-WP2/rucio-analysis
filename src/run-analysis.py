@@ -36,13 +36,6 @@ if __name__ == "__main__":
             kwargs = session.tasks[task]['kwargs']
             kwargs['task_name'] = task
 
-            # Create new per-task loggers.
-            #
-            if iargs.v:
-                logger = Logger(name='{}'.format(class_name), level='DEBUG').get()
-            else:
-                logger = Logger(name='{}'.format(class_name), level='INFO').get()
-
             if not enabled:
                 logger.warning("Task is not enabled!")
                 continue

@@ -7,7 +7,8 @@ class Logger:
         self,
         name="root",
         level="DEBUG",
-        fmt="%(asctime)s [%(name)s] %(levelname).4s\t%(process)d\t%(message)s",
+        fmt="%(asctime)s [%(name)s] %(module)20s %(levelname)5s %(process)d\t" +
+        "%(message)s",
         add_ch=True
     ):
         self._fmt = fmt

@@ -3,7 +3,7 @@ import os
 from es import ESRucio
 from rucio_helpers import createCollection
 from rucio_wrappers import RucioWrappersAPI
-from task import Task
+from tasks.task import Task
 from utility import bcolors, generateRandomFile
 
 

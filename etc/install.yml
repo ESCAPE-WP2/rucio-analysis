@@ -9,7 +9,7 @@
       RUCIO_CFG_X509_CERT_FILE_PATH: "{{ lookup('env','RUCIO_CFG_X509_CERT_FILE_PATH') }}"
       RUCIO_CFG_X509_KEY_FILE_PATH: "{{ lookup('env','RUCIO_CFG_X509_KEY_FILE_PATH') }}"       
       RUCIO_VOMS: "escape"
-      RUCIO_ANALYSIS_IMAGE: "rucio-analysis:latest"
+      RUCIO_ANALYSIS_IMAGE_TAG: "escape"
       RUCIO_ANALYSIS_LOG_PATH: "/var/log/cron/rucio-analysis"
     connection: local 
     tasks:
@@ -18,6 +18,11 @@
       apt:
         name: docker
         state: latest
+    - name: Make docker image
+      become: yes
+      ansible.builtin.command: 
+        chdir: "{{ RUCIO_ANALYSIS_ROOT}}"
+        cmd: make {{ RUCIO_ANALYSIS_IMAGE_TAG }}
     - name: create logging directory
       become: yes
       file:
@@ -34,15 +39,16 @@
         weekday: "{{ item.weekday }}"
         job: docker run --rm -e RUCIO_CFG_ACCOUNT={{ RUCIO_CFG_ACCOUNT }} 
           -v {{ RUCIO_CFG_X509_CERT_FILE_PATH }}:/opt/rucio/etc/client.crt
-          -v {{ RUCIO_CFG_X509_CERT_FILE_PATH }}:/opt/rucio/etc/client.crt
+          -v {{ RUCIO_CFG_X509_KEY_FILE_PATH }}:/opt/rucio/etc/client.key
           -v {{ RUCIO_ANALYSIS_ROOT }}:/opt/rucio-analysis
           --name rucio-analysis-{{ item.name }} 
           -e TASK_FILE_PATH="/opt/rucio-analysis/etc/tasks/{{ item.task_subpath }}"
-          -e RUCIO_VOMS="{{ RUCIO_VOMS }}" {{ RUCIO_ANALYSIS_IMAGE }} >> {{ item.override_log_path | default(RUCIO_ANALYSIS_LOG_PATH + "/" + item.name | replace('-','_') + "_`date +\%Y\%m\%d`.log 2>&1") }}
+          -e RUCIO_VOMS="{{ RUCIO_VOMS }}" 
+          rucio-analysis:{{ RUCIO_ANALYSIS_IMAGE_TAG }} >> {{ item.override_log_path | default(RUCIO_ANALYSIS_LOG_PATH + "/" + item.name | replace('-','_') + "_`date +\%Y\%m\%d`.log 2>&1") }}
       loop:
-        - { name: test-hello-world, minute: "*", hour: "*", day: "*", month: "*", weekday: "*", task_subpath: "stubs.yml" }
-        #- { name: test-transfers, minute: "0", hour: "*", day: "*", month: "*", weekday: "*", task_subpath: "escape/tests/test_transfers.yml" }
-        #- { name: tests-replication-bulk, minute: "10", hour: "*", day: "*", month: "*", weekday: "*", task_subpath: "./escape/tests/test_replication_bulk.yml", override_log_path: "/dev/null" }
+        #- { name: test-hello-world, minute: "*", hour: "*", day: "*", month: "*", weekday: "*", task_subpath: "stubs.yml" }
+        - { name: test-transfers, minute: "0", hour: "*", day: "*", month: "*", weekday: "*", task_subpath: "escape/tests/transfers.yml" }
+        #- { name: tests-replication-bulk, minute: "10", hour: "*", day: "*", month: "*", weekday: "*", task_subpath: "./escape/tests/replication_bulk.yml", override_log_path: "/dev/null" }
         #- { name: tests-replication-qos, minute: "0", hour: "9", day: "*", month: "*", weekday: "*", task_subpath: "escape/tests/replication_qos.yml" }
-        #- { name: dbsync-database, minute: "*/5", hour: "*", day: "*", month: "*", weekday: "*", task_subpath: "escape/db/sync_database.yml" }
-        #- { name: daily, minute: "0", hour: "9", day: "*", month: "*", weekday: "*", task_subpath: "escape/reports/reports_daily.yml" }
+        #- { name: dbsync-database, minute: "*/5", hour: "*", day: "*", month: "*", weekday: "*", task_subpath: "escape/db/sync.yml" }
+        #- { name: daily, minute: "0", hour: "9", day: "*", month: "*", weekday: "*", task_subpath: "escape/reports/daily.yml" }

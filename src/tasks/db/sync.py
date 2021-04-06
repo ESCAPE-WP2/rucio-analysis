@@ -2,7 +2,7 @@ import logging
 from multiprocessing import Pool
 
 from es import ESRucio
-from tasks import Task
+from tasks.task import Task
 
 
 class SyncDatabase(Task):

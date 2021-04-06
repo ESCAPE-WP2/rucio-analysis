@@ -2,7 +2,7 @@ from datetime import datetime
 import requests
 
 from es import ESRucio
-from tasks import Task
+from tasks.task import Task
 
 
 class ReportDaily(Task):

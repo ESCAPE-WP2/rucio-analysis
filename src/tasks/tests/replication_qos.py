@@ -4,7 +4,7 @@ import random
 from es import ESRucio
 from rucio_helpers import createCollection
 from rucio_wrappers import RucioWrappersAPI, RucioWrappersCLI
-from tasks import Task
+from tasks.task import Task
 from utility import generateRandomFile
 
 

@@ -1,7 +1,7 @@
 from multiprocessing import Pool
 
 from rucio_helpers import createCollection, uploadDirReplicate
-from tasks import Task
+from tasks.task import Task
 
 
 class TestReplicationBulk(Task):
