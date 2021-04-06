@@ -1,0 +1,28 @@
+test-skao-sdc1:
+    description: "Test transfers between RSEs."
+    module_name: "tasks.tests.replication"
+    class_name: "TestReplication"
+    enabled: true
+    args:
+    kwargs:
+        dids:
+          - SKA_SKAO_TEAM:560_1000.fits
+          - SKA_SKAO_TEAM:PrimaryBeam_B1.fits
+          - SKA_SKAO_TEAM:PrimaryBeam_B2.fits
+          - SKA_SKAO_TEAM:PrimaryBeam_B5.fits
+          - SKA_SKAO_TEAM:SKAMid_B1_1000h_v3.fits
+          - SKA_SKAO_TEAM:SKAMid_B2_1000h_v3.fits
+          - SKA_SKAO_TEAM:SKAMid_B5_1000h_v3.fits
+          - SKA_SKAO_TEAM:TrainingSet_B1_v2_ML.txt
+          - SKA_SKAO_TEAM:TrainingSet_B2_v2_ML.txt
+          - SKA_SKAO_TEAM:TrainingSet_B5_v2_ML.txt
+          - SKA_SKAO_TEAM:True_1400_v2.txt
+          - SKA_SKAO_TEAM:True_560_v2.txt
+          - SKA_SKAO_TEAM:True_9200_v2.txt
+        lifetime: 1209600 # seconds
+        rses:
+          - QOS=FAST
+        databases:
+          - type: es
+            uri: http://130.246.214.144:80/monit/metadata/
+            index: "[replication]"

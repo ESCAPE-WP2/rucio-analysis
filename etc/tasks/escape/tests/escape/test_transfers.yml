@@ -1,0 +1,62 @@
+test-upload:
+  description: "Test uploading via different protocols to RSEs."
+  module_name: "tasks.tests.upload"
+  class_name: "TestUpload"
+  enabled: true
+  args:
+  kwargs:
+    n_files: 1
+    sizes:
+      - 100000 # bytes
+    lifetime: 3600 # seconds
+    protocols:
+      - gsiftp
+      - root
+      - davs
+    rses:
+      - ALPAMED-DPM
+      - CNAF-STORM
+      - DESY-DCACHE
+      - EULAKE-1
+      - GSI-ROOT
+      - IN2P3-CC-DCACHE
+      - INFN-NA-DPM
+      - LAPP-DCACHE
+      - PIC-DCACHE
+      - SARA-DCACHE
+      - LAPP-WEBDAV
+    scope: SKA_SKAO_BARNSLEY-testing
+    databases:
+      - type: es 
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+
+test-upload-replication:
+  description: "Test upload and replication between RSEs."
+  module_name: "tasks.tests.upload_replication"
+  class_name: "TestUploadReplication"
+  enabled: true
+  args:
+  kwargs:
+    n_files: 1
+    sizes:
+      - 100000 # bytes
+    lifetime: 3600 # seconds
+    rses:
+      - ALPAMED-DPM
+      - CNAF-STORM
+      - DESY-DCACHE
+      - EULAKE-1
+      - GSI-ROOT
+      - IN2P3-CC-DCACHE
+      - INFN-NA-DPM
+      - LAPP-DCACHE
+      - PIC-DCACHE
+      - SARA-DCACHE
+      - LAPP-WEBDAV
+    scope: SKA_SKAO_BARNSLEY-testing
+    databases:
+      - type: es 
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+

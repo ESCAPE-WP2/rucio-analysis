@@ -1,12 +1,15 @@
-FROM projectescape/rucio-client:py3
+FROM projectescape/rucio-client:latest
 
 USER root
 
-RUN yum -y install wget vim 
-RUN yum -y install python3
-RUN yum -y install git
+RUN yum -y install wget vim python3
 
 COPY . /opt/rucio-analysis
+
+WORKDIR /opt/rucio-analysis
+
 RUN python3 -m pip install -r /opt/rucio-analysis/requirements.txt
 
-ENTRYPOINT ["/bin/bash"]
+ENV TASK_FILE_PATH ./opt/rucio-analysis/etc/tasks/test.stubs.yml
+
+ENTRYPOINT ["bash", "./etc/init/docker-init.sh"]

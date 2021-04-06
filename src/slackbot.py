@@ -4,13 +4,13 @@ from subprocess import Popen, PIPE
 from crontab import CronTab
 from slack import RTMClient
 
-from db import ES
+from es import ESRucio
 from logger import Logger
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-dt', help="Database type (ES)", default='es', action='store')
+    parser.add_argument('-dt', help="Database type (es)", default='es', action='store')
     parser.add_argument('-du', help="Database URI",
                         default='http://130.246.214.144:80/monit/metadata/',
                         action='store')
@@ -38,12 +38,16 @@ if __name__ == "__main__":
 
     @RTMClient.run_on(event="message")
     def reply(**payload):
+        # Unpack payload from message.
+        #
         data = payload['data']
         web_client = payload['web_client']
         channel_id = data['channel']
         thread_ts = data['ts']
         user = data['user']
 
+        # Switch-case equivalent for parsing input command.
+        #
         if 'hello' in data['text']:
             text = 'Hello, <@{}>'.format(user)
             web_client.chat_postMessage(
@@ -149,7 +153,7 @@ if __name__ == "__main__":
             requestedRse = data['text'].split()[3].strip()
             dialog = []
             if args.dt == 'es':
-                es = ES(args.du, logger)
+                es = ESRucio(args.du, logger)
 
                 dialog.append('\n*Replications* for *{}*'.format(requestedRse))
                 dialog.append('\n_As source_\n')

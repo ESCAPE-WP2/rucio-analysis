@@ -2,11 +2,14 @@ FROM registry.gitlab.com/ska-telescope/src/ska-rucio-client
 
 USER root
 
-RUN yum -y install wget vim
-RUN yum -y install python3
-RUN yum -y install git
+RUN yum -y install wget vim python3 git
 
 COPY . /opt/rucio-analysis
+
+WORKDIR /opt/rucio-analysis
+
 RUN python3 -m pip install -r /opt/rucio-analysis/requirements.txt
 
-ENTRYPOINT ["/bin/bash"]
+ENV TASK_FILE_SUBPATH ./etc/tasks/test.stubs.yml
+
+ENTRYPOINT ["./etc/init/docker-init.sh"]

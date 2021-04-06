@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 class bcolors:
+    """ Struct-like object to store terminal colour codes. """
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
     OKGREEN = "\033[92m"
@@ -16,8 +17,8 @@ class bcolors:
 
 
 def generateRandomFile(size, prefix=""):
-    """ Generate a randomly named file of size <size> with random contents. """
-    if prefix:
+    """ Generate a randomly named file of size, <size>, with random contents. """
+    if prefix:               # add file prefix if set.
         prefix += "_"
     todaysDatetime = datetime.now().strftime("%d%m%yT%H.%M.%S")
     basename = "{}{}KB_{}".format(prefix, size // 1000, todaysDatetime)
@@ -27,12 +28,13 @@ def generateRandomFile(size, prefix=""):
     return f
 
 
-def generateDirRandomFiles(nFiles, size, dirId=1, prefix=""):
+def generateRandomFilesDir(nFiles, size, dirId=1, prefix=""):
     """
-    Generate a directory of nFiles of size <size> with random contents.
-    dirId can be passed optionally to avoid naming collisions when load testing.
+    Generate a directory of, <nFiles>,of size, <size>, with random contents.
+    A directory id, <dirId>, can be passed optionally to avoid naming collisions when
+    load testing.
     """
-    if prefix:
+    if prefix:              # add file prefix if set.
         prefix += "_"
     todaysDatetime = datetime.now().strftime("%d%m%yT%H.%M.%S")
     tmpDir = tempfile.gettempdir()
@@ -40,9 +42,12 @@ def generateDirRandomFiles(nFiles, size, dirId=1, prefix=""):
         prefix, nFiles, size // 1000, todaysDatetime, dirId
     )
 
-    # Create dir structure
+    # Create directory structure.
+    #
     Path(os.path.join(tmpDir, dirName)).mkdir(parents=True, exist_ok=True)
 
+    # Create files.
+    #
     for idx in range(1, nFiles + 1):
         basename = "{}{}KB_{}_d{}_f{}".format(
             prefix, size // 1000, todaysDatetime, dirId, idx

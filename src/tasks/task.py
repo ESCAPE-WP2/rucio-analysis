@@ -4,8 +4,7 @@ import time
 
 
 class Task():
-    """ Base class for all tasks.
-    """
+    """ Base class for all tasks. """
 
     def __init__(self, logger):
         self.logger = logger

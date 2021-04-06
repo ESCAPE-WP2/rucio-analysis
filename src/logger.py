@@ -8,26 +8,28 @@ class Logger:
         name="root",
         level="DEBUG",
         fmt="%(asctime)s [%(name)s] %(levelname).4s\t%(process)d\t%(message)s",
-        fmt_prefix='',
-        fmt_suffix='',
-        addConsoleHandler=True
+        add_ch=True
     ):
         self._fmt = fmt
         self._name = name
         self._level = level
         self.formatter = logging.Formatter(self.fmt)
 
-        # logger must capture all logging (DEBUG), handlers can restrict this.
+        # Logger set to capture ALL logging events, handlers then further restrict
+        # this with their own levels.
+        #
         self.get().setLevel("DEBUG")
 
+        # Clear existing handlers and add new ones as requested.
+        #
         self._clearHandlers()
-        if addConsoleHandler:
-            self.addConsoleHandler()
+        if add_ch:
+            self._addConsoleHandler()
 
     def _clearHandlers(self):
         self.get().handlers = []
 
-    def addConsoleHandler(self):
+    def _addConsoleHandler(self):
         ch = logging.StreamHandler(sys.stdout)
         ch.setLevel(self.level)
         ch.setFormatter(fmt=self.formatter)
@@ -35,19 +37,24 @@ class Logger:
 
     @property
     def config(self):
+        """ Return a reference to the config. """
         return self.get().config
 
     @property
     def fmt(self):
+        """ Getter for format of this logger. """
         return self._fmt
 
     def get(self):
+        """ Return a reference to this logger. """
         return logging.getLogger(self.name)
 
     @property
     def level(self):
+        """ Getter for log level. """
         return self._level
 
     @property
     def name(self):
+        """ Getter for logger name. """
         return self._name
