@@ -4,6 +4,7 @@ A modular and extensible framework for performing tasks on a Rucio datalake inta
 
 # Structure
 
+```
   ├── Dockerfile.escape
   ├── Dockerfile.ska
   ├── etc
@@ -16,6 +17,7 @@ A modular and extensible framework for performing tasks on a Rucio datalake inta
   ├── requirements.txt
   └── src
   │   └── tasks
+```
 
 The framework interacts with a Rucio datalake by extending a containerised Rucio client image. Each Dockerfile creates an image with the prerequisite certificate bundles, VOMS setup and Rucio template configs for the suffixed project. Additional targets may be added to this Makefile to add new containerised clients for different datalake instances, with a corresponding `docker build` routine added as a target in the `Makefile` in order to make it accessible to the Ansible install script.
 
