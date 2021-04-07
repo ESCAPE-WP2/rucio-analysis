@@ -1,12 +1,13 @@
 import os
 
 from rucio_wrappers import RucioWrappersAPI
-from tasks import Task
+from tasks.task import Task
 from utility import generateRandomFile
 
 
 class StubHelloWorld(Task):
     """ Hello World test class stub. """
+
     def __init__(self, logger):
         super().__init__(logger)
 
@@ -34,6 +35,7 @@ class StubHelloWorld(Task):
 
 class StubRucioAPI(Task):
     """ Rucio API test class stub. """
+
     def __init__(self, logger):
         super().__init__(logger)
 
@@ -55,7 +57,7 @@ class StubRucioAPI(Task):
             return False
 
         # Your code here.
-        # START --------------- 
+        # START ---------------
         rucio = RucioWrappersAPI()
         self.logger.info(rucio.whoAmI())
 
@@ -65,14 +67,14 @@ class StubRucioAPI(Task):
         did = "{}:{}".format(scope, os.path.basename(f.name))
         try:
             self.logger.debug("Uploading file ({}) to {}...".format(did, upload_to))
-            rucio.upload(rse=upload_to, scope=scope, filePath=f.name, 
-                lifetime=lifetime, logger=self.logger)
+            rucio.upload(rse=upload_to, scope=scope, filePath=f.name,
+                         lifetime=lifetime, logger=self.logger)
             self.logger.debug("Upload complete")
             if replicate_to is not None:
                 self.logger.debug("Replicating file ({}) to {}...".format(did,
-                    replicate_to))
+                                                                          replicate_to))
                 rucio.addRule(did, 1, replicate_to, lifetime=lifetime,
-                    src=upload_to)
+                              src=upload_to)
                 self.logger.debug("Replication complete")
             if download:
                 self.logger.debug("Downloading file ({})...".format(did))

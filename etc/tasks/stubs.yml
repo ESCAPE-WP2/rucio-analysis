@@ -1,0 +1,22 @@
+test-hello-world-stub:
+    description: "Test hello world stub"
+    module_name: "tasks.stubs"
+    class_name: "StubHelloWorld"
+    enabled: true
+    args:
+    kwargs:
+      text: "Hello World!"
+
+test-rucio-api-stub:
+  description: "Test Rucio API stub"
+  module_name: "tasks.stubs"
+  class_name: "StubRucioAPI"
+  enabled: true
+  args:
+  kwargs:
+    size: 1000 # bytes
+    lifetime: 3600 # seconds
+    upload_to: DESY-DCACHE
+    replicate_to: EULAKE-1
+    download: false
+    scope: SKA_SKAO_BARNSLEY-testing

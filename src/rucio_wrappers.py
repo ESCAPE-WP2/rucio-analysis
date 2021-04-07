@@ -87,6 +87,7 @@ class RucioWrappers:
 
 
 class RucioWrappersCLI(RucioWrappers):
+    """ Talk to a Rucio instance via subprocessed CLI commands. """
     @staticmethod
     def addDataset(did):
         rtn = subprocess.run(["rucio", "add-dataset", did], stdout=subprocess.PIPE)
@@ -95,32 +96,22 @@ class RucioWrappersCLI(RucioWrappers):
         return rtn
 
     @staticmethod
-    def addRule(did, copies, rse, lifetime):
-        rtn = subprocess.run(
-            ["rucio", "add-rule", "--lifetime", str(lifetime), did, str(copies), rse],
-            stdout=subprocess.PIPE,
-        )
-        if rtn.returncode != 0:
-            raise Exception("Non-zero return code")
-        return rtn
+    def addRule(did, copies, dst, lifetime=None, activity=None, src=None):
+        """
+        Add rule(s) for <copies> copies of a DID, <did>, at RSE, <rse>, with
+        additional options.
+        """
+        cmd = ["rucio", "add-rule"]
+        if lifetime:
+            cmd.append(["--lifetime", str(lifetime)])
+        if activity:
+            cmd.append(["--activity", activity])
+        if src:
+            cmd.append(["--source-replica-expression", src])
+        cmd.append([did, str(copies), dst])
 
-    @staticmethod
-    def addRuleWithOptions(did, copies, dst, lifetime, activity=None, src=None):
         rtn = subprocess.run(
-            [
-                "rucio",
-                "-v",
-                "add-rule",
-                "--lifetime",
-                str(lifetime),
-                "--activity",
-                activity,
-                "--source-replica-expression",
-                src,
-                did,
-                str(copies),
-                dst,
-            ],
+            cmd,
             stdout=subprocess.PIPE,
         )
         if rtn.returncode != 0:
@@ -129,6 +120,7 @@ class RucioWrappersCLI(RucioWrappers):
 
     @staticmethod
     def attach(todid, dids):
+        """ Attach DIDs, <dids>, to DID <todid>. """
         rtn = subprocess.run(["rucio", "attach", todid, dids], stdout=subprocess.PIPE)
         if rtn.returncode != 0:
             raise Exception("Non-zero return code")
@@ -136,6 +128,7 @@ class RucioWrappersCLI(RucioWrappers):
 
     @staticmethod
     def listDIDs(scope, name="*", filters=None):
+        """ List DIDs in scope, <scope>, with name, <name>. """
         if filters is None:
             rtn = subprocess.run(
                 ["rucio", "list-dids", "{}:{}".format(scope, name), "--short"],
@@ -165,6 +158,7 @@ class RucioWrappersCLI(RucioWrappers):
 
     @staticmethod
     def upload(rse, scope, filePath, lifetime):
+        """ Upload file, <filePath>, to rse, <RSE>, with lifetime <lifetime>. """
         rtn = subprocess.run(
             [
                 "rucio",
@@ -187,7 +181,8 @@ class RucioWrappersCLI(RucioWrappers):
     @staticmethod
     def uploadDir(rse, scope, dirPath, lifetime, parentDid):
         """
-        Upload a directory of files and attach each file to the parentDid
+        Upload a directory of files, <dirPath>, with lifetime, <lifetime>, and
+        attach each file to a parent did, <parentDid>.
         """
         rtn = subprocess.run(
             [
@@ -211,16 +206,10 @@ class RucioWrappersCLI(RucioWrappers):
 
 
 class RucioWrappersAPI(RucioWrappers):
-    @staticmethod
-    def addDataset(did):
-        client = Client()
-        tokens = did.split(":")
-        scope = tokens[0]
-        name = tokens[1]
-        client.add_dataset(scope=scope, name=name)
-
+    """ Talk to a Rucio instance via the API. """
     @staticmethod
     def addDID(did, type):
+        """ Add a DID, <did>, of type, <type>. """
         try:
             client = Client()
             tokens = did.split(":")
@@ -234,6 +223,10 @@ class RucioWrappersAPI(RucioWrappers):
     def addRule(
         did, copies, dst, lifetime, activity=None, src=None, asynchronous=False
     ):
+        """
+        Add rule(s) for <copies> copies of a DID, <did>, at RSE, <rse>, with
+        additional options.
+        """
         tokens = did.split(":")
         scope = tokens[0]
         name = tokens[1]
@@ -252,6 +245,7 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def attach(todid, dids):
+        """ Attach DIDs, <dids>, to a DID, <todid>. """
         client = Client()
         tokens = todid.split(":")
         toScope = tokens[0]
@@ -267,6 +261,7 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def detach(fromdid, dids):
+        """ Attach DIDs, <dids>, from a DID, <fromdid>. """
         client = Client()
         tokens = fromdid.split(":")
         fromScope = tokens[0]
@@ -282,12 +277,14 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def download(did, baseDir="download", logger=None):
+        """ Download a DID, <did>, to directory, <baseDir>. """
         client = DownloadClient(logger=logger)
         items = [{"did": did, "base_dir": baseDir}]
         client.download_dids(items=items)
 
     @staticmethod
     def erase(did):
+        """ Remove replication rueles from a DID, <did>. """
         api = RucioWrappersAPI()
         rules = api.listReplicationRules(did)
         rids = set()
@@ -299,6 +296,7 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def getMetadata(did):
+        """ Get DID metadata for did, <did>. """
         client = Client()
         tokens = did.split(":")
         scope = tokens[0]
@@ -308,24 +306,28 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def getRSELimits(rse):
+        """ Get RSE limits for rse, <rse>. """
         client = RSEClient()
         limits = client.get_rse_limits(rse)
         return limits
 
     @staticmethod
     def getRSEProtocols(rse):
+        """ Get supported RSE protocols for rse, <rse>. """
         client = RSEClient()
         protocols = client.get_protocols(rse)
         return protocols
 
     @staticmethod
     def getRSEUsage(rse):
+        """ Get RSE usage for rse, <rse>. """
         client = RSEClient()
         usage = client.get_rse_usage(rse)
         return usage
 
     @staticmethod
     def listFileReplicas(did, rse=None):
+        """ List file replicas for DID, <did>. """
         client = Client()
         tokens = did.split(":")
         scope = tokens[0]
@@ -339,6 +341,7 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def listDIDs(scope, name="*", filters=None, type="collection"):
+        """ List DIDs in scope, <scope>, with name, <name>. """
         client = Client()
         filters_dict = {}
         if filters is not None:
@@ -357,6 +360,7 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def listReplicationRules(did):
+        """ List replication rules for a DID, <did>. """
         client = Client()
         tokens = did.split(":")
         scope = tokens[0]
@@ -370,6 +374,7 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def listReplicationRulesFull(did):
+        """ List full history of replication rules for a DID, <did>. """
         client = Client()
         tokens = did.split(":")
         scope = tokens[0]
@@ -381,20 +386,23 @@ class RucioWrappersAPI(RucioWrappers):
 
     @staticmethod
     def listRSEs(rse=None):
+        """ List RSEs. """
         client = Client()
         rses = client.list_rses(rse)
         return rses
 
     @staticmethod
     def listRSEAttributes(rse):
+        """ List RSE attributes for RSE, <rse>. """
         client = Client()
         rseDict = client.list_rse_attributes(rse)
         return rseDict
 
     @staticmethod
-    def ruleInfo(ruleID):
+    def ruleInfo(ruleId):
+        """ Get replication rule information for rule id, <ruleId>. """
         client = Client()
-        info = client.get_replication_rule(ruleID)
+        info = client.get_replication_rule(ruleId)
         return info
 
     @staticmethod
@@ -408,6 +416,7 @@ class RucioWrappersAPI(RucioWrappers):
         transferTimeout=30,
         logger=None,
     ):
+        """ Upload file, <filePath>, to rse, <RSE>, with lifetime <lifetime>. """
         items = []
         items.append(
             {

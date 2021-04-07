@@ -1,4 +1,4 @@
-FROM projectescape/rucio-client:latest
+FROM registry.gitlab.com/ska-telescope/src/ska-rucio-client 
 
 USER root
 

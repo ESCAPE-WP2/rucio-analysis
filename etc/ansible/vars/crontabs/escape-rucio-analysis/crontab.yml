@@ -1,0 +1,56 @@
+jobs:
+  - name: tests-hello-world
+    minute: "*"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "stubs.yml"
+    disabled: no
+
+  - name: tests-transfers
+    minute: "0"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "./escape/tests/transfers.yml"
+    disabled: yes
+    
+  - name: tests-replication-bulk
+    minute: "10"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "./escape/tests/replication_bulk.yml"
+    override_log_path: "/dev/null"
+    disabled: yes
+
+  - name: tests-replication-qos
+    minute: "0"
+    hour: "9"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "escape/tests/replication_qos.yml"
+    disabled: yes
+
+  - name: db-sync
+    minute: "*/5"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "escape/db/sync.yml"
+    disabled: yes
+    
+  - name: reports-daily
+    minute: "0"
+    hour: "9"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "escape/reports/daily.yml"
+    disabled: yes
+
