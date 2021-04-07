@@ -102,21 +102,21 @@ To run the play:
 eng@ubuntu:~/rucio-analysis/etc/ansible$ make build-escape-on-local
 ```
 
-It is also possible to set remote targets for the Ansible install script, e.g. 
+It is also possible to deploy to remote targets using the Ansible install script, e.g. 
 
 ```bash
 eng@ubuntu:~/rucio-analysis/etc/ansible$ make build-escape-on-escape-rucio-analysis
 ```
 
 provided that:
-- the host target has been defined in `etc/hosts/inventory.ini`, 
-- a `crontab.yml` has been specified in `etc/ansible/vars/crontabs`,
-- there is an entry in `etc/ansible/Makefile`.
+- the host target has been defined in `etc/hosts/inventory.ini`, and
+- a `crontab.yml` has been specified in `etc/ansible/vars/crontabs`. 
 
-Note the entry in `etc/ansible/Makefile` should contain the additional parameters:
+The call to the Ansible install script should include the additional parameters (if different from default):
+
 - **RUCIO_ANALYSIS_HOSTS**: a host target, as defined in `etc/ansible/hosts/inventory.ini` (default: 'localhost')
 - **RUCIO_VOMS**: the VOMS that the user will authenticate against (default: 'escape')
 - **RUCIO_ANALYSIS_IMAGE_MAKE_TARGET**: the make target for the rucio-analysis image, as defined in Makefile (default: 'escape')
 - **RUCIO_ANALYSIS_IMAGE_TAG**: tag of the dockerised image. This must correspond to a build instruction in the Makefile (default: 'escape').
 
-
+This call can also be added as a Make target in `etc/ansible/Makefile`, as shown in the `Make` commands above.
