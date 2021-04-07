@@ -11,7 +11,7 @@ test-rucio-api-stub:
   description: "Test Rucio API stub"
   module_name: "tasks.stubs"
   class_name: "StubRucioAPI"
-  enabled: false
+  enabled: true
   args:
   kwargs:
     size: 1000 # bytes

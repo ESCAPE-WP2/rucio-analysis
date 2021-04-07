@@ -1,0 +1,109 @@
+# Ansible install script (Ubuntu/Debian).
+# 
+---
+  - name: "install rucio-analysis"
+    vars: 
+      RUCIO_ANALYSIS_HOSTS:       "{{ lookup('env','RUCIO_ANALYSIS_HOSTS') | default (\"localhost\", true) }}"
+      RUCIO_ANALYSIS_ROOT:        "{{ lookup('env','RUCIO_ANALYSIS_ROOT') | default (\"/opt/rucio-analysis\", true) }}"
+      RUCIO_ANALYSIS_CRONTAB:     "{{ lookup('env','RUCIO_ANALYSIS_CRONTAB') | default (\"/opt/rucio-analysis/etc/ansible/vars/crontabs/escape-rucio-analysis/crontab.yml\", true) }}"
+      RUCIO_CFG_CLIENT_CERT:      "{{ lookup('env','RUCIO_CFG_CLIENT_CERT') }}"
+      RUCIO_CFG_CLIENT_KEY:       "{{ lookup('env','RUCIO_CFG_CLIENT_KEY') }}"   
+      RUCIO_CFG_ACCOUNT:          "{{ lookup('env','RUCIO_CFG_ACCOUNT') }}" 
+      RUCIO_VOMS:                 "{{ lookup('env','RUCIO_VOMS') | default (\"escape\", true) }}"
+      RUCIO_ANALYSIS_IMAGE_MAKE_TARGET: "{{ lookup('env','RUCIO_ANALYSIS_MAKE_TARGET') | default (\"escape\", true) }}"
+      RUCIO_ANALYSIS_IMAGE_TAG:   "{{ lookup('env','RUCIO_ANALYSIS_IMAGE_TAG') | default (\"escape\", true) }}"
+    vars_prompt:
+    - name: add_amend_crontab
+      prompt: Add/amend crontab?
+      default: yes
+      private: no
+    - name: rebuild_image
+      prompt: Rebuild image?
+      default: no
+      private: no
+    hosts: "{{ HOSTS }}"
+    gather_facts: true
+    tasks:
+      - name: assert variables without a default are set
+        assert: 
+          that:
+            - RUCIO_CFG_CLIENT_CERT != ""
+            - RUCIO_CFG_CLIENT_KEY != ""
+            - RUCIO_CFG_ACCOUNT != ""
+      - name: install the latest version of docker
+        become: yes
+        apt:
+          name: docker
+          state: latest
+      - name: copy credentials and code (REMOTE ONLY))
+        block: 
+          - name: copy X.509 certificate
+            ansible.builtin.copy:
+              src: "{{ RUCIO_CFG_CLIENT_KEY }}"
+              dest: "{{ ansible_env.HOME }}/.globus/{{ RUCIO_CFG_CLIENT_KEY | basename }}"
+              mode: '0400'
+          - name: copy X.509 key
+            ansible.builtin.copy:
+              src: "{{ RUCIO_CFG_CLIENT_CERT }}"
+              dest: "{{ ansible_env.HOME }}/.globus/{{ RUCIO_CFG_CLIENT_CERT | basename }}"
+              mode: '0400'
+          - name: copy rucio-analysis package
+            become: yes
+            ansible.builtin.synchronize:
+              src: "{{ RUCIO_ANALYSIS_ROOT }}"
+              dest: /opt/{{ RUCIO_ANALYSIS_ROOT | basename }}
+              mode: push
+              copy_links: yes
+          - name: Change file ownership and group
+            become: true
+            ansible.builtin.file:
+              path: /opt/{{ RUCIO_ANALYSIS_ROOT | basename }}
+              owner: "{{ ansible_env.USER }}"
+              group: "{{ ansible_env.USER }}"
+              state: directory
+              recurse: yes
+        when: '"localhost" not in ansible_play_hosts'
+      - name: symlink rucio-analyis (LOCALHOST ONLY))
+        become: yes
+        ansible.builtin.file:
+          src: "{{ RUCIO_ANALYSIS_ROOT }}"
+          dest: /opt/{{ RUCIO_ANALYSIS_ROOT | basename}}
+          state: link
+        when: '"localhost" in ansible_play_hosts'
+      - name: Make docker image
+        become: yes
+        ansible.builtin.command: 
+          chdir: "/opt/{{ RUCIO_ANALYSIS_ROOT | basename}}"
+          cmd: make {{ RUCIO_ANALYSIS_IMAGE_TAG }}
+        when: rebuild_image|bool
+      - name: create logging directory
+        become: yes
+        file:
+          path: "/var/log/cron/rucio-analysis"
+          state: directory
+          mode: o+rw
+      - name: load crontab
+        block:
+          - name: load cronjobs from yml
+            include_vars:
+              file: "{{ RUCIO_ANALYSIS_CRONTAB }}"
+              name: cronjobs
+          - name: add tasks to crontab
+            ansible.builtin.cron:
+              name: "{{ item.name }}"
+              minute: "{{ item.minute }}"
+              hour: "{{ item.hour }}"
+              day: "{{ item.day }}"
+              month: "{{ item.month }}"
+              weekday: "{{ item.weekday }}"
+              disabled: "{{ item.disabled | default(\"no\") }}"
+              job: docker run --rm -e RUCIO_CFG_ACCOUNT={{ RUCIO_CFG_ACCOUNT }} 
+                -v {{ ansible_env.HOME }}/.globus/{{ RUCIO_CFG_CLIENT_CERT | basename }}:/opt/rucio/etc/client.crt
+                -v {{ ansible_env.HOME }}/.globus/{{ RUCIO_CFG_CLIENT_KEY | basename }}:/opt/rucio/etc/client.key
+                {% if HOSTS == 'localhost' %} -v {{ RUCIO_ANALYSIS_ROOT }}:/opt/rucio-analysis {% endif %} 
+                --name rucio-analysis-{{ item.name }} 
+                -e TASK_FILE_PATH="/opt/rucio-analysis/etc/tasks/{{ item.task_subpath }}"
+                -e RUCIO_VOMS="{{ RUCIO_VOMS }}" 
+                rucio-analysis:{{ RUCIO_ANALYSIS_IMAGE_TAG }} >> {{ item.override_log_path | default("/var/log/cron/rucio-analysis/" + item.name | replace('-','_') + "_`date +\%Y\%m\%d`.log 2>&1") }}
+            loop: "{{ cronjobs.jobs }}"
+        when: add_amend_crontab|bool
