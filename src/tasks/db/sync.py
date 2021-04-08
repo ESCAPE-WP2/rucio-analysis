@@ -45,7 +45,7 @@ class SyncDatabase(Task):
                     "bool": {
                         "filter": [{
                             "term": {
-                                'task_name.keyword': taskNameToUpdate
+                                "task_name.keyword": taskNameToUpdate
                             }
                         }, {
                             "term": {

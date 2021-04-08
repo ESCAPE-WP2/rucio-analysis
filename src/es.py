@@ -47,7 +47,7 @@ class ES():
             self.logger.warning("Failed to update database: {}".format(e))
 
     def search(self, index, body, maxRows=1000):
-        self._search(index, body, maxRows)
+        return self._search(index, body, maxRows)
 
 
 class ESRucio(ES):

@@ -14,12 +14,19 @@ class Logger:
         self._fmt = fmt
         self._name = name
         self._level = level
+
+        # Create Formatter object with desired logging format.
+        #
         self.formatter = logging.Formatter(self.fmt)
 
         # Logger set to capture ALL logging events, handlers then further restrict
         # this with their own levels.
         #
         self.get().setLevel("DEBUG")
+
+        # Stop child loggers propagating to parents, prevents double logging.
+        #
+        self.get().propagate = False
 
         # Clear existing handlers and add new ones as requested.
         #

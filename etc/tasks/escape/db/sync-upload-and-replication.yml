@@ -1,0 +1,33 @@
+sync-database-test-upload:
+    description: "Sync external database with rule information in datalake (test-upload)"
+    module_name: "tasks.db.sync"
+    class_name: "SyncDatabase"
+    enabled: true
+    args:
+    kwargs:
+      task_name_to_update: test-upload
+      n_workers: 6
+      database:
+        type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        search_range_lte: now
+        search_range_gte: now-1h
+        max_rows: 10000
+
+sync-database-test-replication:
+    description: "Sync external database with rule information in datalake (test-upload-replication)"
+    module_name: "tasks.db.sync"
+    class_name: "SyncDatabase"
+    enabled: true
+    args:
+    kwargs:
+      task_name_to_update: test-upload-replication
+      n_workers: 6
+      database:
+        type: es
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
+        search_range_lte: now
+        search_range_gte: now-1h
+        max_rows: 10000

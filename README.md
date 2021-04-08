@@ -21,7 +21,7 @@ A modular and extensible framework for performing tasks on a Rucio datalake inta
 
 The framework interacts with a Rucio datalake by extending a containerised Rucio client image. Each Dockerfile creates an image with the prerequisite certificate bundles, VOMS setup and Rucio template configs for the suffixed project. Additional targets may be added to this Makefile to add new containerised clients for different datalake instances, with a corresponding `docker build` routine added as a target in the `Makefile` in order to make it accessible to the Ansible install script.
 
-Both local and remote install is managed by Ansible. This is discussed further in Automation.
+Both local and remote install is managed by Ansible. This is discussed further in **Automation**.
 
 Task definitions are written as yaml and stored in `etc/tasks`.
 
@@ -94,29 +94,49 @@ Tasks can then be executed manually inside the container via, e.g.:
 
 To keep containers single purpose, task automation is achieved via cron on the host. To automate a task, the corresponding docker run command must be added to the host's crontab, passing in both the necessary credentials to authenticate with the Rucio server (taken from the environment variables) and the task file path from the perspective of the container.
 
-To keep deployment as simple as possible, this crontab can (and should) be managed by Ansible. To add or amend cronned tasks, configure the corresponding `crontab.yml` in `etc/ansible/vars/`. The fields in this yaml file follow standard crontab nomenclature. Logs for each task can be effectively turned off by setting `override_log_path` to "/dev/null". Tasks can be disabled by setting the `disabled` parameter to "no".
+To keep deployment as simple as possible, this crontab can (and should) be managed by Ansible. 
 
-To run the play:
+## Crontabs
+
+To add or amend cronned tasks, create/edit the corresponding `jobs` entry in `crontab.yml` in `etc/ansible/vars/<org>`. The fields in this yaml file follow standard crontab nomenclature, and look something like:
+
+```yaml
+jobs:
+- name: tests-transfers
+    minute: "0"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "escape/tests/upload-and-replication.yml"
+    disabled: yes
+```
+
+where `<task_subpath>` is relative to `etc/tasks/`. Logs for each task can be effectively turned off by setting `override_log_path` to "/dev/null". Tasks can be disabled by setting the `disabled` parameter to "no".
+
+## Defining remote hosts
+
+Deployment via Ansible requires that a host target has been defined in `etc/hosts/inventory.ini`.
+
+## Running the play
+
+In addition to the `RUCIO_CFG_*` environment variables discussed in **Usage**, the call to the Ansible install script should include the additional parameters (if different from default):
+
+- **RUCIO_ANALYSIS_HOSTS**: a host target, as defined in `etc/ansible/hosts/inventory.ini` (default: 'localhost')
+- **RUCIO_VOMS**: the VOMS that the user will authenticate against (default: 'escape')
+- **RUCIO_ANALYSIS_IMAGE_MAKE_TARGET**: the Make target for the rucio-analysis image, as defined in `Makefile` (default: 'escape')
+- **RUCIO_ANALYSIS_IMAGE_TAG**: tag of the dockerised image. This must correspond to a build instruction in the Makefile (default: 'escape').
+
+This call can be added as a Make target in `etc/ansible/Makefile` for convenience, allowing for one-line deployment, e.g.:
 
 ```bash
 eng@ubuntu:~/rucio-analysis/etc/ansible$ make build-escape-on-local
 ```
 
-It is also possible to deploy to remote targets using the Ansible install script, e.g. 
+for local, or:
 
 ```bash
 eng@ubuntu:~/rucio-analysis/etc/ansible$ make build-escape-on-escape-rucio-analysis
 ```
 
-provided that:
-- the host target has been defined in `etc/hosts/inventory.ini`, and
-- a `crontab.yml` has been specified in `etc/ansible/vars/crontabs`. 
-
-The call to the Ansible install script should include the additional parameters (if different from default):
-
-- **RUCIO_ANALYSIS_HOSTS**: a host target, as defined in `etc/ansible/hosts/inventory.ini` (default: 'localhost')
-- **RUCIO_VOMS**: the VOMS that the user will authenticate against (default: 'escape')
-- **RUCIO_ANALYSIS_IMAGE_MAKE_TARGET**: the make target for the rucio-analysis image, as defined in Makefile (default: 'escape')
-- **RUCIO_ANALYSIS_IMAGE_TAG**: tag of the dockerised image. This must correspond to a build instruction in the Makefile (default: 'escape').
-
-This call can also be added as a Make target in `etc/ansible/Makefile`, as shown in the `Make` commands above.
+for remote.

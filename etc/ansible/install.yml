@@ -51,7 +51,7 @@
             become: yes
             ansible.builtin.synchronize:
               src: "{{ RUCIO_ANALYSIS_ROOT }}"
-              dest: /opt/{{ RUCIO_ANALYSIS_ROOT | basename }}
+              dest: /opt/
               mode: push
               copy_links: yes
           - name: Change file ownership and group
