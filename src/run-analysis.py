@@ -14,16 +14,12 @@ if __name__ == "__main__":
     parser.add_argument('-v', help="verbose?", action='store_true')
     iargs = parser.parse_args()
 
-    # Set default root loggers.
+    # Setup default root loggers for CRITICAL warnings.
     #
     # These will be overriden by per-task loggers, but provide a failsafe
     # if exceptions occur while instantiating these tasks.
     #
-    if iargs.v:
-        logger = Logger(level='DEBUG').get()
-    else:
-        logger = Logger(level='INFO').get()
-    Logger(name="rucio", level='INFO')
+    logger = Logger(name='root', level='CRITICAL').get()
 
     session = Session(tasks=iargs.t, logger=logger)
     for task in session.tasks:
@@ -36,11 +32,18 @@ if __name__ == "__main__":
             kwargs = session.tasks[task]['kwargs']
             kwargs['task_name'] = task
 
+            # Remove root logger and create new logger per task.
+            #
+            if iargs.v:
+                logger = Logger(name='{}'.format(class_name), level='DEBUG').get()
+            else:
+                logger = Logger(name='{}'.format(class_name), level='INFO').get()
+
             if not enabled:
                 logger.warning("Task is not enabled!")
                 continue
             try:
-                # Import module specified in the task definitiong with the <module_name>
+                # Import module specified in the task definition with the <module_name>
                 # field, and assign reference to corresponding <class_name> from this
                 # module to <task>.
                 #

@@ -37,12 +37,14 @@ class ReportDaily(Task):
         if databaseType == "es":
             es = ESRucio(databaseUri, self.logger)
 
+            nDocsAsSrc = {}
+            nDocsAsDst = {}
             for rse in rses:
+                nDocsAsSrc[rse] = {}
+                nDocsAsDst[rse] = {}
                 # Query the database for the number of documents in each
                 # state.
                 #
-                nDocsAsSrc = {}
-                nDocsAsDst = {}
                 for term in [
                     "is_submitted",
                     "is_stuck",
@@ -112,7 +114,7 @@ class ReportDaily(Task):
                             }
                         },
                     )
-                    nDocsAsSrc[rse][term] = len(res["hits"]["hits"])
+                    nDocsAsDst[rse][term] = len(res["hits"]["hits"])
 
         # Format the report depending on the webhook type.
         #
@@ -130,8 +132,7 @@ class ReportDaily(Task):
                                 datetime.now().strftime("%d-%m-%Y")
                             ),
                     },
-                }
-                )
+                })
                 blocks.append({
                     "type": "section",
                     "text": {
@@ -140,11 +141,10 @@ class ReportDaily(Task):
                                 percentageStuckWarningThreshold
                             ),
                     },
-                }
-                )
+                })
                 blocks.append({"type": "divider"})
 
-                # Report number of documents in each state.
+                # Add blocks for number of documents in each state.
                 #
                 for rse in rses:
                     url = (
@@ -153,81 +153,67 @@ class ReportDaily(Task):
                             databaseSearchRangeGTE, databaseSearchRangeLTE, rse
                         )
                     )
-
                     blocks.append({
                         "type": "section",
                         "text": {
                                 "type": "mrkdwn",
                                 "text": "*<{}|{}>*".format(url, rse),
                         },
-                    }
-                    )
-
-                    if (
-                        nDocsAsSrc[rse]["is_stuck"] > percentageStuckWarningThreshold
-                        or nDocsAsSrc[rse]["is_submitted"] == 0
-                    ):
+                    })
+                    if nDocsAsSrc[rse]["is_stuck"] > percentageStuckWarningThreshold \
+                            or nDocsAsSrc[rse]["is_submitted"] == 0:
                         symbol = ":warning:"
                     else:
                         symbol = ":ok:"
-                    blocks.append(
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text":
-                                    "{}\tAs src\t\t\t:arrow_up: {:4d}\t:".format(
-                                        symbol, nDocsAsSrc[rse]["is_submitted"]
-                                    )
-                                + "heavy_check_mark: {:4d}\t".format(
-                                    nDocsAsSrc[rse]["is_done"]
-                                        )
-                                + ":x: {:4d}\t:".format(nDocsAsSrc[rse]["is_stuck"])
-                                + "arrow_forward: {:4d}".format(
-                                    nDocsAsSrc[rse]["is_replicating"]
-                                        ),
-                            },
-                        }
-                    )
-
-                    if (
-                        nDocsAsDst[rse]["is_stuck"] > percentageStuckWarningThreshold
-                        or nDocsAsDst[rse]["is_submitted"] == 0
-                    ):
+                    blocks.append({
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text":
+                                "{}\tAs src\t\t\t:arrow_up: {:4d}\t:".format(
+                                    symbol, nDocsAsSrc[rse]["is_submitted"]
+                                )
+                            + "heavy_check_mark: {:4d}\t".format(
+                                nDocsAsSrc[rse]["is_done"]
+                                )
+                            + ":x: {:4d}\t:".format(nDocsAsSrc[rse]["is_stuck"])
+                            + "arrow_forward: {:4d}".format(
+                                nDocsAsSrc[rse]["is_replicating"]
+                                ),
+                        },
+                    })
+                    if nDocsAsDst[rse]["is_stuck"] > percentageStuckWarningThreshold \
+                            or nDocsAsDst[rse]["is_submitted"] == 0:
                         symbol = ":warning:"
                     else:
                         symbol = ":ok:"
-                    blocks.append(
-                        {
-                            "type": "section",
-                            "text": {
-                                "type": "mrkdwn",
-                                "text":
-                                    "{}\tAs dst\t:arrow_up: {:4d}\t:".format(
-                                        symbol, nDocsAsDst[rse]["is_submitted"]
-                                    )
-                                + "heavy_check_mark: {:4d}\t".format(
-                                    nDocsAsDst[rse]["is_done"]
-                                    )
-                                + ":x: {:4d}\t:".format(nDocsAsDst[rse]["is_stuck"])
-                                + "arrow_forward: {:4d}".format(
-                                    nDocsAsDst[rse]["is_replicating"]
-                                    ),
-                            },
-                        }
-                    )
+                    blocks.append({
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text":
+                                "{}\tAs dst\t:arrow_up: {:4d}\t:".format(
+                                    symbol, nDocsAsDst[rse]["is_submitted"]
+                                )
+                            + "heavy_check_mark: {:4d}\t".format(
+                                nDocsAsDst[rse]["is_done"])
+                            + ":x: {:4d}\t:".format(nDocsAsDst[rse]["is_stuck"])
+                            + "arrow_forward: {:4d}".format(
+                                nDocsAsDst[rse]["is_replicating"]),
+                        },
+                    })
                     blocks.append({"type": "divider"})
 
-                    # Add payload headers.
-                    #
-                    headers = {
-                        "content-type": "application/json",
-                        "Accept-Charset": "UTF-8",
-                    }
+                # Add payload headers.
+                #
+                headers = {
+                    "content-type": "application/json",
+                    "Accept-Charset": "UTF-8",
+                }
 
-                    # Send report information.
-                    #
-                    body = {"blocks": blocks}
-                    requests.post(webhook["url"], json=body, headers=headers)
+                # Send report information.
+                #
+                body = {"blocks": blocks}
+                requests.post(webhook["url"], json=body, headers=headers)
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))
