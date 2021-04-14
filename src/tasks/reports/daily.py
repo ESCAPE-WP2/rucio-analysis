@@ -62,7 +62,7 @@ class ReportDaily(Task):
                                         {
                                             "term": {
                                                 "task_name.keyword":
-                                                    "test-replication"
+                                                    "test-upload-replication"
                                             }
                                         },
                                         {"term": {"from_rse.keyword": rse}},
@@ -95,7 +95,7 @@ class ReportDaily(Task):
                                         {
                                             "term": {
                                                 "task_name.keyword":
-                                                    "test-replication"
+                                                    "test-upload-replication"
                                             }
                                         },
                                         {"term": {"to_rse.keyword": rse}},
@@ -170,7 +170,7 @@ class ReportDaily(Task):
                         "text": {
                             "type": "mrkdwn",
                             "text":
-                                "{}\tAs src\t\t\t:arrow_up: {:4d}\t:".format(
+                                "{}\tAs src\t:arrow_up: {:4d}\t:".format(
                                     symbol, nDocsAsSrc[rse]["is_submitted"]
                                 )
                             + "heavy_check_mark: {:4d}\t".format(
