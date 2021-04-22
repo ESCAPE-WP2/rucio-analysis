@@ -3,5 +3,5 @@
 escape:
 	@docker build . -f Dockerfile.escape --pull --no-cache --tag rucio-analysis:escape
 
-ska:
-	@docker build . -f Dockerfile.ska --pull --no-cache --tag rucio-analysis:skao
+skao:
+	@docker build . -f Dockerfile.skao --pull --no-cache --tag rucio-analysis:skao
