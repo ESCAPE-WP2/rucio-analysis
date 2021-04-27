@@ -13,8 +13,7 @@ from gfal2 import (
 
 
 class TestUploadNondeterministic(Task):
-    """ Hello World test class stub. """
-
+    
     def __init__(self, logger):
         super().__init__(logger)
 
@@ -22,7 +21,7 @@ class TestUploadNondeterministic(Task):
         super().run()
         self.tic()
         try:
-            # Assign variables from tests.stubs.yml kwargs.
+            # Assign variables from kwargs.
             #
             nFiles = kwargs["n_files"]
             nProjects = kwargs["n_projects"]
@@ -37,7 +36,7 @@ class TestUploadNondeterministic(Task):
             self.logger.critical(repr(e))
             return False
 
-        self.logger.info("start non deterministic test")
+        self.logger.info("start non deterministic upload test")
         gfal = Gfal2Context()
         params = gfal.transfer_parameters()
         params.set_checksum = True
@@ -47,20 +46,29 @@ class TestUploadNondeterministic(Task):
         params.timeout = 300
 
         rucio = RucioWrappersAPI()
+        
+        # Paths for data uploaded are constructed as below
+        # rse_prefix/scope/test_dir_prefix_<timestamp>/project<Idx>/dataset<Idy>/filename<Idz>_timestamp
+        
         test_dir = test_dir_prefix + "_" + datetime.now().strftime("%d%m%yT%H.%M.%S")
 
+        # Create test dir
         test_dir_pfn = createPFN(self.logger.name, rse, scope, test_dir)
         gfal.mkdir_rec(test_dir_pfn, 775)
         for p in range(0, nProjects):
+            # Create project dir
             project_dir_pfn = os.path.join(test_dir_pfn, "project" + str(p))
             gfal.mkdir_rec(project_dir_pfn, 775)
             for d in range(0, nDatasets):
+                # Create dataset dir
                 dataset_dir_pfn = os.path.join(project_dir_pfn, "dataset" + str(d))
                 gfal.mkdir_rec(dataset_dir_pfn, 775)
                 for f in range(0, nFiles):
+                    # Create file
                     f = generateRandomFile(size[0])
                     did = "{}:{}".format(scope, os.path.basename(f.name))
                     pfn = os.path.join(dataset_dir_pfn, os.path.basename(f.name))
+                    
                     self.logger.info("Uploading file with pfn {}".format(pfn))
                     gfal.filecopy(params, "file://" + f.name, pfn)
 
@@ -76,8 +84,6 @@ class TestUploadNondeterministic(Task):
                     )
                     rucio.addRule(did, 1, rse, lifetime)
                     os.remove(f.name)
-
-        # END ---------------
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))
