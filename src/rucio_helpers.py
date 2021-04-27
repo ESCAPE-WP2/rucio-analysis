@@ -82,7 +82,8 @@ def uploadDirReplicate(
     # Generate directory of files to be uploaded.
     #
     dirPath = generateRandomFilesDir(
-        nFiles, fileSize, dirId=dirIdx, prefix=namingPrefix)
+        nFiles, fileSize, dirId=dirIdx, prefix=namingPrefix
+    )
 
     # Create dataset DID based on directory name.
     #
@@ -114,7 +115,7 @@ def uploadDirReplicate(
             "to_rse": rseSrc,
             "scope": scope,
             "name": os.path.basename(dirPath),
-            "is_upload_submitted": 1
+            "is_upload_submitted": 1,
         }
         try:
             st = time.time()
@@ -168,10 +169,27 @@ def uploadDirReplicate(
                             "file_size": fileSize,
                             "n_files": nFiles,
                             "type": "dataset",
-                            "is_submitted": 1
+                            "is_submitted": 1,
                         },
                     )
         logger.debug("All replication rules added")
     else:
         logger.debug("No destination RSEs passed; no replication rules added")
     shutil.rmtree(dirPath)
+
+
+def createPFN(loggerName, rse, scope, testdir, project="", dataset="", filename=""):
+    logger = logging.getLogger(loggerName)
+
+    rucio = RucioWrappersAPI()
+    protocols = rucio.getRSEProtocols(rse)
+
+    rse_prefix = (
+        protocols[0]["scheme"]
+        + "://"
+        + protocols[0]["hostname"]
+        + protocols[0]["prefix"]
+    )
+    logger.info("RSE prefix constructed is {}".format(rse_prefix))
+    pfn = os.path.join(rse_prefix, scope, testdir, project, dataset, filename)
+    return pfn

@@ -88,6 +88,7 @@ class RucioWrappers:
 
 class RucioWrappersCLI(RucioWrappers):
     """ Talk to a Rucio instance via subprocessed CLI commands. """
+
     @staticmethod
     def addDataset(did):
         rtn = subprocess.run(["rucio", "add-dataset", did], stdout=subprocess.PIPE)
@@ -207,6 +208,7 @@ class RucioWrappersCLI(RucioWrappers):
 
 class RucioWrappersAPI(RucioWrappers):
     """ Talk to a Rucio instance via the API. """
+
     @staticmethod
     def addDID(did, type):
         """ Add a DID, <did>, of type, <type>. """
@@ -216,6 +218,22 @@ class RucioWrappersAPI(RucioWrappers):
             scope = tokens[0]
             name = tokens[1]
             client.add_did(scope=scope, name=name, type=type)
+        except RucioException as error:
+            raise Exception(error)
+
+    @staticmethod
+    def addReplica(gfal, rse, did, pfn):
+        """ Add a DID, <did>, of type, <type>. """
+        try:
+            client = Client()
+            tokens = did.split(":")
+            scope = tokens[0]
+            name = tokens[1]
+            size = gfal.stat(pfn).st_size
+            checksum = gfal.checksum(pfn, "adler32")
+            client.add_replica(
+                rse=rse, scope=scope, name=name, bytes=size, adler32=checksum, pfn=pfn
+            )
         except RucioException as error:
             raise Exception(error)
 

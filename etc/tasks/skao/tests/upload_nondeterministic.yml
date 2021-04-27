@@ -1,0 +1,20 @@
+test-upload-nondeterministic:
+  description: "Test uploading to non-deterministic RSEs."
+  module_name: "tasks.tests.upload_nondeterministic"
+  class_name: "TestUploadNondeterministic"
+  enabled: true
+  args:
+  kwargs:
+    n_files: 1
+    n_projects: 1
+    n_datasets: 2
+    sizes:
+      - 100000 # bytes
+    test_dir_prefix: nondeterministic_test
+    lifetime: 3600 # seconds
+    rse: MANCHESTER_ND
+    scope: testing_nd
+    databases:
+      - type: ignore
+        uri: http://130.246.214.144:80/monit/metadata/
+        index: "[replication]"
