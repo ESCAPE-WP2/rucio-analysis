@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from session import Session
 from logger import Logger
 import argparse

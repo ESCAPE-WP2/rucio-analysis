@@ -9,6 +9,9 @@ from rucio.common.exception import RucioException
 
 
 class RucioWrappers:
+    """
+    Wrappers for common Rucio functionality.
+    """
     @abc.abstractstaticmethod
     def addDataset():
         raise NotImplementedError
@@ -301,7 +304,7 @@ class RucioWrappersAPI(RucioWrappers):
         client.download_dids(items=items)
 
     @staticmethod
-    def erase(did):
+    def erase(did, purgeReplicas):
         """ Remove replication rueles from a DID, <did>. """
         api = RucioWrappersAPI()
         rules = api.listReplicationRules(did)
@@ -310,7 +313,7 @@ class RucioWrappersAPI(RucioWrappers):
             rids.add(rule["id"])
         client = Client()
         for rid in rids:
-            client.delete_replication_rule(rule_id=rid, purge_replicas=True)
+            client.delete_replication_rule(rule_id=rid, purge_replicas=purgeReplicas)
 
     @staticmethod
     def getMetadata(did):
@@ -442,7 +445,7 @@ class RucioWrappersAPI(RucioWrappers):
                 "rse": rse,
                 "did_scope": scope,
                 "lifetime": lifetime,
-                "register_after_upload": True,
+                "register_after_upload": registerAfterUpload,
                 "force_scheme": forceScheme,
                 "transfer_timeout": transferTimeout,
             }

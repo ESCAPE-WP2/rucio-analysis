@@ -17,7 +17,11 @@ class bcolors:
 
 
 def generateRandomFile(size, prefix=""):
-    """ Generate a randomly named file of size, <size>, with random contents. """
+    """
+    Generate a randomly named file of size, <size>, with random contents.
+
+    Returns a handle to the file.
+    """
     if prefix:               # add file prefix if set.
         prefix += "_"
     todaysDatetime = datetime.now().strftime("%d%m%yT%H.%M.%S")
@@ -30,9 +34,11 @@ def generateRandomFile(size, prefix=""):
 
 def generateRandomFilesDir(nFiles, size, dirId=1, prefix=""):
     """
-    Generate a directory of, <nFiles>,of size, <size>, with random contents.
+    Generate a directory of, <nFiles>, of size, <size>, with random contents.
     A directory id, <dirId>, can be passed optionally to avoid naming collisions when
     load testing.
+
+    Returns the path to the created directory.
     """
     if prefix:              # add file prefix if set.
         prefix += "_"

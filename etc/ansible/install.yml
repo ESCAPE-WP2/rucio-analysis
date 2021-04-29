@@ -19,7 +19,7 @@
       private: no
     - name: rebuild_image
       prompt: Rebuild image?
-      default: no
+      default: yes
       private: no
     hosts: "{{ HOSTS }}"
     gather_facts: true

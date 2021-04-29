@@ -1,7 +1,7 @@
 from datetime import datetime
 import requests
 
-from es import ESRucio
+from es.rucio import ESRucio
 from tasks.task import Task
 
 
@@ -175,11 +175,11 @@ class ReportDaily(Task):
                                 )
                             + "heavy_check_mark: {:4d}\t".format(
                                 nDocsAsSrc[rse]["is_done"]
-                                )
+                                    )
                             + ":x: {:4d}\t:".format(nDocsAsSrc[rse]["is_stuck"])
                             + "arrow_forward: {:4d}".format(
                                 nDocsAsSrc[rse]["is_replicating"]
-                                ),
+                                    )
                         },
                     })
                     if nDocsAsDst[rse]["is_stuck"] > percentageStuckWarningThreshold \
@@ -194,12 +194,11 @@ class ReportDaily(Task):
                             "text":
                                 "{}\tAs dst\t:arrow_up: {:4d}\t:".format(
                                     symbol, nDocsAsDst[rse]["is_submitted"]
-                                )
-                            + "heavy_check_mark: {:4d}\t".format(
-                                nDocsAsDst[rse]["is_done"])
+                                ) + "heavy_check_mark: {:4d}\t".format(
+                                    nDocsAsDst[rse]["is_done"])
                             + ":x: {:4d}\t:".format(nDocsAsDst[rse]["is_stuck"])
                             + "arrow_forward: {:4d}".format(
-                                nDocsAsDst[rse]["is_replicating"]),
+                                    nDocsAsDst[rse]["is_replicating"]),
                         },
                     })
                     blocks.append({"type": "divider"})

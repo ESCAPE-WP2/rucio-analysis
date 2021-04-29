@@ -1,65 +1,20 @@
 from datetime import datetime
 
-from elasticsearch import Elasticsearch
+from es.wrappers import ESWrappers
+from rucio.wrappers import RucioWrappersAPI
 
-from rucio_wrappers import RucioWrappersAPI
 
-
-class ES():
+class ESRucio(ESWrappers):
     """
-    Class providing common functionality for interaction with elasticsearch
-    backends.
-    """
-
-    def __init__(self, uri, logger):
-        self.es = Elasticsearch([uri])
-        self.logger = logger
-
-    def _get(self, index, documentID):
-        """ Get a document from index, <index>, with document ID, <documentID>. """
-        try:
-            return self.es.get(index=index, id=documentID)
-        except Exception as e:
-            self.logger.warning("Failed to get document: {}".format(e))
-
-    def _index(self, index, documentID, body):
-        """ Create new document with id, <documentID>, in index, <index>. """
-        try:
-            self.es.index(index=index, id=documentID, body=body)
-        except Exception as e:
-            self.logger.critical("Failed to index: {}".format(e))
-            return False
-
-    def _search(self, index, body, maxRows):
-        """ Search an index, <index>. """
-        try:
-            res = self.es.search(index=index, size=maxRows, body=body)
-            return res
-        except Exception as e:
-            self.logger.critical("Failed to complete search: {}".format(e))
-            exit()
-
-    def _update(self, index, documentID, body):
-        """ Update an existing document with id, <documentID>, in index, <index>. """
-        try:
-            self.es.update(index=index, id=documentID, body=body)
-        except Exception as e:
-            self.logger.warning("Failed to update database: {}".format(e))
-
-    def search(self, index, body, maxRows=1000):
-        return self._search(index, body, maxRows)
-
-
-class ESRucio(ES):
-    """
-    Class bulding upon ES base class, but providing additional functionality for
-    pushing Rucio related information to an elasticsearch index.
+    Additional functionality for pushing Rucio related information to an ElasticSearch
+    index.
     """
 
     def pushRulesForDID(self, did, index, baseEntry={}):
-        """ Create documents in the database corresponding to replication rules for
-            a given DID < did > and add to index < index > . < baseEntry > key/value
-            pairs will be appended to all entries prior to submission.
+        """
+        Create documents in the database corresponding to replication rules for
+        a given DID <did> and add to index <index>. <baseEntry> key/value
+        pairs will be appended to all entries prior to submission.
         """
         rucio = RucioWrappersAPI()
         rules = rucio.listReplicationRules(did)
@@ -200,3 +155,13 @@ class ESRucio(ES):
         self.logger.info("Updating rule ({})...".format(ruleID))
         self._update(index=index, documentID=ruleID, body={"doc": fullEntry})
         self.logger.info("Update complete")
+
+    def _update(self, index, documentID, body):
+        """ Update an existing document with id, <documentID>, in index, <index>. """
+        try:
+            self.es.update(index=index, id=documentID, body=body)
+        except Exception as e:
+            self.logger.warning("Failed to update database: {}".format(e))
+
+    def search(self, index, body, maxRows=10000):
+        return self._search(index, body, maxRows)

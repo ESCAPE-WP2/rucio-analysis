@@ -1,8 +1,8 @@
 import os
 
-from rucio_wrappers import RucioWrappersAPI
+from io import generateRandomFile
+from rucio.wrappers import RucioWrappersAPI
 from tasks.task import Task
-from utility import generateRandomFile
 
 
 class StubHelloWorld(Task):

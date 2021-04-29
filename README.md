@@ -1,12 +1,11 @@
 # rucio-analysis
 
-A modular and extensible framework for performing tasks on a Rucio datalake intance.
+A modular and extensible framework for performing tasks on a Rucio datalake.
 
 # Structure
 
 ```
-  ├── Dockerfile.escape
-  ├── Dockerfile.ska
+  ├── Dockerfile
   ├── etc
   │   ├── ansible
   │   ├── init
@@ -16,10 +15,14 @@ A modular and extensible framework for performing tasks on a Rucio datalake inta
   ├── README.md
   ├── requirements.txt
   └── src
+  │   ├── es
+  │   ├── rucio
+  │   ├── slack
   │   └── tasks
+ 
 ```
 
-The framework interacts with a Rucio datalake by extending a containerised Rucio client image. Each Dockerfile creates an image with the prerequisite certificate bundles, VOMS setup and Rucio template configs for the suffixed project. Additional targets may be added to this Makefile to add new containerised clients for different datalake instances, with a corresponding `docker build` routine added as a target in the `Makefile` in order to make it accessible to the Ansible install script.
+This framework interacts with a Rucio datalake by extending a preexisting containerised Rucio client image, adding in the necessary build instructions for this package. This preexisting image should contain the prerequisite certificate bundles, VOMS setup and Rucio template configs for the datalake. Builds for other datalake instances can be enabled by adding a new `docker build` routine to a new target in the `Makefile` with the corresponding build arguments for the base image and tag. This is a necessary step to make it accessible to the Ansible install script.
 
 Both local and remote install is managed by Ansible. This is discussed further in **Automation**.
 
@@ -32,7 +35,7 @@ The source containing the logic used by the tasks is kept in `src/tasks`.
 The procedure for creating a new tests is as follows:
 
 1. Take a copy of the `TestStubHelloWorld` class stub in `src/tasks/stubs.py` and rename both the file and class name as desired.
-2. Amend the entrypoint `run()` function as desired. Functionality for communicating with Rucio either by the CLI or API is provided via the wrapper and helper functions in `rucio_wrappers.py` and `rucio_helpers.py` respectively. Example usage can be found in the `StubRucioAPI` class stub in `src/tasks/stubs.py`.
+2. Amend the entrypoint `run()` function as desired. Functionality for communicating with Rucio either by the CLI or API is provided via the wrapper and helper functions in `rucio/wrappers.py` and `rucio/helpers.py` respectively. Example usage can be found in the `StubRucioAPI` class stub in `src/tasks/stubs.py`.
 3. Create a new task definition file e.g. `etc/tasks/test.yml` copying the format of the `test-hello-world-stub` definition in `etc/tasks/stubs.yml`. A task is defined by the fields:
     - `module_name` (starting from and including the `tasks.` prefix) and `class_name`, set accordingly to match the modules/classes redefined in step 1,
     - `args` and `kwargs` keys corresponding to the parameters injected into the task's entry point `run()`,
@@ -74,7 +77,7 @@ Note that upload tasks require a valid X.509 certificate to be bound inside the 
 Tasks can then be executed manually inside the container via, e.g.:
 
 ```bash
-[root@b802f5113379 rucio-analysis]$ python3 src/run-analysis.py -t etc/tasks/stubs.yml 
+[root@b802f5113379 rucio-analysis]$ python3 src/run.py -t etc/tasks/stubs.yml 
 2020-10-23 08:16:17,039 [root] INFO     9697    Parsing tasks file
 2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Executing TestStubHelloWorld.run()
 2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Hello World!

@@ -1,0 +1,9 @@
+jobs:
+  - name: tests-transfers
+    minute: "0"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao/tests/transfers.yml"
+    disabled: no

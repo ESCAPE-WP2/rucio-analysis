@@ -1,4 +1,7 @@
-FROM registry.gitlab.com/ska-telescope/src/ska-rucio-client 
+ARG BASEIMAGE
+ARG BASETAG
+
+FROM $BASEIMAGE:$BASETAG
 
 USER root
 

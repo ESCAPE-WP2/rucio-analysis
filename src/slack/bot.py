@@ -1,10 +1,12 @@
+#!/usr/bin/python3
+
 import argparse
 from subprocess import Popen, PIPE
 
 from crontab import CronTab
 from slack import RTMClient
 
-from es import ESRucio
+from es.rucio import ESRucio
 from logger import Logger
 
 
@@ -12,7 +14,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-dt', help="Database type (es)", default='es', action='store')
     parser.add_argument('-du', help="Database URI",
-                        default='http://130.246.214.144:80/monit/metadata/',
                         action='store')
     parser.add_argument('-di', help="Database index",
                         default='[replication]', action='store')
