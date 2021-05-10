@@ -1,5 +1,4 @@
 elasticsearch
-gfal2-python
 rucio-clients
 slackclient
 python-crontab
