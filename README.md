@@ -105,7 +105,7 @@ eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
 rucio-analysis:escape
 ```
 
-Additionally, for development purposes, it is possible to mount the source from the host directly into the container provided you have exported the project's root directory path, **RUCIO_ANALYSIS_ROOT**:
+Additionally, for development purposes, it is possible to mount the source from the host directly into the container provided you have exported the project's root directory path as **RUCIO_ANALYSIS_ROOT**:
 
 ```bash
 eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
@@ -172,21 +172,21 @@ This framework contains a means to configure a remote host's crontab using Ansib
 
 1. Add the extended dockerised Rucio client as a new target of the root `Makefile`. This can be done by copying an existing entry and modifying the `$BASEIMAGE` & `$BASETAG` build arguments to point to the desired Rucio client base image, and modifying the `--tag` attribute with some unique project name identifier.
 
-2. Make a new directory in `etc/ansible/roles` with the remote host name (following the `etc/ansible/roles` directory naming structure), and create `crontab.yml` in the `vars` subdirectory following standard crontab nomenclature:
+2. Make a new directory in `etc/ansible/roles` with the remote host name, create a `crontab.yml` in the `vars` subdirectory and populate it like:
 
-  ```yaml
-  jobs:
-  - name: <task_name>
-      minute: "0"
-      hour: "*"
-      day: "*"
-      month: "*"
-      weekday: "*"
-      task_subpath: "path/to/test"
-      disabled: no
-  ```
+        ```yaml
+        jobs:
+        - name: <task_name>
+            minute: "0"
+            hour: "*"
+            day: "*"
+            month: "*"
+            weekday: "*"
+            task_subpath: "path/to/test"
+            disabled: no
+        ```
 
-where `<task_subpath>` is relative to `etc/tasks/`. Logs for a task can be effectively turned off by setting `override_log_path` to "/dev/null". Tasks can be disabled by setting the `disabled` parameter to "no".
+      where `<task_subpath>` is relative to `etc/tasks/`. Logs for a task can be effectively turned off by setting `override_log_path` to   "/dev/null".  Tasks can be disabled by setting the `disabled` parameter to "no".
 
 3. Add the remote host to `etc/ansible/hosts/inventory.yml`. This file contains all the necessary variable definitions to build rucio-analysis for the corresponding remote host; this includes the make target (as defined in step 1) to build the extended Rucio client image, the Ansible role (or rather, the name of the remote host as defined in step 2) containing project specific variables such as the crontab to be deployed, and the VOMS used to authenticate with Grid services.
 
