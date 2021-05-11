@@ -1,7 +1,7 @@
 import logging
 from multiprocessing import Pool
 
-from es.rucio import ESRucio
+from common.es.rucio import Rucio as ESRucio
 from tasks.task import Task
 
 

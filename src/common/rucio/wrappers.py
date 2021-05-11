@@ -4,6 +4,7 @@ import subprocess
 from rucio.client.client import Client
 from rucio.client.rseclient import RSEClient
 from rucio.client.downloadclient import DownloadClient
+from rucio.client.pingclient import PingClient
 from rucio.client.uploadclient import UploadClient
 from rucio.common.exception import RucioException
 
@@ -12,79 +13,83 @@ class RucioWrappers:
     """
     Wrappers for common Rucio functionality.
     """
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def addDataset():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def addRule():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def attach():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def detach():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def download():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def erase():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def getMetadata():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def getRSELimits(rse):
         raise NotImplementedError()
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def getRSEProtocols(rse):
         raise NotImplementedError()
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def getRSEUsage(rse):
         raise NotImplementedError()
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def listDIDs():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def listFileReplicas():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def listReplicationRules():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def listReplicationRulesFull():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def listRSEs():
         raise NotImplementedError()
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def listRSEAttributes(rse):
         raise NotImplementedError()
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
+    def ping():
+        raise NotImplementedError()
+
+    @ abc.abstractstaticmethod
     def upload():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def uploadDir():
         raise NotImplementedError
 
-    @abc.abstractstaticmethod
+    @ abc.abstractstaticmethod
     def whoAmI():
         raise NotImplementedError
 
@@ -92,14 +97,14 @@ class RucioWrappers:
 class RucioWrappersCLI(RucioWrappers):
     """ Talk to a Rucio instance via subprocessed CLI commands. """
 
-    @staticmethod
+    @ staticmethod
     def addDataset(did):
         rtn = subprocess.run(["rucio", "add-dataset", did], stdout=subprocess.PIPE)
         if rtn.returncode != 0:
             raise Exception("Non-zero return code")
         return rtn
 
-    @staticmethod
+    @ staticmethod
     def addRule(did, copies, dst, lifetime=None, activity=None, src=None):
         """
         Add rule(s) for <copies> copies of a DID, <did>, at RSE, <rse>, with
@@ -425,6 +430,12 @@ class RucioWrappersAPI(RucioWrappers):
         client = Client()
         info = client.get_replication_rule(ruleId)
         return info
+
+    @staticmethod
+    def ping():
+        """ Ping a rucio server. """
+        client = PingClient()
+        return client.ping()
 
     @staticmethod
     def upload(

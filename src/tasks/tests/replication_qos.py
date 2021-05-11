@@ -1,11 +1,11 @@
 import os
 import random
 
-from es.rucio import ESRucio
-from io import generateRandomFile
-from rucio.helpers import createCollection
-from rucio.wrappers import RucioWrappersAPI, RucioWrappersCLI
+from common.es.rucio import Rucio as ESRucio
+from common.rucio.helpers import createCollection
+from common.rucio.wrappers import RucioWrappersAPI, RucioWrappersCLI
 from tasks.task import Task
+from utility import generateRandomFile
 
 
 class TestReplicationQos(Task):

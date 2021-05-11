@@ -1,0 +1,10 @@
+all:
+  hosts: 
+    escape-rucio-analysis:
+      ansible_role: escape-rucio-analysis
+      rucio_voms: escape
+      rucio_analysis_image_make_target: escape
+    skao-rucio-analysis:
+      ansible_role: skao-rucio-analysis
+      rucio_voms: skatelescope.eu
+      rucio_analysis_image_make_target: skao

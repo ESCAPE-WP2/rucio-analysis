@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-from rucio.wrappers import RucioWrappersAPI
+from common.rucio.wrappers import RucioWrappersAPI
 
 
 def createCollection(loggerName, scope, name=None, collectionType="DATASET"):

@@ -5,11 +5,11 @@ import shutil
 import time
 import uuid
 
-from es.rucio import ESRucio
-from io import bcolors, generateRandomFilesDir
-from rucio.helpers import createCollection
-from rucio.wrappers import RucioWrappersCLI
+from common.es.rucio import Rucio as ESRucio
+from common.rucio.helpers import createCollection
+from common.rucio.wrappers import RucioWrappersCLI
 from tasks.task import Task
+from utility import bcolors, generateRandomFilesDir
 
 
 def uploadDirReplicate(

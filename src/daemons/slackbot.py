@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE
 from crontab import CronTab
 from slack import RTMClient
 
-from es.rucio import ESRucio
+from common.es.rucio import Rucio as ESRucio
 from logger import Logger
 
 

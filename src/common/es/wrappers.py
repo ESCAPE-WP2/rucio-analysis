@@ -1,7 +1,7 @@
 from elasticsearch import Elasticsearch
 
 
-class ESWrappers():
+class Wrappers():
     """
     Common functionality for interaction with ElasticSearch backends.
     """

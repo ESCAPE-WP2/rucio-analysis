@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from __future__ import absolute_import
 
 from session import Session
 from logger import Logger

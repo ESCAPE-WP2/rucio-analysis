@@ -1,10 +1,9 @@
-import os
 import time
 
 from gfal2 import Gfal2Context
 import importlib
 
-from rucio.wrappers import RucioWrappersAPI
+from common.rucio.wrappers import RucioWrappersAPI
 from tasks.task import Task
 
 
@@ -43,23 +42,26 @@ class TestUploadNondeterministic(Task):
         #
         rucio = RucioWrappersAPI()
         protocols = rucio.getRSEProtocols(rse)
-        if scheme != 'first':
-            for protocol in protocols:
+        for protocol in protocols:
+            if scheme != 'first':
                 if protocol['scheme'] == scheme:
                     hostname = protocol['hostname']
                     rse_prefix = protocol['prefix']
                     break
-        else:
-            scheme = protocol["scheme"]
-            hostname = protocol["hostname"]
-            rse_prefix = protocol["prefix"]
+            else:
+                scheme = protocol["scheme"]
+                hostname = protocol["hostname"]
+                rse_prefix = protocol["prefix"]
 
         # Instantiate the requested lfn2pfn class.
         #
         try:
             lfn2pfn = getattr(importlib.import_module(
-                "rucio.lfn2pfn"), lfn2pfnClassName)
-            (self.logger, scheme, hostname, rse_prefix, scope, lfn2pfnKwargs)
+                "common.rucio.lfn2pfn"), lfn2pfnClassName)(scheme,
+                                                           hostname,
+                                                           rse_prefix,
+                                                           scope,
+                                                           lfn2pfnKwargs)
         except ImportError as e:
             self.logger.critical("Could not import lfn2pfn module.")
             self.logger.critical(repr(e))
@@ -72,19 +74,21 @@ class TestUploadNondeterministic(Task):
         # Upload.
         #
         st = time.time()
-        for directory, filename, pfn in zip(
-                lfn2pfn.directories, lfn2pfn.filenames, lfn2pfn.pfns):
-            gfal.mkdir_rec(os.path.dirname(directory), 775)
+        for fi, directory, filename, pfn in zip(
+                lfn2pfn.files, lfn2pfn.getDirectoriesFromPFNs(),
+                lfn2pfn.getFilenamesFromPFNs(), lfn2pfn.pfns):
+            gfal.mkdir_rec(directory, 775)
 
             self.logger.info("Uploading file with pfn {}".format(pfn))
-            gfal.filecopy(params, "file://" + filename, pfn)
+
+            gfal.filecopy(params, "file://" + fi.name, pfn)
         self.logger.info("Finished upload in {}s".format(
             round(time.time() - st, 3)))
 
         # Add replica and expiration rule.
         #
         st = time.time()
-        for did, pfn in zip(lfn2pfn.dids, lfn2pfn.pfns):
+        for did, pfn in zip(lfn2pfn.getDIDsFromPFNs(), lfn2pfn.pfns):
             self.logger.info(
                 "Adding replica at {} with name {}".format(rse, filename)
             )

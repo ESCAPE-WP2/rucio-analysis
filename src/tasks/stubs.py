@@ -1,8 +1,8 @@
 import os
 
-from io import generateRandomFile
-from rucio.wrappers import RucioWrappersAPI
+from common.rucio.wrappers import RucioWrappersAPI
 from tasks.task import Task
+from utility import generateRandomFile
 
 
 class StubHelloWorld(Task):
@@ -59,7 +59,7 @@ class StubRucioAPI(Task):
         # Your code here.
         # START ---------------
         rucio = RucioWrappersAPI()
-        self.logger.info(rucio.whoAmI())
+        self.logger.info(rucio.ping())
 
         # Generate random file of size <size> and upload.
         #

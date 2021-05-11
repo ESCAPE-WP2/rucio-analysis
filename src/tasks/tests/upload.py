@@ -2,11 +2,11 @@ import os
 import time
 import uuid
 
-from es.rucio import ESRucio
-from io import bcolors, generateRandomFile
-from rucio.helpers import createCollection
-from rucio.wrappers import RucioWrappersAPI
+from common.es.rucio import Rucio as ESRucio
+from common.rucio.helpers import createCollection
+from common.rucio.wrappers import RucioWrappersAPI
 from tasks.task import Task
+from utility import bcolors, generateRandomFile
 
 
 class TestUpload(Task):

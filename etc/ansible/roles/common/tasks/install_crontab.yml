@@ -1,0 +1,29 @@
+- name: load crontab
+  block:
+    - name: load cronjobs from yml
+      include_vars:
+        file: "roles/{{ ansible_role }}/vars/crontab.yml"
+        name: cronjobs
+      delegate_to: 127.0.0.1
+    - name: add tasks to crontab
+      ansible.builtin.cron:
+        name: "{{ item.name }}"
+        minute: "{{ item.minute }}"
+        hour: "{{ item.hour }}"
+        day: "{{ item.day }}"
+        month: "{{ item.month }}"
+        weekday: "{{ item.weekday }}"
+        disabled: "{{ item.disabled | default(\"no\") }}"
+        job: docker run --rm -e RUCIO_CFG_ACCOUNT={{ RUCIO_CFG_ACCOUNT }} 
+          {% if RUCIO_CFG_AUTH_TYPE == 'userpass' %} -e RUCIO_CFG_USERNAME={{ RUCIO_CFG_USERNAME }} {% endif %}  
+          {% if RUCIO_CFG_AUTH_TYPE == 'userpass' %} -e RUCIO_CFG_PASSWORD={{ RUCIO_CFG_PASSWORD }} {% endif %}  
+          {% if RUCIO_CFG_AUTH_TYPE == 'x509' %} -v {{ ansible_env.HOME }}/.globus/{{ RUCIO_CFG_CLIENT_CERT | basename }}:/opt/rucio/etc/client.crt {% endif %}  
+          {% if RUCIO_CFG_AUTH_TYPE == 'x509' %}-v {{ ansible_env.HOME }}/.globus/{{ RUCIO_CFG_CLIENT_KEY | basename }}:/opt/rucio/etc/client.key {% endif %}  
+          -e RUCIO_CFG_AUTH_TYPE="{{ RUCIO_CFG_AUTH_TYPE }}"
+          -e RUCIO_CFG_CLIENT_CERT="/opt/rucio/etc/client.crt"
+          -e RUCIO_CFG_CLIENT_KEY="/opt/rucio/etc/client.key"
+          -e TASK_FILE_PATH="/opt/rucio-analysis/etc/tasks/{{ item.task_subpath }}"
+          -e RUCIO_VOMS="{{ rucio_voms }}" 
+          --name rucio-analysis-{{ item.name }} 
+          rucio-analysis:{{ rucio_analysis_image_make_target }} >> {{ item.override_log_path | default("/var/log/cron/rucio-analysis/" + item.name | replace('-','_') + "_`date +\%Y\%m\%d`.log 2>&1") }}
+      loop: "{{ cronjobs.jobs }}"

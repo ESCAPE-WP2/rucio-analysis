@@ -14,11 +14,7 @@ class Task():
         self.logger.debug("Constructing instance of {}()".format(
             type(self).__name__))
 
-    def __del__(self):
-        self.logger.debug("Deconstructing instance of {}()".format(
-            type(self).__name__))
-
-    @abc.abstractmethod
+    @ abc.abstractmethod
     def run(self):
         """ Entry point for all derived task classes. """
         self.logger.info("Executing {}.{}()".format(
@@ -32,7 +28,7 @@ class Task():
         """ End a timer. """
         self.end = time.time()
 
-    @property
+    @ property
     def elapsed(self):
         """ Get the elapsed time on the timer. """
         if self.start is None:

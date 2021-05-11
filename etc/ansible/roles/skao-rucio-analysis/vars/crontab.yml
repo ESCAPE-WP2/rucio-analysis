@@ -5,5 +5,5 @@ jobs:
     day: "*"
     month: "*"
     weekday: "*"
-    task_subpath: "skao/tests/transfers.yml"
+    task_subpath: "skao/tests/upload-and-replication.yml"
     disabled: no

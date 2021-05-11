@@ -1,7 +1,7 @@
-from es.rucio import ESRucio
-from io import bcolors
-from rucio.wrappers import RucioWrappersAPI
+from common.es.rucio import Rucio as ESRucio
+from common.rucio.wrappers import RucioWrappersAPI
 from tasks.task import Task
+from utility import bcolors
 
 
 class TestReplication(Task):

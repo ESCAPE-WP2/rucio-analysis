@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from es.wrappers import ESWrappers
-from rucio.wrappers import RucioWrappersAPI
+from common.es.wrappers import Wrappers
+from common.rucio.wrappers import RucioWrappersAPI
 
 
-class ESRucio(ESWrappers):
+class Rucio(Wrappers):
     """
     Additional functionality for pushing Rucio related information to an ElasticSearch
     index.

@@ -1,0 +1,16 @@
+- name: git checkout rucio-analysis
+  become: yes
+  ansible.builtin.git:
+    repo: 'https://github.com/ESCAPE-WP2/rucio-analysis.git'
+    dest: /opt/rucio-analysis
+- name: make docker image
+  become: yes
+  ansible.builtin.command: 
+    chdir: "/opt/rucio-analysis"
+    cmd: make {{ rucio_analysis_image_make_target }}
+- name: create logging directory
+  become: yes
+  file:
+    path: "/var/log/cron/rucio-analysis"
+    state: directory
+    mode: o+rw
