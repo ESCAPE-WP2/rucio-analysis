@@ -1,7 +1,9 @@
-import time
+import datetime
+import importlib
+import os
+import tempfile
 
 from gfal2 import Gfal2Context
-import importlib
 
 from common.rucio.wrappers import RucioWrappersAPI
 from tasks.task import Task
@@ -18,11 +20,13 @@ class TestUploadNondeterministic(Task):
             # Assign variables from kwargs.
             #
             rse = kwargs["rse"]
-            scope = kwargs["scope"]
-            lifetime = kwargs["lifetime"]
+            lfnpfnSpooferClassName = kwargs["lfnpfn_spoofer_class_name"]
+            lfnpfnSpooferKwargs = kwargs["lfnpfn_spoofer_kwargs"]
             scheme = kwargs["scheme"]
-            lfn2pfnClassName = kwargs["lfn2pfn_class_name"]
-            lfn2pfnKwargs = kwargs["lfn2pfn_kwargs"]
+            hostname = kwargs["hostname"]
+            prefix = kwargs["prefix"]
+            scope = kwargs["scope"]
+            filelistDir = kwargs["filelist_dir"]
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
             self.logger.critical(repr(e))
@@ -38,67 +42,66 @@ class TestUploadNondeterministic(Task):
         params.get_create_parent = True
         params.timeout = 300
 
-        # Get the RSE scheme, hostname and prefix.
+        # Verify the scheme, hostname and prefix (protocol) is supported by this RSE.
         #
         rucio = RucioWrappersAPI()
-        protocols = rucio.getRSEProtocols(rse)
-        for protocol in protocols:
-            if scheme != 'first':
-                if protocol['scheme'] == scheme:
-                    hostname = protocol['hostname']
-                    rse_prefix = protocol['prefix']
-                    break
-            else:
-                scheme = protocol["scheme"]
-                hostname = protocol["hostname"]
-                rse_prefix = protocol["prefix"]
+        selectedProtocol = None
+        for protocol in rucio.getRSEProtocols(rse):
+            if protocol['scheme'] == scheme and \
+                    protocol['hostname'] == hostname and \
+                    protocol['prefix'] == prefix:
+                selectedProtocol = '{}://{}{}'.format(scheme, hostname, prefix)
+                break
 
-        # Instantiate the requested lfn2pfn class.
+        if not selectedProtocol:
+            self.logger.critical("Protocol not supported by this RSE.")
+            return False
+
+        # Instantiate LFN/PFN spoofer.
         #
         try:
-            lfn2pfn = getattr(importlib.import_module(
-                "common.rucio.lfn2pfn"), lfn2pfnClassName)(scheme,
-                                                           hostname,
-                                                           rse_prefix,
-                                                           scope,
-                                                           lfn2pfnKwargs)
+            spoofer = getattr(importlib.import_module(
+                "common.rucio.lfnpfn_spoofer"), lfnpfnSpooferClassName)(
+                    self.logger, scheme, hostname, prefix, scope)
         except ImportError as e:
-            self.logger.critical("Could not import lfn2pfn module.")
+            self.logger.critical("Could not import lfnpfn_spoofer module.")
             self.logger.critical(repr(e))
             return False
         except AttributeError as e:
-            self.logger.critical("Requested class not found in lfn2pfn module.")
+            self.logger.critical("Requested class not found in lfnpfn_spoofer module.")
             self.logger.critical(repr(e))
-            exit()
+            return False
 
-        # Upload.
+        startTimestamp = datetime.datetime.now().strftime("%d%m%yT%H.%M.%S")
+        spoofer.spoof(lfnpfnSpooferKwargs)
+
+        # Open a file to keep list of added PFNs.
         #
-        st = time.time()
-        for fi, directory, filename, pfn in zip(
-                lfn2pfn.files, lfn2pfn.getDirectoriesFromPFNs(),
-                lfn2pfn.getFilenamesFromPFNs(), lfn2pfn.pfns):
-            gfal.mkdir_rec(directory, 775)
+        with tempfile.NamedTemporaryFile(mode="w+") as filelist_p:
+            # Ingest data.
+            #
+            for lfn, pfn in zip(spoofer.lfns, spoofer.pfns):
+                self.logger.info("Uploading file with path {}".format(pfn.path))
+                gfal.mkdir_rec(pfn.dir, 775)
+                gfal.filecopy(params, "file://" + lfn.path, pfn.path)
 
-            self.logger.info("Uploading file with pfn {}".format(pfn))
+                filelist_p.write('{}\t{}\n'.format(pfn.path, pfn.did))
 
-            gfal.filecopy(params, "file://" + fi.name, pfn)
-        self.logger.info("Finished upload in {}s".format(
-            round(time.time() - st, 3)))
-
-        # Add replica and expiration rule.
-        #
-        st = time.time()
-        for did, pfn in zip(lfn2pfn.getDIDsFromPFNs(), lfn2pfn.pfns):
-            self.logger.info(
-                "Adding replica at {} with name {}".format(rse, filename)
+            # Flush buffer and write this file list to the protocol root.
+            #
+            filelist_p.flush()
+            filelist_lfn = filelist_p.name
+            filelist_pfn = os.path.join(
+                selectedProtocol,
+                filelistDir,
+                'run_{}'.format(startTimestamp)
             )
-            rucio.addReplica(gfal, rse, did, pfn)
-            self.logger.info(
-                "Adding rule to keep it there for {}s".format(lifetime)
-            )
-            rucio.addRule(did, 1, rse, lifetime)
-        self.logger.info("Finished adding replicas in {}s".format(
-            round(time.time() - st, 3)))
+
+            self.logger.info("Writing file list to {}".format(filelist_pfn))
+            gfal.mkdir_rec(os.path.join(
+                selectedProtocol,
+                filelistDir), 775)
+            gfal.filecopy(params, "file://" + filelist_lfn, filelist_pfn)
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))

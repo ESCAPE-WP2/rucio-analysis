@@ -1,4 +1,4 @@
-  RUCIO_ANALYSIS_ROOT: "{{ lookup('env', 'RUCIO_ANALYSIS_ROOT') | default (\"/opt/rucio-analysis\", true) }}"
+  RUCIO_ANALYSIS_ROOT: "{{ lookup('env', 'RUCIO_ANALYSIS_ROOT') }}"
   RUCIO_CFG_CLIENT_CERT: "{{ lookup('env', 'RUCIO_CFG_CLIENT_CERT') }}"
   RUCIO_CFG_CLIENT_KEY: "{{ lookup('env', 'RUCIO_CFG_CLIENT_KEY') }}"
   RUCIO_CFG_ACCOUNT: "{{ lookup('env', 'RUCIO_CFG_ACCOUNT') }}"

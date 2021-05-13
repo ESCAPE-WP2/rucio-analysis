@@ -16,7 +16,7 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
-def generateRandomFile(size, prefix=""):
+def generateRandomFile(size, prefix="", suffix=""):
     """
     Generate a randomly named file of size, <size>, with random contents.
 
@@ -24,15 +24,17 @@ def generateRandomFile(size, prefix=""):
     """
     if prefix:               # add file prefix if set.
         prefix += "_"
+    if suffix:               # add file suffix if set.
+        suffix += "_"
     todaysDatetime = datetime.now().strftime("%d%m%yT%H.%M.%S")
-    basename = "{}{}KB_{}".format(prefix, size // 1000, todaysDatetime)
+    basename = "{}{}KB_{}{}".format(prefix, size // 1000, todaysDatetime, suffix)
     absFilename = os.path.join(tempfile.gettempdir(), basename)
     with open(absFilename, "wb") as f:
         f.write(os.urandom(size))
     return f
 
 
-def generateRandomFilesDir(nFiles, size, dirId=1, prefix=""):
+def generateRandomFilesDir(nFiles, size, dirId=1, prefix="", suffix=""):
     """
     Generate a directory of, <nFiles>, of size, <size>, with random contents.
     A directory id, <dirId>, can be passed optionally to avoid naming collisions when
@@ -42,10 +44,12 @@ def generateRandomFilesDir(nFiles, size, dirId=1, prefix=""):
     """
     if prefix:              # add file prefix if set.
         prefix += "_"
+    if suffix:              # add file suffix if set.
+        suffix += "_"
     todaysDatetime = datetime.now().strftime("%d%m%yT%H.%M.%S")
     tmpDir = tempfile.gettempdir()
-    dirName = "{}{}x{}KB_{}_d{}".format(
-        prefix, nFiles, size // 1000, todaysDatetime, dirId
+    dirName = "{}{}x{}KB_{}_d{}{}".format(
+        prefix, nFiles, size // 1000, todaysDatetime, dirId, suffix
     )
 
     # Create directory structure.

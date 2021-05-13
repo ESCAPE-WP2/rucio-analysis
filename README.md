@@ -109,6 +109,7 @@ Additionally, for development purposes, it is possible to mount the source from 
 
 ```bash
 eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
+-e RUCIO_CFG_AUTH_TYPE=x509 \
 -e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
 -e RUCIO_CFG_CLIENT_CERT=/opt/rucio/etc/client.crt \
 -e RUCIO_CFG_CLIENT_KEY=/opt/rucio/etc/client.key \
