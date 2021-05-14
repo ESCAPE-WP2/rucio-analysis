@@ -1,0 +1,13 @@
+register-nondeterministic:
+  description: "Test registering to non-deterministic RSEs."
+  module_name: "tasks.tests.register_nondeterministic"
+  class_name: "TestRegisterNondeterministic"
+  enabled: true
+  args:
+  kwargs:
+    rse: MANCHESTER_ND
+    scheme: davs
+    hostname: bohr3226.tier2.hep.manchester.ac.uk
+    prefix: /dpm/tier2.hep.manchester.ac.uk/home/skatelescope.eu/rucio-ska/prod/nondeterministic
+    filelist_dir: ingest
+    lifetime: 3600 # seconds

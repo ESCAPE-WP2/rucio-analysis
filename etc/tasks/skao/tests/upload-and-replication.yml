@@ -19,10 +19,7 @@ test-upload:
       - SARA
       - IDIA
     scope: testing
-    databases:
-      - type: ignore
-        uri: http://130.246.214.144:80/monit/metadata/
-        index: "[replication]"
+    databases: null
 
 test-upload-replication:
   description: "Test upload and replication between RSEs."
@@ -41,8 +38,5 @@ test-upload-replication:
       - SARA
       - IDIA
     scope: testing
-    databases:
-      - type: ignore 
-        uri: http://130.246.214.144:80/monit/metadata/
-        index: "[replication]"
+    databases: null
 

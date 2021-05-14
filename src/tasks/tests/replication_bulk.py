@@ -90,11 +90,13 @@ def uploadDirReplicate(
             shutil.rmtree(dirPath)
 
         # Push corresponding upload rules to database.
-        for database in databases:
-            if database["type"] == "es":
-                logger.debug("Injecting upload rules into ES database...")
-                es = ESRucio(database["uri"], logger)
-                es.pushRulesForDID(datasetDID, index=database["index"], baseEntry=entry)
+        if databases is not None:
+            for database in databases:
+                if database["type"] == "es":
+                    logger.debug("Injecting upload rules into ES database...")
+                    es = ESRucio(database["uri"], logger)
+                    es.pushRulesForDID(
+                        datasetDID, index=database["index"], baseEntry=entry)
 
     if not os.path.exists(dirPath):  # upload failed
         return
@@ -118,21 +120,22 @@ def uploadDirReplicate(
                 continue
 
             # Push corresponding replication rules to database.
-            for database in databases:
-                if database["type"] == "es":
-                    logger.debug("Injecting replication rules into ES database... ")
-                    es = ESRucio(database["uri"], logger)
-                    es.pushRulesForDID(
-                        datasetDID,
-                        index=database["index"],
-                        baseEntry={
-                            "task_name": taskName,
-                            "file_size": fileSize,
-                            "n_files": nFiles,
-                            "type": "dataset",
-                            "is_submitted": 1,
-                        },
-                    )
+            if databases is not None:
+                for database in databases:
+                    if database["type"] == "es":
+                        logger.debug("Injecting replication rules into ES database... ")
+                        es = ESRucio(database["uri"], logger)
+                        es.pushRulesForDID(
+                            datasetDID,
+                            index=database["index"],
+                            baseEntry={
+                                "task_name": taskName,
+                                "file_size": fileSize,
+                                "n_files": nFiles,
+                                "type": "dataset",
+                                "is_submitted": 1,
+                            },
+                        )
         logger.debug("All replication rules added")
     else:
         logger.debug("No destination RSEs passed; no replication rules added")

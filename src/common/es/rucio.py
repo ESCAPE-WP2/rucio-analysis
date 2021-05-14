@@ -6,8 +6,8 @@ from common.rucio.wrappers import RucioWrappersAPI
 
 class Rucio(Wrappers):
     """
-    Additional functionality for pushing Rucio related information to an ElasticSearch
-    index.
+        Additional functionality for pushing Rucio related information to an
+        ElasticSearch index.
     """
 
     def pushRulesForDID(self, did, index, baseEntry={}):

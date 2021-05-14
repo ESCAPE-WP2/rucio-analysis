@@ -2,33 +2,40 @@ import os
 
 
 class PFN():
-    def __init__(self, scheme, hostname, prefix, scope, name):
-        self._scheme = scheme
-        self._hostname = hostname
-        self._prefix = prefix
-        self._scope = scope
-        self._name = name
+    def __init__(self, scheme, hostname, dir, name):
+        self._scheme = scheme.strip('/')
+        self._hostname = hostname.strip('/')
+        self._dir = dir.lstrip('/').rstrip('/')
+        self._name = name.lstrip('/')
+
+    @classmethod
+    def fromabspath(cls, abspath):
+        """ Deconstruct to PFN from abspath. """
+        scheme = abspath.split('://')[0]
+        hostname = abspath.split('://')[1].split('/')[0]
+        dir = '/'.join(abspath.split('://')[1].split('/')[1:-1])
+        name = abspath.split('://')[1].split('/')[-1]
+        return cls(scheme, hostname, dir, name)
 
     @property
-    def did(self):
-        return "{}:{}".format(self._scope, self._name)
+    def abspath(self):
+        return '{}://{}/{}'.format(
+            self._scheme,
+            self._hostname,
+            os.path.join(
+                self._dir,
+                self._name,
+            )
+        )
 
-    @property
+    @ property
     def dir(self):
-        return os.path.dirname(self.path)
+        return self._dir
 
-    @property
+    @ property
+    def dirname(self):
+        return os.path.dirname(self.abspath)
+
+    @ property
     def name(self):
         return self._name
-
-    @property
-    def protocol(self):
-        return '{}://{}{}'.format(self._scheme, self._hostname, self._prefix)
-
-    @property
-    def scope(self):
-        return self._scope
-
-    @property
-    def path(self):
-        return os.path.join(self.protocol, self._scope, self._name)

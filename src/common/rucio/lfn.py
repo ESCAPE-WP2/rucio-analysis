@@ -1,7 +1,7 @@
 class LFN():
-    def __init__(self, path):
-        self._path = path
+    def __init__(self, abspath):
+        self._abspath = abspath
 
     @property
-    def path(self):
-        return self._path
+    def abspath(self):
+        return self._abspath

@@ -21,7 +21,7 @@ class LFNPFNSpoofer():
         """ Remove all lfns. """
         for lfn in self.lfns:
             try:
-                os.remove(lfn.path)
+                os.remove(lfn.abspath)
             except FileNotFoundError:
                 pass
 
@@ -35,17 +35,22 @@ class LFNPFNSpoofer():
     @property
     def lfns(self):
         """ Get LFNs from mapping. """
-        lfn, _ = zip(*self.mapping)
-        return lfn
+        lfns, _ = zip(*self.mapping)
+        return lfns
 
     @property
     def pfns(self):
         """ Get PFNs from mapping. """
-        _, pfn = zip(*self.mapping)
-        return pfn
+        _, pfns = zip(*self.mapping)
+        return pfns
 
 
 class LFNPFNSpoofer_SKAO_Testing_v1(LFNPFNSpoofer):
+    """
+        Spoofs PFN with schema:
+        scope/test_dir_prefix_<timestamp>/project<pi>/dataset<di>/<fi>_<uuid>
+    """
+
     def __init__(self, logger, scheme, hostname, prefix, scope):
         super().__init__(logger, scheme, hostname, prefix, scope)
 
@@ -63,24 +68,22 @@ class LFNPFNSpoofer_SKAO_Testing_v1(LFNPFNSpoofer):
             self.logger.critical(repr(e))
             return False
 
-        # Create PFN paths following naming schema:
-        # scope/test_dir_prefix_<timestamp>/project<pi>/dataset<di>/<fi>_<timestamp>
+        # Create PFN paths following naming schema.
         #
         pfns = []
         for pi in range(0, nProjects):
             for di in range(0, nDatasetsPerProject):
                 for fi in range(0, nFilesPerDataset):
                     timestamp = datetime.datetime.now().strftime("%d%m%yT%H.%M.%S")
-                    name = os.path.join(
+                    dir = os.path.join(
+                        self._scope,
+                        self._prefix,
                         test_dir_prefix + '_' + timestamp,
                         "project{}".format(pi),
-                        "dataset{}".format(di),
-                        "{}_{}".format(fi, timestamp)
+                        "dataset{}".format(di)
                     )
-                    pfns.append(
-                        PFN(self._scheme, self._hostname,
-                            self._prefix, self._scope, name)
-                    )
+                    name = "{}_{}".format(fi, str(uuid.uuid4()))
+                    pfns.append(PFN(self._scheme, self._hostname, dir, name))
 
         # Generate local files to map to these PFN and return as a list of tuples.
         #

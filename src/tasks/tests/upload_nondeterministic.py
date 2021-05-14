@@ -76,18 +76,21 @@ class TestUploadNondeterministic(Task):
         spoofer.spoof(lfnpfnSpooferKwargs)
 
         # Open a file to keep list of added PFNs.
+        # Format: <pfn>\t<did>\n per file.
         #
         with tempfile.NamedTemporaryFile(mode="w+") as filelist_p:
+            filelist_p.write('# pfn did\n')
+
             # Ingest data.
             #
             for lfn, pfn in zip(spoofer.lfns, spoofer.pfns):
-                self.logger.info("Uploading file with path {}".format(pfn.path))
-                gfal.mkdir_rec(pfn.dir, 775)
-                gfal.filecopy(params, "file://" + lfn.path, pfn.path)
+                self.logger.info("Uploading file with path {}".format(pfn.abspath))
+                gfal.mkdir_rec(pfn.dirname, 775)
+                gfal.filecopy(params, "file://" + lfn.abspath, pfn.abspath)
 
-                filelist_p.write('{}\t{}\n'.format(pfn.path, pfn.did))
+                filelist_p.write('{}\t{}:{}\n'.format(pfn.abspath, scope, pfn.name))
 
-            # Flush buffer and write this file list to the protocol root.
+            # Flush buffer and write this file list.
             #
             filelist_p.flush()
             filelist_lfn = filelist_p.name

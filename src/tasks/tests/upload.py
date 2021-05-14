@@ -107,13 +107,16 @@ class TestUpload(Task):
                         os.remove(f.name)
 
                         # Push corresponding rules to database
-                        for database in databases:
-                            if database["type"] == "es":
-                                self.logger.debug("Injecting rules into ES database...")
-                                es = ESRucio(database["uri"], self.logger)
-                                es.pushRulesForDID(
-                                    fileDID, index=database["index"], baseEntry=entry
-                                )
+                        if databases is not None:
+                            for database in databases:
+                                if database["type"] == "es":
+                                    self.logger.debug(
+                                        "Injecting rules into ES database...")
+                                    es = ESRucio(database["uri"], self.logger)
+                                    es.pushRulesForDID(
+                                        fileDID, index=database["index"],
+                                        baseEntry=entry
+                                    )
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))

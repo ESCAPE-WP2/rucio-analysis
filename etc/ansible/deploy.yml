@@ -51,7 +51,7 @@
     - include_role:
         name: common
         tasks_from: install_rucio_analysis
-      when: install_rucio_analysis|bool
+      when: build_rucio_analysis|bool
     - include_role:
         name: common
         tasks_from: install_crontab
