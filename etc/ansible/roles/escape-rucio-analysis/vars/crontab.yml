@@ -8,13 +8,13 @@ jobs:
     task_subpath: "escape/tests/upload-and-replication.yml"
     disabled: no
  
-  - name: db-sync
+  - name: es-db-sync
     minute: "*/5"
     hour: "*"
     day: "*"
     month: "*"
     weekday: "*"
-    task_subpath: "escape/db/sync-upload-and-replication.yml"
+    task_subpath: "escape/aux/sync-es-database"
     disabled: no
     
   - name: reports-daily

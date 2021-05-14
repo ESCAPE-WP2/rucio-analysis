@@ -7,7 +7,9 @@ from common.rucio.pfn import PFN
 from tasks.task import Task
 
 
-class TestRegisterNondeterministic(Task):
+class AuxRegisterNondeterministic(Task):
+    """ Register uploaded nondeterministic data from a filelist. """
+
     def __init__(self, logger):
         super().__init__(logger)
 

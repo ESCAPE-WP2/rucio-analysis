@@ -10,6 +10,8 @@ from tasks.task import Task
 
 
 class TestUploadNondeterministic(Task):
+    """ Upload nondeterministic data to an RSE. """
+
     def __init__(self, logger):
         super().__init__(logger)
 
