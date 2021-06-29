@@ -14,6 +14,7 @@ class RucioWrappers:
     """
     Wrappers for common Rucio functionality.
     """
+
     @abc.abstractstaticmethod
     def addDataset():
         raise NotImplementedError
@@ -40,6 +41,14 @@ class RucioWrappers:
 
     @abc.abstractstaticmethod
     def getMetadata():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def setMetadata():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def setMetadataBulk():
         raise NotImplementedError
 
     @abc.abstractstaticmethod
@@ -214,6 +223,48 @@ class RucioWrappersCLI(RucioWrappers):
             raise Exception("Non-zero return code")
         return rtn
 
+    @staticmethod
+    def getMetadata(did, plugin="DID_COLUMN"):
+        """
+        Get metadata for did, <did>.
+
+        Args:
+            plugin (`str`): can be DID_COLUMN or JSON
+        """
+        rtn = subprocess.run(
+            [
+                "rucio",
+                "get-metadata",
+                did,
+                "--plugin",
+                plugin,
+            ],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
+    @staticmethod
+    def setMetadata(did, key, value):
+        """ Set metadata for did, <did>. """
+        rtn = subprocess.run(
+            [
+                "rucio",
+                "set-metadata",
+                "--did",
+                did,
+                "--key",
+                key,
+                "--value",
+                value,
+            ],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
 
 class RucioWrappersAPI(RucioWrappers):
     """ Talk to a Rucio instance via the API. """
@@ -323,14 +374,42 @@ class RucioWrappersAPI(RucioWrappers):
             client.delete_replication_rule(rule_id=rid, purge_replicas=purgeReplicas)
 
     @staticmethod
-    def getMetadata(did):
-        """ Get DID metadata for did, <did>. """
+    def getMetadata(did, plugin="DID_COLUMN"):
+        """
+        Get DID metadata for did, <did>.
+
+        Args:
+            plugin (`str`): can be DID_COLUMN or JSON
+        """
         client = Client()
         tokens = did.split(":")
         scope = tokens[0]
         name = tokens[1]
-        metadata = client.get_metadata(scope, name)
+        metadata = client.get_metadata(scope, name, plugin=plugin)
         return metadata
+
+    @staticmethod
+    def setMetadata(did, key, value, recursive=False):
+        """ Set DID metadata for did, <did>. """
+        client = Client()
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        client.set_metadata(scope, name, key, value, recursive=recursive)
+
+    @staticmethod
+    def setMetadataBulk(did, meta, recursive=False):
+        """
+        Set bulk DID metadata for did, <did>.
+
+        Args:
+            meta (`dict`): Metadata k-v pairs to be set
+        """
+        client = Client()
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        client.set_metadata_bulk(scope, name, meta, recursive=recursive)
 
     @staticmethod
     def getRSELimits(rse):
