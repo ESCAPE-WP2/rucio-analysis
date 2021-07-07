@@ -1,7 +1,8 @@
+import os
+
 from common.rucio.wrappers import RucioWrappersAPI
 from tasks.task import Task
-from utility import generateRandomFile, generateMetadataDict
-import os
+from utility import generateMetadataDict, generateRandomFile
 
 
 class TestRucioMetadata(Task):
