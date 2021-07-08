@@ -21,10 +21,10 @@ A modular and extensible framework for performing tasks on a Rucio datalake.
   |   |── common
   │   ├── daemons
   │   └── tasks
- 
+
 ```
 
-Fundamentally, this framework is a task scheduler for Rucio. A "task" is any operation or sequence of operations that can be performed on the datalake. 
+Fundamentally, this framework is a task scheduler for Rucio. A "task" is any operation or sequence of operations that can be performed on the datalake.
 
 Within this framework, a task is defined by two parts: the logic and the definition. Task logic should be sufficiently abstracted & parameterised so as to clearly demarcate these two parts, allowing for easy re-use and chaining of tasks.
 
@@ -46,7 +46,7 @@ The recipe for adding a new remote host is described in detail in **Setting up a
 
 This framework is designed to be built off a preexisting dockerised Rucio client image. This image could be the de facto standard provided by the Rucio maintainers (https://github.com/rucio/containers/tree/master/clients), included in the root `Makefile` as target "rucio", or an extended image. Client images can be extended to contain the prerequisite certificate bundles, VOMS setup and Rucio template configs for a specific datalake.
 
-Extended images currently exist for the *escape* and *prototype skao* datalakes. Builds for other datalake instances can be enabled by adding a new `docker build` routine as a new target in the root `Makefile` with the corresponding build arguments for the base client image and tag. This is a necessary step to make it accessible for deployment via Ansible.
+Extended images currently exist for the _escape_ and _prototype skao_ datalakes. Builds for other datalake instances can be enabled by adding a new `docker build` routine as a new target in the root `Makefile` with the corresponding build arguments for the base client image and tag. This is a necessary step to make it accessible for deployment via Ansible.
 
 # Usage
 
@@ -64,7 +64,7 @@ where, if the authentication type is defined as "x509", the following are also r
 
 or if the authentication type is defined as "userpass":
 
-- **RUCIO_CFG_USERPASS**: a user with the necessary permissions on the datalake
+- **RUCIO_CFG_USERNAME**: a user with the necessary permissions on the datalake
 - **RUCIO_CFG_PASSWORD**: the corresponding password for the user
 
 Note that without X.509 authentication, some operations e.g. upload/delete on Grid managed storage sites will be restricted.
@@ -128,9 +128,8 @@ Tasks can then be executed manually inside the container. First, create an X.509
 
 then execute the task:
 
-
 ```bash
-[root@b802f5113379 rucio-analysis]$ python3 src/run.py -t etc/tasks/stubs.yml 
+[root@b802f5113379 rucio-analysis]$ python3 src/run.py -t etc/tasks/stubs.yml
 2020-10-23 08:16:17,039 [root] INFO     9697    Parsing tasks file
 2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Executing TestStubHelloWorld.run()
 2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Hello World!
@@ -165,15 +164,15 @@ rucio-analysis:escape
 
 # Scheduling tasks
 
-To keep containers single purpose, task scheduling is achieved using a crontab on the remote host machine. 
+To keep containers single purpose, task scheduling is achieved using a crontab on the remote host machine.
 
 ## Setting up a new remote host
 
 This framework contains a means to configure a remote host's crontab using Ansible. The recipe to add a new remote host is as follows:
 
-1. Add the extended dockerised Rucio client as a new target of the root `Makefile`. This can be done by copying an existing entry and modifying the `$BASEIMAGE` & `$BASETAG` build arguments to point to the desired Rucio client base image, and modifying the `--tag` attribute with some unique project name identifier.
+1.  Add the extended dockerised Rucio client as a new target of the root `Makefile`. This can be done by copying an existing entry and modifying the `$BASEIMAGE` & `$BASETAG` build arguments to point to the desired Rucio client base image, and modifying the `--tag` attribute with some unique project name identifier.
 
-2. Make a new directory in `etc/ansible/roles` with the remote host name, create a `crontab.yml` in the `vars` subdirectory and populate it like:
+2.  Make a new directory in `etc/ansible/roles` with the remote host name, create a `crontab.yml` in the `vars` subdirectory and populate it like:
 
         ```yaml
         jobs:
@@ -187,13 +186,13 @@ This framework contains a means to configure a remote host's crontab using Ansib
             disabled: no
         ```
 
-      where `<task_subpath>` is relative to `etc/tasks/`. Logs for a task can be effectively turned off by setting `override_log_path` to   "/dev/null".  Tasks can be disabled by setting the `disabled` parameter to "no".
+    where `<task_subpath>` is relative to `etc/tasks/`. Logs for a task can be effectively turned off by setting `override_log_path` to "/dev/null". Tasks can be disabled by setting the `disabled` parameter to "no".
 
-3. Add the remote host to `etc/ansible/hosts/inventory.yml`. This file contains all the necessary variable definitions to build rucio-analysis for the corresponding remote host; this includes the make target (as defined in step 1) to build the extended Rucio client image, the Ansible role (or rather, the name of the remote host as defined in step 2) containing project specific variables such as the crontab to be deployed, and the VOMS used to authenticate with Grid services.
+3.  Add the remote host to `etc/ansible/hosts/inventory.yml`. This file contains all the necessary variable definitions to build rucio-analysis for the corresponding remote host; this includes the make target (as defined in step 1) to build the extended Rucio client image, the Ansible role (or rather, the name of the remote host as defined in step 2) containing project specific variables such as the crontab to be deployed, and the VOMS used to authenticate with Grid services.
 
 ## Deploying to the remote host machine
 
-If the remote host has been specified as above then running the deployment is a case of setting the **RUCIO_CFG_\*** attributes, as described in **usage**, and running the `deploy` playbook, e.g.:
+If the remote host has been specified as above then running the deployment is a case of setting the **RUCIO*CFG*\*** attributes, as described in **usage**, and running the `deploy` playbook, e.g.:
 
 ```bash
 eng@ubuntu:~/rucio-analysis/etc/ansible$ ansible-playbook -i hosts/inventory.yml deploy.yml -e HOSTS=<remote_host>
@@ -216,9 +215,7 @@ The procedure for creating a new tests is as follows:
 1. Take a copy of the `TestStubHelloWorld` class stub in `src/tasks/stubs.py` and rename both the file and class name.
 2. Amend the entrypoint `run()` function as desired. Functionality for communicating with Rucio either by the CLI or API is provided via the wrapper and helper functions in `rucio/wrappers.py` and `rucio/helpers.py` respectively. Example usage can be found in the `StubRucioAPI` class stub in `src/tasks/stubs.py`.
 3. Create a new task definition file e.g. `etc/tasks/test.yml` copying the format of the `test-hello-world-stub` definition in `etc/tasks/stubs.yml`. A task has the following mandatory fields:
-    - `module_name` (starting from and including the `tasks.` prefix) and `class_name`, set accordingly to match the modules/classes redefined in step 1,
-    - `args` and `kwargs` keys corresponding to the parameters injected into the task's entry point `run()`,
-    - `description`, and 
-    - `enabled`.
-
-
+   - `module_name` (starting from and including the `tasks.` prefix) and `class_name`, set accordingly to match the modules/classes redefined in step 1,
+   - `args` and `kwargs` keys corresponding to the parameters injected into the task's entry point `run()`,
+   - `description`, and
+   - `enabled`.
