@@ -1,0 +1,69 @@
+# A test to emulate the SDP-SRC interface.
+# This workflow consists of:
+# - Creation of empty dataset with metadata at non-deterministic RSE 1
+# - Creation of metadata-based subscription to replicate to RSE 2
+# - Upload via GFAL to non-deterministic RSE 1
+# - Registration within Rucio
+# Data should then be replicated at RSE 2.
+prepare-sdp-src:
+  description: "Create dataset and set metadata in prep for SDP-SRC test."
+  module_name: "tasks.tests.sdp_src"
+  class_name: "CreateSubscription"
+  enabled: false
+  args:
+  kwargs:
+    scope: SKA_SKAO_COLL-testing
+    dataset_name: null
+    fixed_metadata: # Explicit k-v pairs to set as metadata
+      project: skao_proj_1
+    subscription_name: test_subscription
+    filter:
+      scope:
+        - SKA_SKAO_COLL-testing
+      project:
+        - skao_proj_1
+    replication_rules:
+      - copies: 1
+        rse_expression: EULAKE-1
+        lifetime: 3600
+        activity: User Subscriptions
+    comments: Test subscription
+    lifetime: 1
+    retroactive: false
+    dry_run: false
+    priority: 3
+
+test-upload-nondeterministic:
+  description: "Test uploading to non-deterministic RSEs."
+  module_name: "tasks.tests.upload_nondeterministic"
+  class_name: "TestUploadNondeterministic"
+  enabled: false
+  args:
+  kwargs:
+    rse: DESY_DCACHE_ND
+    lfnpfn_spoofer_class_name: LFNPFNSpoofer_SKAO_Testing_v1
+    lfnpfn_spoofer_kwargs:
+      n_datasets_per_project: 2
+      n_files_per_dataset: 1
+      n_projects: 1
+      size: 100000 # bytes
+      test_dir_prefix: nondeterministic_test
+    scheme: https
+    hostname: dcache-door-doma01.desy.de
+    prefix: /ska/rucio-ska/dev/nondeterministic
+    scope: SKA_SKAO_COLL-testing
+    filelist_dir: ingest
+
+register-nondeterministic:
+  description: "Test registering to non-deterministic RSEs."
+  module_name: "tasks.tests.register_nondeterministic"
+  class_name: "TestRegisterNondeterministic"
+  enabled: false
+  args:
+  kwargs:
+    rse: DESY_DCACHE_ND
+    scheme: https
+    hostname: dcache-door-doma01.desy.de
+    prefix: /ska/rucio-ska/dev/nondeterministic
+    filelist_dir: ingest
+    lifetime: 3600 # seconds
