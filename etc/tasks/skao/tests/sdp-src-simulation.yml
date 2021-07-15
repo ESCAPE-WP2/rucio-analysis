@@ -28,7 +28,7 @@ prepare-sdp-src:
         lifetime: 3600
         activity: User Subscriptions
     comments: Test subscription
-    lifetime: 1
+    subscription_lifetime: 1 # days
     retroactive: false
     dry_run: false
     priority: 3

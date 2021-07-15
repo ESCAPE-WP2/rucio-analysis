@@ -1,13 +1,14 @@
 import os
 
-from common.rucio.admin_wrappers import RucioAdminWrappersAPI
 from common.rucio.helpers import createCollection
 from common.rucio.wrappers import RucioWrappersAPI
+from common.rucio.admin_wrappers import RucioAdminWrappersAPI
 from tasks.task import Task
+from utility import generateRandomFile
 
 
-class CreateSubscription(Task):
-    """ Prepare for SDP-SRC test by creating empty dataset and subscription. """
+class MetadataReplication(Task):
+    """ Rucio API test class stub. """
 
     def __init__(self, logger):
         super().__init__(logger)
@@ -16,11 +17,14 @@ class CreateSubscription(Task):
         super().run()
         self.tic()
         try:
-            # Assign variables from kwargs.
+            # Assign variables from test.yml kwargs.
             #
             scope = kwargs["scope"]
-            fixedMetadata = kwargs["fixed_metadata"]
+            uploadTo = kwargs["upload_to"]
+            size = kwargs["size"]
+            lifetime = kwargs["lifetime"]
             datasetName = kwargs["dataset_name"]
+            fixedMetadata = kwargs["fixed_metadata"]
             subscriptionName = kwargs["subscription_name"]
             filter = kwargs["filter"]
             replicationRules = kwargs["replication_rules"]
@@ -30,14 +34,13 @@ class CreateSubscription(Task):
             dryRun = kwargs["dry_run"]
             priority = kwargs["priority"]
         except KeyError as e:
-            self.logger.critical("Could not find necessary kwarg for task.")
+            self.logger.critical("Could not find necessary kwarg for test.")
             self.logger.critical(repr(e))
             return False
 
-        # Instantiate RucioWrappers class to allow access to static methods.
-        #
         rucio = RucioWrappersAPI()
         rucioAdmin = RucioAdminWrappersAPI()
+        self.logger.info(rucio.ping())
 
         # Create a dataset to house the data, named with today's date
         # and scope <scope>.
@@ -49,6 +52,39 @@ class CreateSubscription(Task):
         #
         self.logger.info("Setting metadata on dataset {}".format(datasetDID))
         rucio.setMetadataBulk(datasetDID, fixedMetadata)
+
+        # Generate random file of size <size> and upload.
+        #
+        f = generateRandomFile(size)
+        fileDID = "{}:{}".format(scope, os.path.basename(f.name))
+        try:
+            self.logger.info("Uploading file ({}) to {}...".format(fileDID, uploadTo))
+            rucio.upload(
+                rse=uploadTo,
+                scope=scope,
+                filePath=f.name,
+                lifetime=lifetime,
+                logger=self.logger,
+            )
+            self.logger.debug("Upload complete")
+        except Exception as e:
+            self.logger.warning(repr(e))
+        os.remove(f.name)
+
+        # Attach to dataset
+        self.logger.debug("Attaching file {} to {}".format(fileDID, datasetDID))
+        try:
+            rucio.attach(todid=datasetDID, dids=fileDID)
+        except Exception as e:
+            self.logger.warning(repr(e))
+            return
+        self.logger.debug("Attached file to dataset")
+
+        # Set metadata and verify
+        rucio.setMetadataBulk(datasetDID, fixedMetadata)
+        retrieved_meta = rucio.getMetadata(datasetDID, plugin="DID_COLUMN")
+        if not retrieved_meta == fixedMetadata:
+            self.logger.warning("Retrieved metadata does not match input")
 
         # Create metadata-based subscription
         #
@@ -82,3 +118,6 @@ class CreateSubscription(Task):
                 dry_run=dryRun,
                 priority=priority,
             )
+
+        self.toc()
+        self.logger.info("Finished in {}s".format(round(self.elapsed)))
