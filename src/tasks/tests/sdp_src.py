@@ -47,8 +47,16 @@ class CreateSubscription(Task):
 
         # Set metadata on dataset
         #
-        self.logger.info("Setting metadata on dataset {}".format(datasetDID))
-        rucio.setMetadataBulk(datasetDID, fixedMetadata)
+        try:
+            self.logger.info("Setting metadata on dataset {}".format(datasetDID))
+            rucio.setMetadataBulk(datasetDID, fixedMetadata)
+        except Exception as e:
+            self.logger.warning(repr(e))
+            self.logger.info(
+                "Bulk metadata call may have failed, trying to set metadata fields individually."
+            )
+            for key, value in fixedMetadata.items():
+                rucio.setMetadata(datasetDID, key, value)
 
         # Create metadata-based subscription
         #
