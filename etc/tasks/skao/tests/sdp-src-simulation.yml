@@ -9,22 +9,22 @@ prepare-sdp-src:
   description: "Create dataset and set metadata in prep for SDP-SRC test."
   module_name: "tasks.tests.sdp_src"
   class_name: "CreateSubscription"
-  enabled: false
+  enabled: true
   args:
   kwargs:
-    scope: SKA_SKAO_COLL-testing
-    dataset_name: null
+    scope: rjoshi_test
+    dataset_name: test_dataset_2
     fixed_metadata: # Explicit k-v pairs to set as metadata
-      project: skao_proj_1
-    subscription_name: test_subscription
+      project: skao_proj_2
+    subscription_name: test_subscription_rj_2
     filter:
       scope:
-        - SKA_SKAO_COLL-testing
+        - rjoshi_test
       project:
-        - skao_proj_1
+        - skao_proj_2
     replication_rules:
       - copies: 1
-        rse_expression: EULAKE-1
+        rse_expression: MANCHESTER
         lifetime: 3600
         activity: User Subscriptions
     comments: Test subscription
@@ -37,33 +37,34 @@ test-upload-nondeterministic:
   description: "Test uploading to non-deterministic RSEs."
   module_name: "tasks.tests.upload_nondeterministic"
   class_name: "TestUploadNondeterministic"
-  enabled: false
+  enabled: true
   args:
   kwargs:
-    rse: DESY_DCACHE_ND
+    rse: LANCASTER_ND
     lfnpfn_spoofer_class_name: LFNPFNSpoofer_SKAO_Testing_v1
     lfnpfn_spoofer_kwargs:
-      n_datasets_per_project: 2
-      n_files_per_dataset: 1
+      n_datasets_per_project: 1
+      n_files_per_dataset: 2
       n_projects: 1
       size: 100000 # bytes
       test_dir_prefix: nondeterministic_test
     scheme: https
-    hostname: dcache-door-doma01.desy.de
-    prefix: /ska/rucio-ska/dev/nondeterministic
-    scope: SKA_SKAO_COLL-testing
+    hostname: fal-pygrid-30.lancs.ac.uk
+    prefix: /dpm/lancs.ac.uk/home/skatelescope.eu/rucio-ska/dev/nondeterministic
+    scope: rjoshi_test
     filelist_dir: ingest
 
 register-nondeterministic:
   description: "Test registering to non-deterministic RSEs."
-  module_name: "tasks.tests.register_nondeterministic"
-  class_name: "TestRegisterNondeterministic"
-  enabled: false
+  module_name: "tasks.aux.register_nondeterministic"
+  class_name: "AuxRegisterNondeterministic"
+  enabled: true
   args:
   kwargs:
-    rse: DESY_DCACHE_ND
+    rse: LANCASTER_ND
     scheme: https
-    hostname: dcache-door-doma01.desy.de
-    prefix: /ska/rucio-ska/dev/nondeterministic
+    hostname: fal-pygrid-30.lancs.ac.uk
+    prefix: /dpm/lancs.ac.uk/home/skatelescope.eu/rucio-ska/dev/nondeterministic
     filelist_dir: ingest
     lifetime: 3600 # seconds
+    dataset_name: test_dataset_2
