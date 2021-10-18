@@ -1,9 +1,0 @@
-jobs:
-  - name: tests-transfers
-    minute: "0"
-    hour: "*"
-    day: "*"
-    month: "*"
-    weekday: "*"
-    task_subpath: "skao/tests/upload-and-replication.yml"
-    disabled: no

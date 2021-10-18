@@ -1,7 +1,7 @@
 # Ansible 
 # 
 ---
-  - name: "load credentials"
+  - name: "deploy to remote machine"
     hosts: "{{ HOSTS }}"
     roles: 
       - common

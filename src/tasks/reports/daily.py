@@ -25,6 +25,7 @@ class ReportDaily(Task):
             percentageStuckWarningThreshold = kwargs[
                 "percentage_stuck_warning_threshold"
             ]
+            reportTitle = kwargs["report_title"]
             rses = kwargs["rses"]
             webhooks = kwargs["webhooks"]
         except KeyError as e:
@@ -128,7 +129,7 @@ class ReportDaily(Task):
                     "type": "header",
                     "text": {
                             "type": "plain_text",
-                            "text": "Daily Report ({})".format(
+                            "text": "{} ({})".format(reportTitle, 
                                 datetime.now().strftime("%d-%m-%Y")
                             ),
                     },

@@ -1,0 +1,28 @@
+jobs:
+  - name: tests-transfers
+    minute: "0"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao/tests/upload-and-replication.yml"
+    disabled: no
+
+  - name: db-sync
+    minute: "*/5"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao/db/sync-upload-and-replication.yml"
+    disabled: no
+
+  - name: reports-daily
+    minute: "0"
+    hour: "9"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao/reports/daily.yml"
+    disabled: no
+

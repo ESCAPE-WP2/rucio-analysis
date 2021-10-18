@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 
 from common.es.wrappers import Wrappers
 from common.rucio.wrappers import RucioWrappersAPI
@@ -17,7 +18,7 @@ class Rucio(Wrappers):
         pairs will be appended to all entries prior to submission.
         """
         rucio = RucioWrappersAPI()
-        rules = rucio.listReplicationRules(did)
+        rules = rucio.listReplicationRules(did) if did is not None else []
         entries = []
         if len(rules) > 0:              # if this DID has replication rules ...
             for rule in rules:
@@ -49,34 +50,31 @@ class Rucio(Wrappers):
                 entry['protocol'] = protocol
 
                 entries.append(entry)
-        else:                           # otherwise, create entry with only timestamp
+        else:   # otherwise, create entry with timestamp and "spoofed" rule_id
             now = datetime.now()
             entries.append({
                 '@timestamp': int(now.strftime("%s"))*1000,
+                'rule_id': str(uuid.uuid4())
             })
-
         for entry in entries:
             # The <fullEntry> pushed to the database is the concatenation of the two
             # dictionaries, <entry>, generated as above, and 'baseEntry', described
             # in the function definition.
             #
             fullEntry = {**entry, **baseEntry}
-
+            
             # Add boolean flags for state. This makes it easy to use bucket
             # aggregations in ES queries.
             #
-            try:
-                fullEntry['is_done'] = 1 if fullEntry['state'] == 'OK' else 0
-                fullEntry['is_replicating'] = 1 if fullEntry['state'] \
-                    == 'REPLICATING' else 0
-                fullEntry['is_stuck'] = 1 if fullEntry['state'] \
-                    == 'STUCK' else 0
-                fullEntry['is_upload_failed'] = 1 if fullEntry['state'] \
-                    == 'UPLOAD-FAILED' else 0
-                fullEntry['is_upload_successful'] = 1 if fullEntry['state'] \
-                    == 'UPLOAD-SUCCESSFUL' else 0
-            except KeyError:        # may be the case if <state> isn't passed through
-                pass
+            fullEntry['is_done'] = 1 if fullEntry.get('state') == 'OK' else 0
+            fullEntry['is_replicating'] = 1 if fullEntry.get('state') \
+                == 'REPLICATING' else 0
+            fullEntry['is_stuck'] = 1 if fullEntry.get('state') \
+                == 'STUCK' else 0
+            fullEntry['is_upload_failed'] = 1 if fullEntry.get('state') \
+                == 'UPLOAD-FAILED' else 0
+            fullEntry['is_upload_successful'] = 1 if fullEntry.get('state') \
+                == 'UPLOAD-SUCCESSFUL' else 0
             try:
                 self._index(
                     index=index, documentID=fullEntry['rule_id'], body=fullEntry)

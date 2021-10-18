@@ -1,6 +1,6 @@
+from datetime import datetime
 import os
 import time
-import uuid
 
 from common.es.rucio import Rucio as ESRucio
 from common.rucio.helpers import createCollection
@@ -75,6 +75,7 @@ class TestUpload(Task):
                         try:
                             st = time.time()
                             rucio.upload(
+                                logger=self.logger,
                                 rse=rseDst,
                                 scope=scope,
                                 filePath=f.name,
@@ -97,11 +98,14 @@ class TestUpload(Task):
                             self.logger.debug("Attached file to dataset")
                         except Exception as e:
                             self.logger.warning("Upload failed: {}".format(e))
-                            entry["rule_id"] = (str(uuid.uuid4()),)
-                            entry["scope"] = (scope,)
-                            entry["name"] = (os.path.basename(f.name),)
-                            entry["to_rse"] = (rseDst,)
+                            now = datetime.now()
+                            entry["created_at"] = now.isoformat() 
+                            entry["scope"] = scope
+                            entry["name"] = os.path.basename(f.name)
+                            entry["from_rse"] = None
+                            entry["to_rse"] = rseDst
                             entry["error"] = repr(e.__class__.__name__).strip("'")
+                            entry["error_details"] = repr(e).strip("'")
                             entry["protocol"] = protocol
                             entry["state"] = "UPLOAD-FAILED"
                         os.remove(f.name)

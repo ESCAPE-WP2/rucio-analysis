@@ -20,7 +20,7 @@ class Wrappers():
     def _index(self, index, documentID, body):
         """ Create new document with id, <documentID>, in index, <index>. """
         try:
-            self.es.index(index=index, id=documentID, body=body)
+            res = self.es.index(index=index, id=documentID, body=body)
         except Exception as e:
             self.logger.critical("Failed to index: {}".format(e))
             return False

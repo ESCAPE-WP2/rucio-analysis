@@ -3,10 +3,16 @@ from __future__ import absolute_import
 
 from session import Session
 from logger import Logger
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 import argparse
+import requests
 import importlib
+import urllib3
 import warnings
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@ class TestUploadReplication(Task):
         super().run()
         self.tic()
         try:
+            activity = kwargs["activity"]
             nFiles = kwargs["n_files"]
             rses = kwargs["rses"]
             scope = kwargs["scope"]
@@ -58,7 +59,7 @@ class TestUploadReplication(Task):
                     self.logger.debug("Uploading file {} of {}".format(idx + 1, nFiles))
                     try:
                         rucio.upload(
-                            rse=rseSrc, scope=scope, filePath=f.name, lifetime=lifetime
+                            logger=self.logger, rse=rseSrc, scope=scope, filePath=f.name, lifetime=lifetime
                         )
                     except Exception as e:
                         self.logger.warning(repr(e))
@@ -90,7 +91,7 @@ class TestUploadReplication(Task):
                         )
                         try:
                             rtn = rucio.addRule(
-                                fileDID, 1, rseDst, lifetime=lifetime, src=rseSrc
+                                fileDID, 1, rseDst, lifetime=lifetime, src=rseSrc, activity=activity
                             )
                             self.logger.debug("Rule ID: {}".format(rtn[0]))
                         except Exception as e:

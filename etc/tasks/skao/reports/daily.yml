@@ -1,0 +1,25 @@
+reports:
+  description: "Send daily report"
+  module_name: "tasks.reports.daily"
+  class_name: "ReportDaily"
+  enabled: true
+  args:
+  kwargs:
+    database:
+      type: es
+      uri: https://srcdev.skatelescope.org/rucio/monit/elastic/
+      index: "custom"
+      search_range_lte: now
+      search_range_gte: now-24h
+      max_rows: 10000
+    percentage_stuck_warning_threshold: 1
+    report_title: "Daily Report (prod)"
+    rses:
+      - MANCHESTER
+      - LANCASTER
+      - IDIA
+      - DESY-DCACHE
+      - AARNET_PER
+    webhooks:
+      - type: slack
+        url: https://hooks.slack.com/services/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
