@@ -30,16 +30,16 @@ Within this framework, a task is defined by two parts: the logic and the definit
 
 The source for the task logic is kept in `src/tasks`. The structure of `src/tasks` takes the following format: `<task_type>/<task_name>.yml` where, for consistency, `<task_type>` should be one of:
 
-- misc (miscellaneous)
 - sync (syncing functionality, e.g. databases)
 - reports (reporting)
 - tests (testing)
+- misc (miscellaneous)
 
 Other categories may be added as needed.
 
 Task definitions are written in yaml and stored in `etc/tasks`. Each definition contains fields to specify the task logic module to be used and any necessary corresponding arguments. The structure of `etc/tasks` takes the following format: `<project_name>/<task_type>/<task_name>.yml`.
 
-Deployment is managed through Ansible (`etc/ansible`). Hosts eligible for remote deployment are defined in `etc/ansible/hosts/inventory.yml`. 
+Deployment is managed through Ansible (`etc/ansible`). Hosts eligible for remote deployment are defined in `etc/ansible/hosts/inventory.yml`. Deployment can also be done locally.
 
 Roles must be added to `etc/ansible/roles`. Within each role there is a `vars` subdirectory. For remote deployment, a crontab, `crontab.yml`, must exist in this subdirectory.
 
@@ -191,23 +191,33 @@ This framework contains a means to configure a remote host's crontab using Ansib
 
     where `<task_subpath>` is relative to `etc/tasks/`. Logs for a task can be effectively turned off by setting `override_log_path` to "/dev/null". Tasks can be disabled by setting the `disabled` parameter to "no".
 
-3.  Add the remote host to `etc/ansible/hosts/inventory.yml`. This file contains all the necessary variable definitions to build rucio-analysis for the corresponding remote host; this includes the make target (as defined in step 1) to build the extended Rucio client image, the Ansible role (or rather, the name of the remote host as defined in step 2) containing project specific variables such as the crontab to be deployed, and the VOMS used to authenticate with Grid services.
+3.  Add the remote host to `etc/ansible/hosts/inventory.yml`. 
 
-## Deploying to the remote host machine
+## Deploying to a remote host machine
 
-If the remote host has been specified as above then running the deployment is a case of setting the **RUCIO*CFG*\*** attributes, as described in **usage**, and running the `deploy` playbook, e.g.:
+If the remote host has been specified as above then running the deployment is a case of setting the **RUCIO_CFG** attributes, as described in **usage**, and running the `deploy` playbook with the necessary environment parameters required to build rucio-analysis for the corresponding remote host; this includes the make target (as defined in step 1) to build the extended Rucio client image, the Ansible role which defines the crontab to be deployed, and the VOMS used to authenticate with Grid services., e.g.:
 
 ```bash
-eng@ubuntu:~/rucio-analysis/etc/ansible$ ansible-playbook -i hosts/inventory.yml deploy.yml -e HOSTS=<remote_host>
+eng@ubuntu:~/rucio-analysis/etc/ansible$ ansible-playbook -i hosts/inventory.yml deploy-to-remote.yml -e HOSTS=<remote_host> -e ansible_role=escape -e rucio_voms=escape -e rucio_analysis_image_make_target=escape
 ```
 
-where `<remote_host>` is set to the remote host name specified in `etc/ansible/hosts/inventory.yml`.
+where `<remote_host>` is set to the remote host name specified in `etc/ansible/hosts/inventory.yml`. 
 
 For convenience, this command can be added as a Make target in `etc/ansible/Makefile`, allowing for one-line deployment, e.g.:
 
 ```bash
 eng@ubuntu:~/rucio-analysis/etc/ansible$ make deploy-to-escape-rucio-analysis
 ```
+
+## Upgrading a local machine
+
+If an existing rucio-analysis distribution already exists on a local machine, it is possible to rebuild the image (**!necessary for local code changes!**) and redeploy the crontab with, e.g.:
+
+```bash
+eng@ubuntu:~/rucio-analysis/etc/ansible$ ansible-playbook -i hosts/inventory.yml update-local.yml -e HOSTS=skao-rucio-analysis -e ansible_role=skao-dev -e rucio_voms=skatelescope.eu -e rucio_analysis_image_make_target=skao
+```
+
+passing in all the same environment variables required for remote deployment.
 
 # Development
 
