@@ -5,14 +5,16 @@ test-upload-nondeterministic:
   enabled: true
   args:
   kwargs:
-    lfn2pfn_class_name: LFN2PFN_SKAO_SpoofGeneric
-    lfn2pfn_kwargs:
-      n_files: 1
+    rse: MANCHESTER_ND
+    lfnpfn_spoofer_class_name: LFNPFNSpoofer_SKAO_Testing_v1
+    lfnpfn_spoofer_kwargs:
+      n_datasets_per_project: 2
+      n_files_per_dataset: 1
       n_projects: 1
-      n_datasets: 2
       size: 100000 # bytes
       test_dir_prefix: nondeterministic_test
-    lifetime: 3600 # seconds
-    rse: MANCHESTER_ND
+    scheme: davs
+    hostname: bohr3226.tier2.hep.manchester.ac.uk
+    prefix: /dpm/tier2.hep.manchester.ac.uk/home/skatelescope.eu/rucio-ska/prod/nondeterministic
     scope: testing_nd
-    scheme: first
+    filelist_dir: ingest

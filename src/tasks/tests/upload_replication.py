@@ -100,21 +100,22 @@ class TestUploadReplication(Task):
                     self.logger.debug("Replication rules added")
 
                     # Push corresponding rules to database
-                    for database in databases:
-                        if database["type"] == "es":
-                            self.logger.debug("Injecting rules into ES database...")
-                            es = ESRucio(database["uri"], self.logger)
-                            es.pushRulesForDID(
-                                fileDID,
-                                index=database["index"],
-                                baseEntry={
-                                    "task_name": taskName,
-                                    "file_size": size,
-                                    "type": "file",
-                                    "n_files": 1,
-                                    "is_submitted": 1,
-                                },
-                            )
+                    if databases is not None:
+                        for database in databases:
+                            if database["type"] == "es":
+                                self.logger.debug("Injecting rules into ES database...")
+                                es = ESRucio(database["uri"], self.logger)
+                                es.pushRulesForDID(
+                                    fileDID,
+                                    index=database["index"],
+                                    baseEntry={
+                                        "task_name": taskName,
+                                        "file_size": size,
+                                        "type": "file",
+                                        "n_files": 1,
+                                        "is_submitted": 1,
+                                    },
+                                )
 
         self.toc()
         self.logger.info("Finished in {}s".format(round(self.elapsed)))

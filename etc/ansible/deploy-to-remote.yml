@@ -32,14 +32,9 @@
       default: yes
       private: no
     tasks:
-    - block:
-      - include_role:
-          name: common
-          tasks_from: check_x509_credentials_set
-      - include_role:
-          name: common
-          tasks_from: copy_x509_credentials
-        when: copy_credentials|bool
+    - include_role:
+        name: common
+        tasks_from: check_x509_credentials_set
       when: RUCIO_CFG_AUTH_TYPE == "x509"
     - include_role:
         name: common
@@ -47,12 +42,16 @@
       when: RUCIO_CFG_AUTH_TYPE == "userpass"
     - include_role:
         name: common
+        tasks_from: copy_x509_credentials
+      when: copy_credentials|bool
+    - include_role:
+        name: common
         tasks_from: install_dependencies
       when: install_dependencies|bool
     - include_role:
         name: common
         tasks_from: install_rucio_analysis
-      when: install_rucio_analysis|bool
+      when: build_rucio_analysis|bool
     - include_role:
         name: common
         tasks_from: install_crontab

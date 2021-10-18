@@ -5,8 +5,8 @@ from common.es.rucio import Rucio as ESRucio
 from tasks.task import Task
 
 
-class SyncDatabase(Task):
-    """ Update ES database rules. """
+class AuxSyncESDatabase(Task):
+    """ Synchronise ES database with Rucio rule statuses. """
 
     def __init__(self, logger):
         super().__init__(logger)

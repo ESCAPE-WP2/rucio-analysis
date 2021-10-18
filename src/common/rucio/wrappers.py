@@ -1,6 +1,7 @@
 import abc
 import subprocess
 
+from gfal2 import Gfal2Context
 from rucio.client.client import Client
 from rucio.client.rseclient import RSEClient
 from rucio.client.downloadclient import DownloadClient
@@ -13,83 +14,92 @@ class RucioWrappers:
     """
     Wrappers for common Rucio functionality.
     """
-    @ abc.abstractstaticmethod
+
+    @abc.abstractstaticmethod
     def addDataset():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def addRule():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def attach():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def detach():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def download():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def erase():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def getMetadata():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
+    def setMetadata():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def setMetadataBulk():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
     def getRSELimits(rse):
         raise NotImplementedError()
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def getRSEProtocols(rse):
         raise NotImplementedError()
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def getRSEUsage(rse):
         raise NotImplementedError()
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def listDIDs():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def listFileReplicas():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def listReplicationRules():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def listReplicationRulesFull():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def listRSEs():
         raise NotImplementedError()
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def listRSEAttributes(rse):
         raise NotImplementedError()
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def ping():
         raise NotImplementedError()
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def upload():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def uploadDir():
         raise NotImplementedError
 
-    @ abc.abstractstaticmethod
+    @abc.abstractstaticmethod
     def whoAmI():
         raise NotImplementedError
 
@@ -97,14 +107,14 @@ class RucioWrappers:
 class RucioWrappersCLI(RucioWrappers):
     """ Talk to a Rucio instance via subprocessed CLI commands. """
 
-    @ staticmethod
+    @staticmethod
     def addDataset(did):
         rtn = subprocess.run(["rucio", "add-dataset", did], stdout=subprocess.PIPE)
         if rtn.returncode != 0:
             raise Exception("Non-zero return code")
         return rtn
 
-    @ staticmethod
+    @staticmethod
     def addRule(did, copies, dst, lifetime=None, activity=None, src=None):
         """
         Add rule(s) for <copies> copies of a DID, <did>, at RSE, <rse>, with
@@ -213,6 +223,48 @@ class RucioWrappersCLI(RucioWrappers):
             raise Exception("Non-zero return code")
         return rtn
 
+    @staticmethod
+    def getMetadata(did, plugin="DID_COLUMN"):
+        """
+        Get metadata for did, <did>.
+
+        Args:
+            plugin (`str`): can be DID_COLUMN or JSON
+        """
+        rtn = subprocess.run(
+            [
+                "rucio",
+                "get-metadata",
+                did,
+                "--plugin",
+                plugin,
+            ],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
+    @staticmethod
+    def setMetadata(did, key, value):
+        """ Set metadata for did, <did>. """
+        rtn = subprocess.run(
+            [
+                "rucio",
+                "set-metadata",
+                "--did",
+                did,
+                "--key",
+                key,
+                "--value",
+                value,
+            ],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
 
 class RucioWrappersAPI(RucioWrappers):
     """ Talk to a Rucio instance via the API. """
@@ -230,10 +282,11 @@ class RucioWrappersAPI(RucioWrappers):
             raise Exception(error)
 
     @staticmethod
-    def addReplica(gfal, rse, did, pfn):
+    def addReplica(rse, did, pfn):
         """ Add a DID, <did>, of type, <type>. """
         try:
             client = Client()
+            gfal = Gfal2Context()
             tokens = did.split(":")
             scope = tokens[0]
             name = tokens[1]
@@ -321,14 +374,42 @@ class RucioWrappersAPI(RucioWrappers):
             client.delete_replication_rule(rule_id=rid, purge_replicas=purgeReplicas)
 
     @staticmethod
-    def getMetadata(did):
-        """ Get DID metadata for did, <did>. """
+    def getMetadata(did, plugin="DID_COLUMN"):
+        """
+        Get DID metadata for did, <did>.
+
+        Args:
+            plugin (`str`): can be DID_COLUMN or JSON
+        """
         client = Client()
         tokens = did.split(":")
         scope = tokens[0]
         name = tokens[1]
-        metadata = client.get_metadata(scope, name)
+        metadata = client.get_metadata(scope, name, plugin=plugin)
         return metadata
+
+    @staticmethod
+    def setMetadata(did, key, value, recursive=False):
+        """ Set DID metadata for did, <did>. """
+        client = Client()
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        client.set_metadata(scope, name, key, value, recursive=recursive)
+
+    @staticmethod
+    def setMetadataBulk(did, meta, recursive=False):
+        """
+        Set bulk DID metadata for did, <did>.
+
+        Args:
+            meta (`dict`): Metadata k-v pairs to be set
+        """
+        client = Client()
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        client.set_metadata_bulk(scope, name, meta, recursive=recursive)
 
     @staticmethod
     def getRSELimits(rse):
