@@ -14,7 +14,7 @@ jobs:
     day: "*"
     month: "*"
     weekday: "*"
-    task_subpath: "escape/aux/sync-es-database"
+    task_subpath: "escape/sync/sync-upload-and-replication.yml"
     disabled: no
     
   - name: reports-daily

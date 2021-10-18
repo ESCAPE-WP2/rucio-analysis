@@ -22,4 +22,4 @@ reports-dev:
       - AARNET_PER
     webhooks:
       - type: slack
-        url:
+        url: https://hooks.slack.com/services/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

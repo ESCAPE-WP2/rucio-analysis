@@ -14,7 +14,7 @@ jobs:
     day: "*"
     month: "*"
     weekday: "*"
-    task_subpath: "skao-dev/db/sync-upload-and-replication.yml"
+    task_subpath: "skao-dev/sync/sync-upload-and-replication.yml"
     disabled: no
 
   - name: reports-daily-dev

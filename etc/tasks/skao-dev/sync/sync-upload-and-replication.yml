@@ -1,7 +1,7 @@
 sync-database-test-upload-dev:
     description: "Sync external database with rule information in datalake (test-upload-dev)"
-    module_name: "tasks.db.sync"
-    class_name: "SyncDatabase"
+    module_name: "tasks.sync.database"
+    class_name: "SyncESDatabase"
     enabled: true
     args:
     kwargs:
@@ -17,8 +17,8 @@ sync-database-test-upload-dev:
 
 sync-database-test-replication-dev:
     description: "Sync external database with rule information in datalake (test-upload-replication-dev)"
-    module_name: "tasks.db.sync"
-    class_name: "SyncDatabase"
+    module_name: "tasks.sync.database"
+    class_name: "SyncESDatabase"
     enabled: true
     args:
     kwargs:

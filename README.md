@@ -30,7 +30,8 @@ Within this framework, a task is defined by two parts: the logic and the definit
 
 The source for the task logic is kept in `src/tasks`. The structure of `src/tasks` takes the following format: `<task_type>/<task_name>.yml` where, for consistency, `<task_type>` should be one of:
 
-- aux (auxiliary functionality, e.g. database syncing)
+- misc (miscellaneous)
+- sync (syncing functionality, e.g. databases)
 - reports (reporting)
 - tests (testing)
 
@@ -38,7 +39,9 @@ Other categories may be added as needed.
 
 Task definitions are written in yaml and stored in `etc/tasks`. Each definition contains fields to specify the task logic module to be used and any necessary corresponding arguments. The structure of `etc/tasks` takes the following format: `<project_name>/<task_type>/<task_name>.yml`.
 
-Deployment is managed through Ansible (`etc/ansible`). Hosts eligible for remote deployment are defined in `etc/ansible/hosts/inventory.yml`. Each remote host has its own role, i.e. a directory in `etc/ansible/roles` named according to the remote host name. Within each role there is a `vars` subdirectory. For remote deployment, a crontab, `crontab.yml`, must exist in this subdirectory.
+Deployment is managed through Ansible (`etc/ansible`). Hosts eligible for remote deployment are defined in `etc/ansible/hosts/inventory.yml`. 
+
+Roles must be added to `etc/ansible/roles`. Within each role there is a `vars` subdirectory. For remote deployment, a crontab, `crontab.yml`, must exist in this subdirectory.
 
 The recipe for adding a new remote host is described in detail in **Setting up a new remote host**.
 

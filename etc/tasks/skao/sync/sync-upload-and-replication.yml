@@ -1,14 +1,13 @@
 sync-database-test-upload:
     description: "Sync external database with rule information in datalake (test-upload)"
-    module_name: "tasks.db.sync"
-    class_name: "SyncDatabase"
+    module_name: "tasks.sync.database"
+    class_name: "SyncESDatabase"
     enabled: true
     args:
     kwargs:
       task_name_to_update: test-upload
       n_workers: 6
       database:
-        type: es
         uri: https://srcdev.skatelescope.org/rucio/monit/elastic/
         index: "custom"
         search_range_lte: now
@@ -17,15 +16,14 @@ sync-database-test-upload:
 
 sync-database-test-replication:
     description: "Sync external database with rule information in datalake (test-upload-replication)"
-    module_name: "tasks.db.sync"
-    class_name: "SyncDatabase"
+    module_name: "tasks.sync.database"
+    class_name: "SyncESDatabase"
     enabled: true
     args:
     kwargs:
       task_name_to_update: test-upload-replication
       n_workers: 6
       database:
-        type: es
         uri: https://srcdev.skatelescope.org/rucio/monit/elastic/
         index: "custom"
         search_range_lte: now
