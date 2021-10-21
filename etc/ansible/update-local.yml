@@ -13,15 +13,19 @@
       private: no
     - name: install_rucio_analysis_local
       prompt: Install rucio-analysis?
-      default: yes 
+      default: no 
       private: no
     - name: install_crontab
       prompt: Install crontab?
-      default: yes
+      default: no
       private: no
     tasks:
     - debug:
         msg: "ansible_role: {{ ansible_role }}"
+    - name: load role vars
+      include_vars:
+        file: "roles/{{ ansible_role }}/vars/main.yml"
+      delegate_to: 127.0.0.1
     - include_role:
         name: common
         tasks_from: check_x509_credentials_set

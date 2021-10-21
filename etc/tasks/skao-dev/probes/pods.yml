@@ -1,0 +1,27 @@
+get-pod-info-dev:
+  description: "Get pod information from k8s cluster"
+  module_name: "tasks.probes.get_pod_information"
+  class_name: "ProbesPods"
+  enabled: true
+  args:
+  kwargs:
+    kube_config_path: /etc/cluster-config.yml
+    pod_like_names:
+      - abacus-account
+      - abacus-rse
+      - conveyor-finisher
+      - conveyor-poller
+      - conveyor-submitter
+      - hermes2
+      - judge-cleaner
+      - judge-evaluator
+      - judge-injector
+      - judge-repairer
+      - reaper
+      - transmogrifier
+      - undertaker
+    namespace: rucio-test
+    databases:
+      - type: es
+        uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
+        index: logs

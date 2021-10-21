@@ -30,10 +30,11 @@ Within this framework, a task is defined by two parts: the logic and the definit
 
 The source for the task logic is kept in `src/tasks`. The structure of `src/tasks` takes the following format: `<task_type>/<task_name>.yml` where, for consistency, `<task_type>` should be one of:
 
+- misc
+- probes (cluster health, uptime etc.)
+- reports
 - sync (syncing functionality, e.g. databases)
-- reports (reporting)
-- tests (testing)
-- misc (miscellaneous)
+- tests
 
 Other categories may be added as needed.
 

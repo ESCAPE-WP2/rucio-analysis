@@ -1,0 +1,3 @@
+RUCIO_CFG_RUCIO_HOST: https://srcdev.skatelescope.org/rucio-dev
+RUCIO_CFG_AUTH_HOST: https://srcdev.skatelescope.org/rucio-dev/auth
+KUBERNETES_CONFIG_PATH: /home/rucio/.kube/config.dev

@@ -24,7 +24,7 @@ test-upload-dev:
     databases:
       - type: es
         uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
-        index: "custom"
+        index: custom
 
 test-upload-replication-dev:
   description: "Test upload and replication between RSEs."
@@ -33,7 +33,7 @@ test-upload-replication-dev:
   enabled: true
   args:
   kwargs:
-    activity: "Debug"
+    activity: "Functional Test"
     n_files: 1
     sizes:
       - 100000 # bytes
@@ -48,5 +48,5 @@ test-upload-replication-dev:
     databases:
       - type: es
         uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
-        index: "custom"
+        index: custom
 

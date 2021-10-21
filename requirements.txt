@@ -1,5 +1,9 @@
+dateparser
 elasticsearch==7.5.1
-rucio-clients
-slackclient
+kubernetes
 python-crontab
 pyyaml
+rucio-clients
+slackclient
+uuid
+
