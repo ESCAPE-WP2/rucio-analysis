@@ -1,0 +1,26 @@
+get-services-info-dev:
+  description: "Get services information"
+  module_name: "tasks.probes.get_services_information"
+  class_name: "ProbesServices"
+  enabled: true
+  args:
+  kwargs:
+    services:
+      - name: rucio
+        endpoint: https://srcdev.skatelescope.org/rucio-dev/ping
+        expected_status_code: 200
+        expected_content:
+          version: 1.26.2
+      - name: rucio-auth
+        endpoint: https://srcdev.skatelescope.org/rucio-dev/auth/ping
+        expected_status_code: 200
+        expected_content:
+          version: 1.26.2
+      - name: fts
+        endpoint: https://fts3-pilot.cern.ch:8449
+        expected_status_code: 200
+        expected_content:
+    databases:
+      - type: es
+        uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
+        index: services

@@ -5,6 +5,7 @@ sync-database-test-upload-dev:
     enabled: true
     args:
     kwargs:
+      fts_endpoint: https://fts3-pilot.cern.ch:8446
       task_name_to_update: test-upload-dev
       n_workers: 6
       database:
@@ -22,6 +23,7 @@ sync-database-test-replication-dev:
     enabled: true
     args:
     kwargs:
+      fts_endpoint: https://fts3-pilot.cern.ch:8446
       task_name_to_update: test-upload-replication-dev
       n_workers: 6
       database:

@@ -12,15 +12,16 @@ class SyncESDatabase(Task):
         super().__init__(logger)
 
     @staticmethod
-    def _async_updateRuleWithDID(loggerName, databaseUri, ruleID, databaseIndex):
+    def _async_updateRuleWithDID(loggerName, databaseUri, ruleID, databaseIndex, ftsEndpoint):
         logger = logging.getLogger(loggerName)
         es = ESRucio(databaseUri, logger)
-        es.updateRuleWithDID(ruleID, databaseIndex)
+        es.updateRuleWithDID(ruleID, databaseIndex, ftsEndpoint)
 
     def run(self, args, kwargs):
         super().run()
         self.tic()
         try:
+            ftsEndpoint = kwargs['fts_endpoint']
             taskNameToUpdate = kwargs['task_name_to_update']
             nWorkers = kwargs['n_workers']
             databaseUri = kwargs['database']['uri']
@@ -69,7 +70,7 @@ class SyncESDatabase(Task):
         for idx, hit in enumerate(res['hits']['hits']):
             ruleID = hit['_source']['rule_id']
             pool.apply_async(self._async_updateRuleWithDID, args=(
-                self.logger.name, databaseUri, ruleID, databaseIndex))
+                self.logger.name, databaseUri, ruleID, databaseIndex, ftsEndpoint))
         pool.close()
         pool.join()
 

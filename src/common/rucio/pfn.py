@@ -28,14 +28,14 @@ class PFN():
             )
         )
 
-    @ property
+    @property
     def dir(self):
         return self._dir
 
-    @ property
+    @property
     def dirname(self):
         return os.path.dirname(self.abspath)
 
-    @ property
+    @property
     def name(self):
         return self._name

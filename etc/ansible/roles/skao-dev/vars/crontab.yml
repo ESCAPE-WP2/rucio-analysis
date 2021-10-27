@@ -26,12 +26,21 @@ jobs:
     task_subpath: "skao-dev/reports/daily.yml"
     disabled: no
 
-  - name: probes-pods-dev
+  - name: probes-daemons-dev
     minute: "*/1"
     hour: "*"
     day: "*"
     month: "*"
     weekday: "*"
-    task_subpath: "skao-dev/probes/pods.yml"
+    task_subpath: "skao-dev/probes/daemons.yml"
+    disabled: no
+
+  - name: probes-services-dev
+    minute: "*/1"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao-dev/probes/services.yml"
     disabled: no
 

@@ -52,6 +52,10 @@ class RucioWrappers:
         raise NotImplementedError
 
     @abc.abstractstaticmethod
+    def getRequestHistory():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
     def getRSELimits(rse):
         raise NotImplementedError()
 
@@ -77,6 +81,14 @@ class RucioWrappers:
 
     @abc.abstractstaticmethod
     def listReplicationRulesFull():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def listRequests():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def listRequestsHistory():
         raise NotImplementedError
 
     @abc.abstractstaticmethod
@@ -412,6 +424,16 @@ class RucioWrappersAPI(RucioWrappers):
         client.set_metadata_bulk(scope, name, meta, recursive=recursive)
 
     @staticmethod
+    def getRequestHistory(did, rse):
+        """ Getfull history of requests for a DID, <did>, to rse, <rse>. """
+        client = Client()
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        requests = client.list_request_history_by_did(scope=scope, name=name, rse=rse)
+        return requests
+
+    @staticmethod
     def getRSELimits(rse):
         """ Get RSE limits for rse, <rse>. """
         client = RSEClient()
@@ -433,20 +455,6 @@ class RucioWrappersAPI(RucioWrappers):
         return usage
 
     @staticmethod
-    def listFileReplicas(did, rse=None):
-        """ List file replicas for DID, <did>. """
-        client = Client()
-        tokens = did.split(":")
-        scope = tokens[0]
-        name = tokens[1]
-        replicas = []
-        for replica in client.list_replicas(
-            dids=[{"scope": scope, "name": name}], rse_expression=rse
-        ):
-            replicas.append(replica)
-        return replicas
-
-    @staticmethod
     def listDIDs(scope, name="*", filters=None, type="collection"):
         """ List DIDs in scope, <scope>, with name, <name>. """
         client = Client()
@@ -464,6 +472,20 @@ class RucioWrappersAPI(RucioWrappers):
         for name in client.list_dids(scope=scope, filters=filters_dict, type=type):
             dids.append("{}:{}".format(scope, name))
         return dids
+
+    @staticmethod
+    def listFileReplicas(did, rse=None):
+        """ List file replicas for DID, <did>. """
+        client = Client()
+        tokens = did.split(":")
+        scope = tokens[0]
+        name = tokens[1]
+        replicas = []
+        for replica in client.list_replicas(
+            dids=[{"scope": scope, "name": name}], rse_expression=rse
+        ):
+            replicas.append(replica)
+        return replicas
 
     @staticmethod
     def listReplicationRules(did):
@@ -490,6 +512,26 @@ class RucioWrappersAPI(RucioWrappers):
         for rule in client.list_replication_rule_full_history(scope=scope, name=name):
             rules.append(rule)
         return rules
+        
+    @staticmethod
+    def listRequests():
+        """ List requests. """
+        client = Client()
+        requests = []
+        for request in client.list_requests(
+            src_rse=src_rse, dst_rse=dst_rse, request_states=','.join(request_states)):
+                requests.append(request)
+        return requests
+
+    @staticmethod
+    def listRequestsHistory(src_rse, dst_rse, request_states):
+        """ List requests history. """
+        client = Client()
+        requests = []
+        for request in client.list_requests_history(
+            src_rse=src_rse, dst_rse=dst_rse, request_states=','.join(request_states)):
+                requests.append(request)
+        return requests
 
     @staticmethod
     def listRSEs(rse=None):

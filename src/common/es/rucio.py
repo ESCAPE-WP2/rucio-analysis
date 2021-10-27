@@ -1,4 +1,6 @@
 from datetime import datetime
+import json
+import numpy as np
 import uuid
 
 from common.es.wrappers import Wrappers
@@ -49,6 +51,9 @@ class Rucio(Wrappers):
                 entry['endpoint'] = endpoint
                 entry['protocol'] = protocol
 
+                # FTS attribute placeholders
+                entry['fts_throughput'] = None
+
                 entries.append(entry)
         else:   # otherwise, create entry with timestamp and "spoofed" rule_id
             now = datetime.now()
@@ -82,7 +87,7 @@ class Rucio(Wrappers):
                 self.logger.warning("Failed to push rule: {}".format(e))
                 continue
 
-    def updateRuleWithDID(self, ruleID, index, extraEntries={}):
+    def updateRuleWithDID(self, ruleID, index, fts_endpoint, extraEntries={}):
         """
         Update documents in the database corresponding to a rule with a given
         DID <ruleID> in index <index>. <extraEntries> key/value pairs will
@@ -115,7 +120,7 @@ class Rucio(Wrappers):
         #
         fullEntry = {**entry, **extraEntries}
 
-        # Add "throughput" field corresponding to time taken to change from
+        # Add field corresponding to time taken to change from
         # REPLICATING -> OK state. Note that this is a very crude throughput
         # estimation as this time is convolved with the polling frequency
         # of the rucio rules evalulator.
@@ -128,6 +133,25 @@ class Rucio(Wrappers):
                     rtn['_source']['updated_at'], "%Y-%m-%dT%H:%M:%S")
                 fullEntry['replication_duration'] = (
                     doneAt-startedReplicationAt).total_seconds()
+
+        # Add throughput field using fts job query.
+        #
+        if fullEntry['state'] == 'OK':
+            if fts_endpoint:
+                try:
+                    import fts3.rest.client.easy as fts3
+
+                    requests = rucio.getRequestHistory(did='{}:{}'.format(entry['scope'], 
+                        entry['name']), rse=entry['to_rse'])
+                    external_id = requests['external_id']
+
+                    context = fts3.Context(fts_endpoint, verify=False)
+                    files = json.loads(context.get("/jobs/" + external_id + '/files'))
+
+                    fullEntry['fts_throughput'] = np.mean([fi["throughput"] for fi in files])
+                except Exception as e:
+                    self.logger.warning("Failed to updae throughput from FTS: {}".format(e))
+
 
         # Add boolean flags for state. This makes it easy to use bucket
         # aggregations in ES queries.
