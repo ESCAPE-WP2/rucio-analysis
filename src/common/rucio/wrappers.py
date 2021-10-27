@@ -134,12 +134,12 @@ class RucioWrappersCLI(RucioWrappers):
         """
         cmd = ["rucio", "add-rule"]
         if lifetime:
-            cmd.append(["--lifetime", str(lifetime)])
+            cmd.extend(["--lifetime", str(lifetime)])
         if activity:
-            cmd.append(["--activity", activity])
+            cmd.extend(["--activity", activity])
         if src:
-            cmd.append(["--source-replica-expression", src])
-        cmd.append([did, str(copies), dst])
+            cmd.extend(["--source-replica-expression", src])
+        cmd.extend([did, str(copies), dst])
 
         rtn = subprocess.run(
             cmd,
