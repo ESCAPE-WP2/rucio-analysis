@@ -1,0 +1,10 @@
+RUCIO_CFG_RUCIO_HOST: https://srcdev.skatelescope.org/rucio-dev
+RUCIO_CFG_AUTH_HOST: https://srcdev.skatelescope.org/rucio-dev/auth
+KUBERNETES_CONFIG_PATH: /home/rucio/.kube/config.dev
+
+RUCIO_CFG_AUTH_TYPE: userpass
+RUCIO_CFG_ACCOUNT: root
+RUCIO_CFG_USERNAME: srcdev
+RUCIO_CFG_PASSWORD: 8K96Pw82FbspKGQf
+RUCIO_CFG_CLIENT_CERT: client.crt
+RUCIO_CFG_CLIENT_KEY: client.key

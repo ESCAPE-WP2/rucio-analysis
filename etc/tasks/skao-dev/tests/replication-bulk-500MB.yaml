@@ -1,11 +1,11 @@
-test-replication-bulk-500MB:
+test-replication-bulk-aarnet-500MB:
   description: "Test parallel uploading/replication of files to RSEs."
   module_name: "tasks.tests.replication_bulk"
   class_name: "TestReplicationBulk"
   enabled: true
   args:
   kwargs:
-    n_workers: 10 # Number of parallel processes uploading files
+    n_workers: 16 # Number of parallel processes uploading files
     n_dirs: 10 # Number of directories of files to create (each on different process)
     n_files: 10 # Number of files per directory
     file_size: 500000000 # bytes
@@ -23,14 +23,14 @@ test-replication-bulk-500MB:
         uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
         index: "custom"
         
-test-replication-bulk-500MB:
+test-replication-bulk-idia-500MB:
   description: "Test parallel uploading/replication of files to RSEs."
   module_name: "tasks.tests.replication_bulk"
   class_name: "TestReplicationBulk"
   enabled: true
   args:
   kwargs:
-    n_workers: 10 # Number of parallel processes uploading files
+    n_workers: 16 # Number of parallel processes uploading files
     n_dirs: 10 # Number of directories of files to create (each on different process)
     n_files: 10 # Number of files per directory
     file_size: 500000000 # bytes
