@@ -1,0 +1,100 @@
+jobs:
+    # Subscription create, run once
+  - name: tests-create-subscription
+    minute: "0"
+    hour: "9"
+    day: "26"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/subscription-create.yml"
+    disabled: no
+
+    # Subscription feed, run once an hour for a day
+  - name: tests-create-subscription
+    minute: "10"
+    hour: "*"
+    day: "26"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/subscription-feed.yml"
+    disabled: no
+
+    # Long haul transfers 50 MB
+  - name: tests-transfers-50MB-dev
+    minute: "35"
+    hour: "0-23/3"
+    day: "27-28"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/long-haul-50MB.yml"
+    disabled: no
+
+    # Long haul transfers 500 MB
+  - name: tests-transfers-500MB-dev
+    minute: "35"
+    hour: "1-23/3"
+    day: "27-28"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/long-haul-500MB.yml"
+    disabled: no
+
+    # Long haul transfers 5 GB
+  - name: tests-transfers-5GB-dev
+    minute: "35"
+    hour: "2-23/3"
+    day: "27-28"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/long-haul-5GB.yml"
+    disabled: no
+
+    # Lifecycle test aarnet start
+  - name: tests-lifecycle-aarnet-start
+    minute: "45"
+    hour: "10"
+    day: "25"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/lifecycle-aarnet-start.yml"
+    disabled: no
+
+    # Lifecycle test aarnet continue
+  - name: tests-lifecycle-aarnet-continue
+    minute: "5"
+    hour: "*/4"
+    day: "25"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/lifecycle-aarnet-continue.yml"
+    disabled: no
+
+    # Lifecycle test idia start
+  - name: tests-lifecycle-idia-start
+    minute: "45"
+    hour: "10"
+    day: "25"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/lifecycle-idia-start.yml"
+    disabled: no
+
+    # Lifecycle test idia continue 
+  - name: tests-lifecycle-idia-continue
+    minute: "5"
+    hour: "*/4"
+    day: "25"
+    month: "10"
+    weekday: "*"
+    task_subpath: "skao-dev/tests/dac21/lifecycle-idia-continue.yml"
+    disabled: no
+
+  - name: db-sync-dev
+    minute: "*/5"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao-dev/sync/sync-replication-bulk.yml"
+    disabled: no
+

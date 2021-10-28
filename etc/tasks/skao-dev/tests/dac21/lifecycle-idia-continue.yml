@@ -1,0 +1,40 @@
+# A test to emulate the SDP-SRC interface.
+# This workflow consists of:
+# - Upload via GFAL to non-deterministic RSE 1
+# - Registration within Rucio
+# Data should then be replicated at RSE 2.
+test-upload-nondeterministic:
+  description: "Test uploading to non-deterministic RSEs."
+  module_name: "tasks.tests.upload_nondeterministic"
+  class_name: "TestUploadNondeterministic"
+  enabled: true
+  args:
+  kwargs:
+    rse: IDIA_ND 
+    lfnpfn_spoofer_class_name: LFNPFNSpoofer_SKAO_Testing_v1
+    lfnpfn_spoofer_kwargs:
+      n_datasets_per_project: 10
+      n_files_per_dataset: 10
+      n_projects: 1
+      size: 10000000 # 10 Mbytes
+      test_dir_prefix: nondeterministic_test
+    scheme: gsiftp
+    hostname: dtn01.idia.ac.za 
+    prefix: /scratch3/projects/aeneas/rucio-ska/dev/nondeterministic
+    scope: testing_subscription
+    filelist_dir: ingest
+
+register-nondeterministic:
+  description: "Test registering to non-deterministic RSEs."
+  module_name: "tasks.misc.register_nondeterministic"
+  class_name: "AuxRegisterNondeterministic"
+  enabled: true
+  args:
+  kwargs:
+    rse: IDIA_ND
+    scheme: https
+    hostname: dtn01.idia.ac.za
+    prefix: /scratch3/projects/aeneas/rucio-ska/dev/nondeterministic
+    filelist_dir: ingest
+    lifetime: 3600 # seconds
+    dataset_name: test_lifecycle_idia_dataset_1 
