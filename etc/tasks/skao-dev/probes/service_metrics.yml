@@ -1,0 +1,13 @@
+get-service-metrics-fts-dev:
+  description: "Get FTS metrics"
+  module_name: "tasks.probes.service_metrics"
+  class_name: "ProbesServiceMetricsFTS"
+  enabled: true
+  args:
+  kwargs:
+    endpoint: https://fts3-pilot.cern.ch:8449/
+    vo: skatelescope.eu
+    databases:
+      - type: es
+        uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
+        index: service_metrics

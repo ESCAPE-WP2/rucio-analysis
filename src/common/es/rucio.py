@@ -134,24 +134,54 @@ class Rucio(Wrappers):
                 fullEntry['replication_duration'] = (
                     doneAt-startedReplicationAt).total_seconds()
 
-        # Add throughput field using fts job query.
+        # If fts endpoint is specified, add throughput field using fts job query.
         #
         if fullEntry['state'] == 'OK':
             if fts_endpoint:
                 try:
                     import fts3.rest.client.easy as fts3
 
-                    requests = rucio.getRequestHistory(did='{}:{}'.format(entry['scope'], 
-                        entry['name']), rse=entry['to_rse'])
-                    external_id = requests['external_id']
+                    # If this DID is a container, recurse into it until we have a list of 
+                    # files only.
+                    DIDs = rucio.listContent(scope=entry['scope'], name=entry['name'])
+                    while True:
+                        startIterationNumberOfDIDs = len(DIDs)
+                        for DID in DIDs:
+                            recursedDIDs = rucio.listContent(scope=DID['scope'], name=DID['name'])
+                            if recursedDIDs:
+                                DIDs = DIDs + recursedDIDs
+                        if startIterationNumberOfDIDs == len(DIDs):     # i.e. all DIDs are files.
+                            break
 
-                    context = fts3.Context(fts_endpoint, verify=False)
-                    files = json.loads(context.get("/jobs/" + external_id + '/files'))
+                    # Get throughput (or average if DID is container).
+                    throughputs = []
+                    for DID in DIDs:
+                        try:
+                            # Get request from historical requests table.
+                            requests = rucio.getRequestHistory(did='{}:{}'.format(DID['scope'], 
+                                DID['name']), rse=entry['to_rse'])
+                            external_id = requests['external_id']
+    
+                            # Get the fts job_id (external_id) from the above request, and query
+                            # fts for information about this job.
+                            #
+                            context = fts3.Context(fts_endpoint, verify=False)
+                            files = json.loads(context.get("/jobs/" + external_id + '/files'))
 
-                    fullEntry['fts_throughput'] = np.mean([fi["throughput"] for fi in files])
+                            throughputs = throughputs + [fi["throughput"] for fi in files]
+                        except Exception as e:
+                            self.logger.warning("Error getting throughput: {}".format(e))
+                    if throughputs:
+                        fullEntry['fts_throughput_mean'] = np.mean(throughputs)
+                        fullEntry['fts_throughput_median'] = np.median(throughputs)
+                        fullEntry['fts_throughput_stdev'] = np.std(throughputs)
+                        self.logger.debug("Added throughput ({}/{}/{}).".format(
+                            fullEntry['fts_throughput_mean'],
+                            fullEntry['fts_throughput_median'],
+                            fullEntry['fts_throughput_stdev']
+                        ))
                 except Exception as e:
-                    self.logger.warning("Failed to updae throughput from FTS: {}".format(e))
-
+                    self.logger.warning("Failed to update throughput from FTS: {}".format(e))
 
         # Add boolean flags for state. This makes it easy to use bucket
         # aggregations in ES queries.

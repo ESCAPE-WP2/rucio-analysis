@@ -12,8 +12,9 @@ class SyncESDatabase(Task):
         super().__init__(logger)
 
     @staticmethod
-    def _async_updateRuleWithDID(loggerName, databaseUri, ruleID, databaseIndex, ftsEndpoint):
+    def _async_updateRuleWithDID(loggerName, idx, databaseUri, ruleID, databaseIndex, ftsEndpoint):
         logger = logging.getLogger(loggerName)
+        logger.info("Processing entry #{}".format(idx))
         es = ESRucio(databaseUri, logger)
         es.updateRuleWithDID(ruleID, databaseIndex, ftsEndpoint)
 
@@ -24,6 +25,7 @@ class SyncESDatabase(Task):
             ftsEndpoint = kwargs['fts_endpoint']
             taskNameToUpdate = kwargs['task_name_to_update']
             nWorkers = kwargs['n_workers']
+            updateAll = kwargs['update_all']
             databaseUri = kwargs['database']['uri']
             databaseIndex = kwargs['database']['index']
             databaseSearchRangeLTE = kwargs['database']['search_range_lte']
@@ -36,19 +38,15 @@ class SyncESDatabase(Task):
 
         es = ESRucio(databaseUri, self.logger)
 
-        # Query ES database for documents that are not in an "OK" state
+        # Query ES database for documents.
         #
         self.logger.info("Querying database for documents to be updated...")
-        res = es.search(index=databaseIndex, maxRows=databaseMaxRows, body={
+        query = {
             "query": {
                 "bool": {
                     "filter": [{
                         "term": {
                             "task_name.keyword": taskNameToUpdate
-                        }
-                    }, {
-                        "term": {
-                            "is_done": 0
                         }
                     }, {
                         "range": {
@@ -60,7 +58,17 @@ class SyncESDatabase(Task):
                     }]
                 }
             }
-        })
+        }
+        if not updateAll:   # filter for only 'not done' submissions
+            query['query']['bool']['filter'].append(
+                {
+                    "term": {
+                        "is_done": 0
+                    }
+                }
+            )
+            
+        res = es.search(index=databaseIndex, maxRows=databaseMaxRows, body=query)
         nDocs = len(res['hits']['hits'])
         self.logger.info("Found {} documents".format(nDocs))
 
@@ -70,7 +78,7 @@ class SyncESDatabase(Task):
         for idx, hit in enumerate(res['hits']['hits']):
             ruleID = hit['_source']['rule_id']
             pool.apply_async(self._async_updateRuleWithDID, args=(
-                self.logger.name, databaseUri, ruleID, databaseIndex, ftsEndpoint))
+                self.logger.name, idx, databaseUri, ruleID, databaseIndex, ftsEndpoint))
         pool.close()
         pool.join()
 

@@ -68,6 +68,10 @@ class RucioWrappers:
         raise NotImplementedError()
 
     @abc.abstractstaticmethod
+    def listContent():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
     def listDIDs():
         raise NotImplementedError
 
@@ -455,7 +459,16 @@ class RucioWrappersAPI(RucioWrappers):
         return usage
 
     @staticmethod
-    def listDIDs(scope, name="*", filters=None, type="collection"):
+    def listContent(scope, name):
+        """ List content of DID. """
+        client = Client()
+        contents = []
+        for content in client.list_content(scope=scope, name=name):
+            contents.append(content)
+        return contents
+
+    @staticmethod
+    def listDIDs(scope, filters=None, type="collection", recursive=False):
         """ List DIDs in scope, <scope>, with name, <name>. """
         client = Client()
         filters_dict = {}
@@ -469,7 +482,7 @@ class RucioWrappersAPI(RucioWrappers):
             else:
                 filters_dict = filters
         dids = []
-        for name in client.list_dids(scope=scope, filters=filters_dict, type=type):
+        for name in client.list_dids(scope=scope, filters=filters_dict, type=type, recursive=recursive):
             dids.append("{}:{}".format(scope, name))
         return dids
 

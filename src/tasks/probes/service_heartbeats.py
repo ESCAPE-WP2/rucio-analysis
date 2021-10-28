@@ -8,8 +8,8 @@ from common.es.wrappers import Wrappers as ESWrappers
 from tasks.task import Task
 
 
-class ProbesServices(Task):
-    """ Get information for services. """
+class ProbesServiceHeartbeats(Task):
+    """ Get heartbeats for services. """
 
     def __init__(self, logger):
         super().__init__(logger)

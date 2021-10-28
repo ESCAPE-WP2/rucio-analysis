@@ -7,6 +7,7 @@ sync-database-test-upload:
     kwargs:
       task_name_to_update: test-upload
       n_workers: 6
+      update_all: false
       database:
         uri: https://srcdev.skatelescope.org/rucio/monit/elastic/
         index: "custom"
@@ -23,6 +24,7 @@ sync-database-test-replication:
     kwargs:
       task_name_to_update: test-upload-replication
       n_workers: 6
+      update_all: false
       database:
         uri: https://srcdev.skatelescope.org/rucio/monit/elastic/
         index: "custom"

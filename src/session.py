@@ -21,7 +21,7 @@ class Session():
                     self.logger.critical(repr(e))
                     exit()
         except IOError as e:
-            self.logger.critical("Configuration file not found.")
+            self.logger.critical("Tasks file not found.")
             self.logger.critical(repr(e))
             exit()
 

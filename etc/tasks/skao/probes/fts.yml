@@ -1,0 +1,13 @@
+get-fts-transfers:
+  description: "Get FTS transfer logs"
+  module_name: "tasks.probes.fts"
+  class_name: "ProbesFTSTransfers"
+  enabled: true
+  args:
+  kwargs:
+    endpoint: https://fts3-pilot.cern.ch:8449/
+    vo: skatelescope.eu
+    databases:
+      - type: es
+        uri: https://srcdev.skatelescope.org/rucio/monit/elastic/
+        index: fts

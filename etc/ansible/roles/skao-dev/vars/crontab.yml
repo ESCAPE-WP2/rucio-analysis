@@ -1,6 +1,6 @@
 jobs:
   - name: tests-transfers-dev
-    minute: "0"
+    minute: "*/15"
     hour: "*"
     day: "*"
     month: "*"
@@ -41,6 +41,24 @@ jobs:
     day: "*"
     month: "*"
     weekday: "*"
-    task_subpath: "skao-dev/probes/services.yml"
+    task_subpath: "skao-dev/probes/service_heartbeats.yml"
+    disabled: no
+
+  - name: probes-service-metrics-fts-dev
+    minute: "*/1"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao-dev/probes/service_metrics.yml"
+    disabled: no
+
+  - name: probes-fts-dev
+    minute: "*/1"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao-dev/probes/fts.yml"
     disabled: no
 

@@ -1,7 +1,7 @@
-get-services-info-dev:
-  description: "Get services information"
-  module_name: "tasks.probes.get_services_information"
-  class_name: "ProbesServices"
+get-service-heartbeats:
+  description: "Get service heartbeats"
+  module_name: "tasks.probes.service_heartbeats"
+  class_name: "ProbesServiceHeartbeats"
   enabled: true
   args:
     kwargs:
@@ -19,4 +19,4 @@ get-services-info-dev:
     databases:
       - type: es
         uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
-        index: services
+        index: service_heartbeats
