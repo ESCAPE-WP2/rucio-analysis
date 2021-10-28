@@ -7,13 +7,15 @@ USER root
 
 RUN yum -y install wget vim python3 python3-devel openssl-devel swig gcc-c++
 
+RUN python3 -m pip install --upgrade pip
+
+COPY requirements.txt /tmp/requirements.txt
+
+RUN python3 -m pip install -r /tmp/requirements.txt
+
 COPY . /opt/rucio-analysis
 
 WORKDIR /opt/rucio-analysis
-
-RUN python3 -m pip install --upgrade pip
-
-RUN python3 -m pip install -r /opt/rucio-analysis/requirements.txt
 
 ENV TASK_FILE_PATH ./opt/rucio-analysis/etc/tasks/test.stubs.yml
 
