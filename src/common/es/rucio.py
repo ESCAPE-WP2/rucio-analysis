@@ -87,7 +87,7 @@ class Rucio(Wrappers):
                 self.logger.warning("Failed to push rule: {}".format(e))
                 continue
 
-    def updateRuleWithDID(self, ruleID, index, fts_endpoint, extraEntries={}):
+    def updateRuleWithDID(self, ruleID, index, ftsEndpoint, extraEntries={}):
         """
         Update documents in the database corresponding to a rule with a given
         DID <ruleID> in index <index>. <extraEntries> key/value pairs will
@@ -137,27 +137,35 @@ class Rucio(Wrappers):
         # If fts endpoint is specified, add throughput field using fts job query.
         #
         if fullEntry['state'] == 'OK':
-            if fts_endpoint:
+            if ftsEndpoint:
                 try:
+                    self.logger.warning("Attempting to get throughput from FTS...")
+
                     import fts3.rest.client.easy as fts3
 
-                    # If this DID is a container, recurse into it until we have a list of 
-                    # files only.
                     DIDs = rucio.listContent(scope=entry['scope'], name=entry['name'])
-                    while True:
-                        startIterationNumberOfDIDs = len(DIDs)
-                        for DID in DIDs:
-                            recursedDIDs = rucio.listContent(scope=DID['scope'], name=DID['name'])
-                            if recursedDIDs:
-                                DIDs = DIDs + recursedDIDs
-                        if startIterationNumberOfDIDs == len(DIDs):     # i.e. all DIDs are files.
-                            break
+                    if DIDs:    # container, so recurse into it.
+                        while True:
+                            startIterationNumberOfDIDs = len(DIDs)
+                            for DID in DIDs:
+                                recursedDIDs = rucio.listContent(scope=DID['scope'], name=DID['name'])
+                                if recursedDIDs:
+                                    DIDs = DIDs + recursedDIDs
+                            if startIterationNumberOfDIDs == len(DIDs):     # i.e. all DIDs are files.
+                                break
+                    else:
+                        DIDs = [{
+                            'scope': entry['scope'],
+                            'name': entry['name']
+                        }]
 
                     # Get throughput (or average if DID is container).
+                    #
                     throughputs = []
                     for DID in DIDs:
                         try:
                             # Get request from historical requests table.
+                            #
                             requests = rucio.getRequestHistory(did='{}:{}'.format(DID['scope'], 
                                 DID['name']), rse=entry['to_rse'])
                             external_id = requests['external_id']
@@ -165,7 +173,7 @@ class Rucio(Wrappers):
                             # Get the fts job_id (external_id) from the above request, and query
                             # fts for information about this job.
                             #
-                            context = fts3.Context(fts_endpoint, verify=False)
+                            context = fts3.Context(ftsEndpoint, verify=False)
                             files = json.loads(context.get("/jobs/" + external_id + '/files'))
 
                             throughputs = throughputs + [fi["throughput"] for fi in files]

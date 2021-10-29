@@ -20,6 +20,7 @@ reports-dev:
       - IDIA
       - DESY-DCACHE
       - AARNET_PER
+    using_task_name: "test-upload-replication-dev"
     webhooks:
       - type: slack
-        url: https://hooks.slack.com/services/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
+        url:

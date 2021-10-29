@@ -109,7 +109,7 @@ def uploadDirReplicate(
             if rseSrc == rseDst:
                 continue
             try:
-                rtn = rucio.addRule(datasetDID, 1, rseDst, lifetime=lifetime)
+                rtn = rucio.addRule(datasetDID, 1, rseDst, src=rseSrc, lifetime=lifetime)
                 logger.debug(
                     "Added Rule ID: {} for DID {} and RSE {}".format(
                         rtn.stdout.decode("UTF-8").rstrip("\n"), datasetDID, rseDst

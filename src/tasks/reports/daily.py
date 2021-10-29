@@ -27,6 +27,7 @@ class ReportDaily(Task):
             ]
             reportTitle = kwargs["report_title"]
             rses = kwargs["rses"]
+            usingTaskName = kwargs["using_task_name"]
             webhooks = kwargs["webhooks"]
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for task.")
@@ -63,7 +64,7 @@ class ReportDaily(Task):
                                         {
                                             "term": {
                                                 "task_name.keyword":
-                                                    "test-upload-replication"
+                                                    usingTaskName
                                             }
                                         },
                                         {"term": {"from_rse.keyword": rse}},
@@ -93,10 +94,9 @@ class ReportDaily(Task):
                                 "bool": {
                                     "filter": [
                                         {"term": {term: 1}},
-                                        {
-                                            "term": {
+                                        {"term": {
                                                 "task_name.keyword":
-                                                    "test-upload-replication"
+                                                    usingTaskName
                                             }
                                         },
                                         {"term": {"to_rse.keyword": rse}},
@@ -116,7 +116,7 @@ class ReportDaily(Task):
                         },
                     )
                     nDocsAsDst[rse][term] = len(res["hits"]["hits"])
-
+        
         # Format the report depending on the webhook type.
         #
         for webhook in webhooks:
@@ -148,17 +148,11 @@ class ReportDaily(Task):
                 # Add blocks for number of documents in each state.
                 #
                 for rse in rses:
-                    url = (
-                        "https://monit-grafana.cern.ch/d/O8MinE5Gk/es-ska-rmb?"
-                        + "orgId=51&from={}&to={}&var-rses={}".format(
-                            databaseSearchRangeGTE, databaseSearchRangeLTE, rse
-                        )
-                    )
                     blocks.append({
                         "type": "section",
                         "text": {
                                 "type": "mrkdwn",
-                                "text": "*<{}|{}>*".format(url, rse),
+                                "text": "*{}*".format(url, rse),
                         },
                     })
                     if nDocsAsSrc[rse]["is_stuck"] > percentageStuckWarningThreshold \
