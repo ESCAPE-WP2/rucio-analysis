@@ -1,0 +1,24 @@
+test-replication-bulk-idia-50MB:
+  description: "Test parallel uploading/replication of files to RSEs."
+  module_name: "tasks.tests.replication_bulk"
+  class_name: "TestReplicationBulk"
+  enabled: true
+  args:
+  kwargs:
+    n_workers: 2 # Number of parallel processes uploading files
+    n_dirs: 2 # Number of directories of files to create (each on different process)
+    n_files: 1 # Number of files per directory
+    file_size: 50000 # bytes
+    lifetime: 2592000 # seconds
+    source_rse: IDIA
+    dest_rses:
+      - MANCHESTER
+      - LANCASTER
+      - DESY_DCACHE
+    scope: testing_long_haul
+    container_name:  20_10_21_50MB_long_haul_prep_idia # [Optional] Specify a name for the parent container
+    namingPrefix:  # [Optional] Specify a prefix tag for files/directories
+    databases:
+      - type: es
+        uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
+        index: "custom" 

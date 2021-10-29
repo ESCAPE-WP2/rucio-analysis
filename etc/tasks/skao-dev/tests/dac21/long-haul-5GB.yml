@@ -1,4 +1,4 @@
-test-replication-bulk-500MB:
+test-replication-bulk-aarnet-5GB:
   description: "Test parallel uploading/replication of files to RSEs."
   module_name: "tasks.tests.replication_bulk"
   class_name: "TestReplicationBulk"
@@ -6,24 +6,24 @@ test-replication-bulk-500MB:
   args:
   kwargs:
     n_workers: 10 # Number of parallel processes uploading files
-    n_dirs: 10 # Number of directories of files to create (each on different process)
-    n_files: 10 # Number of files per directory
-    file_size: 500000000 # bytes
-    lifetime: 2592000 # seconds
+    n_dirs: 5 # Number of directories of files to create (each on different process)
+    n_files: 2 # Number of files per directory
+    file_size: 5000000000 # bytes, 5GB
+    lifetime: 2592000 # seconds, 30 days
     source_rse: AARNET_PER
     dest_rses:
       - MANCHESTER
       - LANCASTER
       - DESY_DCACHE
     scope: testing_long_haul
-    container_name:  20_10_21_500MB_long_haul_prep_aarnet_per # [Optional] Specify a name for the parent container
+    container_name:  5GB_long_haul_dac21_aarnet_per # [Optional] Specify a name for the parent container
     namingPrefix:  # [Optional] Specify a prefix tag for files/directories
     databases:
       - type: es
         uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
         index: "custom"
         
-test-replication-bulk-500MB:
+test-replication-bulk-idia-5GB:
   description: "Test parallel uploading/replication of files to RSEs."
   module_name: "tasks.tests.replication_bulk"
   class_name: "TestReplicationBulk"
@@ -31,17 +31,17 @@ test-replication-bulk-500MB:
   args:
   kwargs:
     n_workers: 10 # Number of parallel processes uploading files
-    n_dirs: 10 # Number of directories of files to create (each on different process)
-    n_files: 10 # Number of files per directory
-    file_size: 500000000 # bytes
-    lifetime: 2592000 # seconds
+    n_dirs: 5 # Number of directories of files to create (each on different process)
+    n_files: 2 # Number of files per directory
+    file_size: 5000000000 # bytes, 5GB
+    lifetime: 2592000 # seconds, 30 days
     source_rse: IDIA
     dest_rses:
       - MANCHESTER
       - LANCASTER
       - DESY_DCACHE
     scope: testing_long_haul
-    container_name:  20_10_21_500MB_long_haul_prep_idia # [Optional] Specify a name for the parent container
+    container_name:  5GB_long_haul_dac21_idia # [Optional] Specify a name for the parent container
     namingPrefix:  # [Optional] Specify a prefix tag for files/directories
     databases:
       - type: es
