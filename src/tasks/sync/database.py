@@ -59,11 +59,11 @@ class SyncESDatabase(Task):
                 }
             }
         }
-        if not updateAll:   # filter for only 'done' submissions
+        if not updateAll:   # filter for only 'not done' submissions
             query['query']['bool']['filter'].append(
                 {
                     "term": {
-                        "is_done": 1
+                        "is_done": 0
                     }
                 }
             )

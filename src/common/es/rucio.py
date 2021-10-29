@@ -134,7 +134,7 @@ class Rucio(Wrappers):
                 fullEntry['replication_duration'] = (
                     doneAt-startedReplicationAt).total_seconds()
 
-        # If fts endpoint is specified, add throughput field using fts job query.
+        # If fts endpoint is specified and the state is now OK, add throughput field using fts job query.
         #
         if fullEntry['state'] == 'OK':
             if ftsEndpoint:
