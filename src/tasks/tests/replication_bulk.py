@@ -89,6 +89,16 @@ def uploadDirReplicate(
             entry["state"] = "UPLOAD-FAILED"
             shutil.rmtree(dirPath)
 
+        try:
+            rtn = rucio.addRule(datasetDID, 1, rseSrc, lifetime=lifetime)
+            logger.debug(
+                "Added Rule ID: {} for DID {} and source RSE {}".format(
+                    rtn.stdout.decode("UTF-8").rstrip("\n"), datasetDID, rseSrc
+                ),
+            )
+        except Exception as e:
+            logger.warning(repr(e))
+
         # Push corresponding upload rules to database.
         if databases is not None:
             for database in databases:
