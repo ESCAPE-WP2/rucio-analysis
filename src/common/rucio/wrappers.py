@@ -527,7 +527,7 @@ class RucioWrappersAPI(RucioWrappers):
         return rules
         
     @staticmethod
-    def listRequests():
+    def listRequests(src_rse, dst_rse, request_states):
         """ List requests. """
         client = Client()
         requests = []

@@ -16,7 +16,7 @@ test-replication-bulk-aarnet-5GB:
       - LANCASTER
       - DESY_DCACHE
     scope: testing_long_haul
-    container_name:  20_10_21_5GB_long_haul_prep_aarnet_per # [Optional] Specify a name for the parent container
+    container_name:  5GB_long_haul_prep_aarnet_per # [Optional] Specify a name for the parent container
     namingPrefix:  # [Optional] Specify a prefix tag for files/directories
     databases:
       - type: es
@@ -41,7 +41,7 @@ test-replication-bulk-idia-5GB:
       - LANCASTER
       - DESY_DCACHE
     scope: testing_long_haul
-    container_name:  20_10_21_5GB_long_haul_prep_idia # [Optional] Specify a name for the parent container
+    container_name:  5GB_long_haul_prep_idia # [Optional] Specify a name for the parent container
     namingPrefix:  # [Optional] Specify a prefix tag for files/directories
     databases:
       - type: es

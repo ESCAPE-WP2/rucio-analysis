@@ -9,14 +9,14 @@ test-replication-bulk-aarnet-500MB:
     n_dirs: 10 # Number of directories of files to create (each on different process)
     n_files: 10 # Number of files per directory
     file_size: 500000000 # bytes
-    lifetime: 2592000 # seconds
+    lifetime: 86400 # seconds, 1 day
     source_rse: AARNET_PER
     dest_rses:
       - MANCHESTER
       - LANCASTER
       - DESY_DCACHE
     scope: testing_long_haul
-    container_name:  20_10_21_500MB_long_haul_prep_aarnet_per # [Optional] Specify a name for the parent container
+    container_name:  500MB_long_haul_prep_aarnet_per # [Optional] Specify a name for the parent container
     namingPrefix:  # [Optional] Specify a prefix tag for files/directories
     databases:
       - type: es
@@ -34,14 +34,14 @@ test-replication-bulk-idia-500MB:
     n_dirs: 10 # Number of directories of files to create (each on different process)
     n_files: 10 # Number of files per directory
     file_size: 500000000 # bytes
-    lifetime: 2592000 # seconds
+    lifetime: 86400 # seconds, 1 day
     source_rse: IDIA
     dest_rses:
       - MANCHESTER
       - LANCASTER
       - DESY_DCACHE
     scope: testing_long_haul
-    container_name:  20_10_21_500MB_long_haul_prep_idia # [Optional] Specify a name for the parent container
+    container_name:  500MB_long_haul_prep_idia # [Optional] Specify a name for the parent container
     namingPrefix:  # [Optional] Specify a prefix tag for files/directories
     databases:
       - type: es

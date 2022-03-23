@@ -57,6 +57,8 @@ class AuxRegisterNondeterministic(Task):
         #
         filelistDirAbsPath = os.path.join(selectedProtocol, filelistDir)
         for filelist in gfal.listdir(filelistDirAbsPath):
+            if filelist in [".", ".."] or filelist.startswith("."):
+                continue
             filelistAbsPath = os.path.join(filelistDirAbsPath, filelist)
             ingestFilelist_p = gfal.open(filelistAbsPath, "r")
             filelistContents = (
