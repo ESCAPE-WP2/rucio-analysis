@@ -79,7 +79,7 @@ class RequestClient(BaseClient):
         :return: request information
         :rtype: dict
         """
-        path = '/'.join([self.REQUEST_BASEURL, 'list', 'history']) + '?' +'&'.join(['src_rse={}'.format(src_rse), 'dst_rse={}'.format
+        path = '/'.join([self.REQUEST_BASEURL, 'history', 'list']) + '?' +'&'.join(['src_rse={}'.format(src_rse), 'dst_rse={}'.format
             (dst_rse), 'request_states={}'.format(request_states)])
         url = build_url(choice(self.list_hosts), path=path)
         r = self._send_request(url, type='GET')

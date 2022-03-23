@@ -18,9 +18,9 @@ reports-dev:
       - MANCHESTER
       - LANCASTER
       - IDIA
-      - DESY-DCACHE
+      - DESY_DCACHE
       - AARNET_PER
     using_task_name: "test-upload-replication-dev"
     webhooks:
       - type: slack
-        url:
+        url: 

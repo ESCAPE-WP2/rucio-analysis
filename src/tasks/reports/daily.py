@@ -152,7 +152,7 @@ class ReportDaily(Task):
                         "type": "section",
                         "text": {
                                 "type": "mrkdwn",
-                                "text": "*{}*".format(url, rse),
+                                "text": "*{}*".format(rse),
                         },
                     })
                     if nDocsAsSrc[rse]["is_stuck"] > percentageStuckWarningThreshold \

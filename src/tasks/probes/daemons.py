@@ -49,7 +49,7 @@ class ProbesDaemons(Task):
                             es = ESWrappers(database["uri"], self.logger)
                             es._index(
                                 index=database["index"],
-                                documentID=pod.metadata.name,
+                                documentID=likeName,
                                 body={
                                     '@timestamp': int(datetime.datetime.now().strftime("%s"))*1000,
                                     'pod_name': pod.metadata.name,

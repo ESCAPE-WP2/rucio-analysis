@@ -139,7 +139,7 @@ class Rucio(Wrappers):
         if fullEntry['state'] == 'OK':
             if ftsEndpoint:
                 try:
-                    self.logger.warning("Attempting to get throughput from FTS...")
+                    self.logger.info("Attempting to get throughput from FTS...")
 
                     import fts3.rest.client.easy as fts3
 

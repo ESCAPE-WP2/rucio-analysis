@@ -1,6 +1,6 @@
 get-daemon-info:
   description: "Get daemon information from k8s cluster"
-  module_name: "tasks.probes.get_daemon_information"
+  module_name: "tasks.probes.daemons"
   class_name: "ProbesDaemons"
   enabled: true
   args:

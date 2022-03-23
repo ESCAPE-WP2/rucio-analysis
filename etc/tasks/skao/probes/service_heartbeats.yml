@@ -4,19 +4,19 @@ get-service-heartbeats:
   class_name: "ProbesServiceHeartbeats"
   enabled: true
   args:
-    kwargs:
+  kwargs:
     services:
       - name: rucio
-        endpoint: https://srcdev.skatelescope.org/rucio-dev/ping
+        endpoint: https://srcdev.skatelescope.org/rucio/ping
         expected_status_code: 200
         expected_content:
           version: 1.26.2
       - name: rucio-auth
-        endpoint: https://srcdev.skatelescope.org/rucio-dev/auth/ping
+        endpoint: https://srcdev.skatelescope.org/rucio/auth/ping
         expected_status_code: 200
         expected_content:
           version: 1.26.2
     databases:
       - type: es
-        uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
+        uri: https://srcdev.skatelescope.org/rucio/monit/elastic/
         index: service_heartbeats
