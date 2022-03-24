@@ -6,8 +6,8 @@ from common.rucio.wrappers import RucioWrappersAPI
 from tasks.task import Task
 
 
-class CreateSubscription(Task):
-    """ Prepare for SDP-SRC test by creating empty dataset and subscription. """
+class TestCreateSubscription(Task):
+    """ Create empty dataset and subscription. """
 
     def __init__(self, logger):
         super().__init__(logger)

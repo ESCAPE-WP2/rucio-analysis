@@ -81,21 +81,9 @@ Make the rucio-analysis image for the desired project, e.g. for escape:
 eng@ubuntu:~/rucio-analysis$ make escape
 ```
 
-An interactive dockerised environment can then be instantiated by overriding the default image entrypoint.
+Tasks can then be executed manually inside the container by overriding the default entrypoint.
 
-For X.509 authentication with Rucio, you must bind the certificate credentials to a volume inside the container:
-
-```bash
-eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
--e RUCIO_CFG_AUTH_TYPE=x509 \
--e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
--e RUCIO_CFG_CLIENT_CERT=/opt/rucio/etc/client.crt \
--e RUCIO_CFG_CLIENT_KEY=/opt/rucio/etc/client.key \
--v $RUCIO_CFG_CLIENT_CERT:/opt/rucio/etc/client.crt \
--v $RUCIO_CFG_CLIENT_KEY:/opt/rucio/etc/client.key \
---name=rucio-analysis --entrypoint /bin/bash \
-rucio-analysis:escape
-```
+### Userpass
 
 For userpass authentication with Rucio, you must specify the corresponding credentials as environment variables:
 
@@ -113,24 +101,40 @@ Additionally, for development purposes, it is possible to mount the source from 
 
 ```bash
 eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
+-e RUCIO_CFG_AUTH_TYPE=userpass \
+-e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
+-e RUCIO_CFG_USERNAME=$RUCIO_CFG_USERNAME \
+-e RUCIO_CFG_PASSWORD=$RUCIO_CFG_PASSWORD \
+-v $RUCIO_ANALYSIS_ROOT:/opt/rucio-analysis \
+--name=rucio-analysis --entrypoint /bin/bash \
+rucio-analysis:escape
+```
+
+### X.509
+
+For X.509 authentication with Rucio, you must bind the certificate credentials to a volume inside the container:
+
+```bash
+eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
 -e RUCIO_CFG_AUTH_TYPE=x509 \
 -e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
 -e RUCIO_CFG_CLIENT_CERT=/opt/rucio/etc/client.crt \
 -e RUCIO_CFG_CLIENT_KEY=/opt/rucio/etc/client.key \
 -v $RUCIO_CFG_CLIENT_CERT:/opt/rucio/etc/client.crt \
 -v $RUCIO_CFG_CLIENT_KEY:/opt/rucio/etc/client.key \
--v $RUCIO_ANALYSIS_ROOT:/opt/rucio-analysis \
 --name=rucio-analysis --entrypoint /bin/bash \
 rucio-analysis:escape
 ```
 
-Tasks can then be executed manually inside the container. First, create an X.509 proxy (required for upload to Grid managed storage):
+With X.509, it is possible to upload to Grid storage sites. An example upload task is included as a stub. 
+
+Remember that you must first create an X.509 proxy, e.g. 
 
 ```bash
 [user@b802f5113379 rucio-analysis]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
 ```
 
-then execute the task:
+then execute the stub task:
 
 ```bash
 [root@b802f5113379 rucio-analysis]$ python3 src/run.py -t etc/tasks/stubs.yml

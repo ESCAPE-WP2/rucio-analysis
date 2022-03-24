@@ -27,8 +27,8 @@ test-upload-nondeterministic:
 
 register-nondeterministic:
   description: "Test registering to non-deterministic RSEs."
-  module_name: "tasks.misc.register_nondeterministic"
-  class_name: "AuxRegisterNondeterministic"
+  module_name: "tasks.tests.register_nondeterministic"
+  class_name: "TestRegisterNondeterministic"
   enabled: true
   args:
   kwargs:

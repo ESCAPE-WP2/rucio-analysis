@@ -7,8 +7,8 @@
 # Data should then be replicated at RSE 2.
 prepare-sdp-src:
   description: "Create dataset and set metadata in prep for SDP-SRC test."
-  module_name: "tasks.tests.sdp_src"
-  class_name: "CreateSubscription"
+  module_name: "tasks.tests.subscriptions"
+  class_name: "TestCreateSubscription"
   enabled: true
   args:
   kwargs:
@@ -56,8 +56,8 @@ test-upload-nondeterministic:
 
 register-nondeterministic:
   description: "Test registering to non-deterministic RSEs."
-  module_name: "tasks.misc.register_nondeterministic"
-  class_name: "AuxRegisterNondeterministic"
+  module_name: "tasks.tests.register_nondeterministic"
+  class_name: "TestRegisterNondeterministic"
   enabled: true
   args:
   kwargs:
