@@ -1,0 +1,10 @@
+- name: cron running of oidc-agent to get auth token via client credentials flow
+  cron:
+    name: get-rucio-auth-token
+    minute: "*"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    disabled: true
+    job: eval `oidc-agent-service use` && oidc-token {{ RUCIO_OIDC_CLIENT_NAME_AUTH }} > /tmp/rucio-auth-token

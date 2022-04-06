@@ -6,8 +6,9 @@ jobs:
     day: "22"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/subscription-create.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/subscription-create.yml"
     disabled: no
+    force_use_oidc_authN: no
 
     # Subscription feed, run once an hour for a day
   - name: tests-create-subscription
@@ -16,8 +17,9 @@ jobs:
     day: "22"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/subscription-feed.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/subscription-feed.yml"
     disabled: no
+    force_use_oidc_authN: no
 
     # Long haul transfers 50 MB
   - name: tests-transfers-50MB-dev
@@ -26,8 +28,9 @@ jobs:
     day: "25-28"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/long-haul-50MB.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/long-haul-50MB.yml"
     disabled: no
+    force_use_oidc_authN: no
 
     # Long haul transfers 500 MB
   - name: tests-transfers-500MB-dev
@@ -36,8 +39,9 @@ jobs:
     day: "25-28"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/long-haul-500MB.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/long-haul-500MB.yml"
     disabled: no
+    force_use_oidc_authN: no
 
     # Long haul transfers 5 GB
   - name: tests-transfers-5GB-dev
@@ -46,8 +50,9 @@ jobs:
     day: "25-28"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/long-haul-5GB.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/long-haul-5GB.yml"
     disabled: no
+    force_use_oidc_authN: no
 
     # Lifecycle test aarnet start
   - name: tests-lifecycle-aarnet-start
@@ -56,8 +61,9 @@ jobs:
     day: "24"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/lifecycle-aarnet-start.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/lifecycle-aarnet-start.yml"
     disabled: no
+    force_use_oidc_authN: no
 
     # Lifecycle test aarnet continue
   - name: tests-lifecycle-aarnet-continue
@@ -66,8 +72,9 @@ jobs:
     day: "24"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/lifecycle-aarnet-continue.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/lifecycle-aarnet-continue.yml"
     disabled: no
+    force_use_oidc_authN: no
 
     # Lifecycle test idia start
   - name: tests-lifecycle-idia-start
@@ -76,8 +83,9 @@ jobs:
     day: "23"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/lifecycle-idia-start.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/lifecycle-idia-start.yml"
     disabled: no
+    force_use_oidc_authN: no
 
     # Lifecycle test idia continue 
   - name: tests-lifecycle-idia-continue
@@ -86,8 +94,9 @@ jobs:
     day: "23"
     month: "11"
     weekday: "*"
-    task_subpath: "skao-dev/tests/dac21/lifecycle-idia-continue.yml"
+    task_subpath: "escape-stress-tests/tests/dac21/lifecycle-idia-continue.yml"
     disabled: no
+    force_use_oidc_authN: no
 
   - name: db-sync-dev
     minute: "*/5"
@@ -95,6 +104,7 @@ jobs:
     day: "*"
     month: "*"
     weekday: "*"
-    task_subpath: "skao-dev/sync/sync-replication-bulk.yml"
+    task_subpath: "escape-stress-tests/sync/sync-replication-bulk.yml"
     disabled: no
+    force_use_oidc_authN: no
 

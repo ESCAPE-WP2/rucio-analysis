@@ -59,11 +59,11 @@ if __name__ == "__main__":
                 module = importlib.import_module('{}'.format(module_name))
                 task = getattr(module, class_name)(logger)
             except ImportError as e:
-                logger.critical("Module not found.")
+                logger.critical("Module {} not found.".format(module_name))
                 logger.critical(repr(e))
                 exit()
             except AttributeError as e:
-                logger.critical("Class not found.")
+                logger.critical("Class {} not found.".format(class_name))
                 logger.critical(repr(e))
                 exit()
 

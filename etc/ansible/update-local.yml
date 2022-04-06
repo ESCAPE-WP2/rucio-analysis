@@ -15,8 +15,16 @@
       prompt: Install rucio-analysis?
       default: no 
       private: no
-    - name: install_crontab
-      prompt: Install crontab?
+    - name: mount_rucio_oidc_admin_token
+      prompt: Add cronjob to retrieve rucio oidc admin token and mount into containers?
+      default: no
+      private: no
+    - name: mount_k8s_cluster_config
+      prompt: Mount k8s cluster config file into containers? (required by some probes)
+      default: no
+      private: no
+    - name: install_task_crontab
+      prompt: Install task crontab?
       default: no
       private: no
     tasks:
@@ -44,5 +52,9 @@
       when: install_rucio_analysis_local|bool
     - include_role:
         name: common
-        tasks_from: install_crontab
-      when: install_crontab|bool
+        tasks_from: add_cronjob_rucio_oidc_admin_token
+      when: mount_rucio_oidc_admin_token|bool
+    - include_role:
+        name: common
+        tasks_from: install_task_crontab
+      when: install_task_crontab|bool

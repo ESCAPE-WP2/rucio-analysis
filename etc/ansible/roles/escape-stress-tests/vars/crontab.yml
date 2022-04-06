@@ -5,7 +5,7 @@ jobs:
 #    day: "27-28"
 #    month: "10"
 #    weekday: "*"
-#    task_subpath: "skao-dev/tests/replication-bulk-50MB.yaml"
+#    task_subpath: "escape-stress-tests/tests/replication-bulk-50MB.yaml"
 #    disabled: no
 #
 #  - name: tests-transfers-500MB-dev
@@ -14,7 +14,7 @@ jobs:
 #    day: "27-28"
 #    month: "10"
 #    weekday: "*"
-#    task_subpath: "skao-dev/tests/replication-bulk-500MB.yaml"
+#    task_subpath: "escape-stress-tests/tests/replication-bulk-500MB.yaml"
 #    disabled: no
 #
 #  - name: tests-transfers-5GB-dev
@@ -23,7 +23,7 @@ jobs:
 #    day: "27-28"
 #    month: "10"
 #    weekday: "*"
-#    task_subpath: "skao-dev/tests/replication-bulk-5GB.yaml"
+#    task_subpath: "escape-stress-tests/tests/replication-bulk-5GB.yaml"
 #    disabled: no
 #
 #  - name: tests-transfers-upload-and-register-dev
@@ -32,7 +32,7 @@ jobs:
 #    day: "26"
 #    month: "10"
 #    weekday: "*"
-#    task_subpath: "skao-dev/tests/upload-and-register.yml"
+#    task_subpath: "escape-stress-tests/tests/upload-and-register.yml"
 
   - name: db-sync-dev
     minute: "*/5"
@@ -40,6 +40,7 @@ jobs:
     day: "*"
     month: "*"
     weekday: "*"
-    task_subpath: "skao-dev/sync/sync-replication-bulk.yml"
+    task_subpath: "escape-stress-tests/sync/sync-replication-bulk.yml"
     disabled: no
+    force_use_oidc_authN: no
 

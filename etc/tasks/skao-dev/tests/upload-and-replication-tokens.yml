@@ -1,0 +1,43 @@
+test-upload-tokens-dev:
+  description: "Test uploading via different protocols to RSEs using tokens (OIDC)."
+  module_name: "tasks.tests.upload"
+  class_name: "TestUpload"
+  enabled: true
+  args:
+  kwargs:
+    n_files: 1
+    sizes:
+      - 100000 # bytes
+    lifetime: 3600 # seconds
+    protocols:
+      - davs
+    rses:
+      - DESY_DCACHE
+      - STFC_STORM
+    scope: testing
+    databases:
+      - type: es
+        uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
+        index: custom
+
+test-upload-replication-tokens-dev:
+  description: "Test upload and replication between RSEs using tokens (OIDC)."
+  module_name: "tasks.tests.upload_replication"
+  class_name: "TestUploadReplication"
+  enabled: true
+  args:
+  kwargs:
+    activity: "Functional Test"
+    n_files: 1
+    sizes:
+      - 100000 # bytes
+    lifetime: 3600 # seconds
+    rses:
+      - DESY_DCACHE
+      - STFC_STORM
+    scope: testing
+    databases:
+      - type: es
+        uri: https://srcdev.skatelescope.org/rucio-dev/monit/elastic/
+        index: custom
+

@@ -214,7 +214,7 @@ For convenience, this command can be added as a Make target in `etc/ansible/Make
 eng@ubuntu:~/rucio-analysis/etc/ansible$ make deploy-to-escape-rucio-analysis
 ```
 
-## Upgrading a local machine
+## Updating a local machine
 
 If an existing rucio-analysis distribution already exists on a local machine, it is possible to rebuild the image (**!necessary for local code changes!**) and redeploy the crontab with, e.g.:
 

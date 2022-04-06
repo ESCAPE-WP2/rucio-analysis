@@ -1,9 +1,8 @@
-M2crypto==0.33
-
 dateparser
 elasticsearch==7.5.1
 fts3
 kubernetes
+M2crypto==0.33
 numpy
 python-crontab
 pyyaml

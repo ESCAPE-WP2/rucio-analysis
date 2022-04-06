@@ -7,6 +7,7 @@ jobs:
     weekday: "*"
     task_subpath: "skao/tests/upload-and-replication.yml"
     disabled: no
+    force_use_oidc_authN: no
 
   - name: db-sync
     minute: "*/5"
@@ -16,6 +17,7 @@ jobs:
     weekday: "*"
     task_subpath: "skao/sync/sync-upload-and-replication.yml"
     disabled: no
+    force_use_oidc_authN: no
 
   - name: reports-daily
     minute: "0"
@@ -25,6 +27,7 @@ jobs:
     weekday: "*"
     task_subpath: "skao/reports/daily.yml"
     disabled: no
+    force_use_oidc_authN: no
 
   - name: probes-daemons
     minute: "*/1"
@@ -34,6 +37,7 @@ jobs:
     weekday: "*"
     task_subpath: "skao/probes/daemons.yml"
     disabled: no
+    force_use_oidc_authN: no
 
   - name: probes-service-heartbeats
     minute: "*/1"
@@ -43,6 +47,7 @@ jobs:
     weekday: "*"
     task_subpath: "skao/probes/service_heartbeats.yml"
     disabled: no
+    force_use_oidc_authN: no
 
   - name: probes-service-metrics-fts
     minute: "*/1"
@@ -52,6 +57,7 @@ jobs:
     weekday: "*"
     task_subpath: "skao/probes/service_metrics.yml"
     disabled: no
+    force_use_oidc_authN: no
 
   - name: probes-fts
     minute: "*/1"
@@ -61,4 +67,5 @@ jobs:
     weekday: "*"
     task_subpath: "skao/probes/fts.yml"
     disabled: no
+    force_use_oidc_authN: no
 
