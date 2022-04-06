@@ -19,7 +19,4 @@ WORKDIR /opt/rucio-analysis
 
 ENV TASK_FILE_PATH ./opt/rucio-analysis/etc/tasks/test.stubs.yml
 
-#modified requestclient.py for request_history
-RUN mv /opt/rucio-analysis/src/dev/requestclient.py /usr/local/lib/python3.6/site-packages/rucio/client/requestclient.py
-
 ENTRYPOINT ["bash", "./etc/init/docker-init.sh"]
