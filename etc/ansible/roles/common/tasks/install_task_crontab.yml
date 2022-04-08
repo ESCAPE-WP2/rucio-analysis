@@ -27,7 +27,7 @@
             -e RUCIO_CFG_USERNAME={{ RUCIO_CFG_USERNAME }} 
             -e RUCIO_CFG_PASSWORD={{ RUCIO_CFG_PASSWORD }} 
           {% endif %}
-          {% if not item.force_use_oidc_authN }
+          {% if not item.force_use_oidc_authN %}
             -e RUCIO_CFG_CLIENT_CERT="/opt/rucio/etc/client.crt" 
             -e RUCIO_CFG_CLIENT_KEY="/opt/rucio/etc/client.key" 
           {% endif }
