@@ -32,7 +32,13 @@
           -v {{ ansible_env.HOME }}/.x509/{{ RUCIO_CFG_CLIENT_CERT | basename }}:/opt/rucio/etc/client.crt 
           -v {{ ansible_env.HOME }}/.x509/{{ RUCIO_CFG_CLIENT_KEY | basename }}:/opt/rucio/etc/client.key 
           {% if mount_k8s_cluster_config|bool %} -v {{ KUBERNETES_CONFIG_PATH }}:/etc/cluster-config.yml {% endif %} 
-          {% if mount_rucio_oidc_admin_token|bool %} -v /tmp/rucio-auth-token:/tmp/user/.rucio_user/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }} {% endif %} 
+          {% if mount_rucio_oidc_admin_token|bool %} 
+            {% if RUCIO_CFG_ACCOUNT == 'root' %}
+              -v /tmp/rucio-auth-token:/tmp/root/.rucio_root/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }} 
+            {% else %}
+              -v /tmp/rucio-auth-token:/tmp/user/.rucio_user/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }}
+            {% endif %}
+          {% endif %} 
           -e TASK_FILE_PATH="/opt/rucio-analysis/etc/tasks/{{ item.task_subpath }}"
           -e PYTHONWARNINGS='ignore:Unverified HTTPS request'
           -e RUCIO_VOMS="{{ rucio_voms }}" 
