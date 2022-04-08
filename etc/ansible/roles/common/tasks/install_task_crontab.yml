@@ -41,7 +41,7 @@
           {% endif %} 
           -e TASK_FILE_PATH="/opt/rucio-analysis/etc/tasks/{{ item.task_subpath }}"
           -e PYTHONWARNINGS='ignore:Unverified HTTPS request'
-          -e RUCIO_VOMS="{{ rucio_voms }}" 
+          -e RUCIO_VOMS="{{ RUCIO_VOMS }}" 
           --name rucio-analysis-{{ item.name }} 
           rucio-analysis:{{ RUCIO_ANALYSIS_IMAGE_MAKE_TARGET }} >> {{ item.override_log_path | default("/var/log/cron/rucio-analysis/" + item.name | replace('-','_') + "_`date +\%Y\%m\%d`.log 2>&1") }}
       loop: "{{ cronjobs.jobs }}"
