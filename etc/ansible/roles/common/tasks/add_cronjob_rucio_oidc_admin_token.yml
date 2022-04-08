@@ -7,4 +7,5 @@
     month: "*"
     weekday: "*"
     disabled: no
-    job: eval `oidc-agent-service use` && oidc-token {{ RUCIO_OIDC_CLIENT_NAME_AUTH }} > /tmp/rucio-auth-token
+    job: eval `oidc-agent-service use` && oidc-token {{ RUCIO_OIDC_CLIENT_NAME_AUTH }} > /tmp/tmp-rucio-auth-token && tr -d '\n' < /tmp/tmp-rucio-auth-token > /tmp/rucio-auth-token
+
