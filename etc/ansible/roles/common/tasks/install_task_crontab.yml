@@ -36,9 +36,9 @@
           {% if mount_k8s_cluster_config|bool %} -v {{ KUBERNETES_CONFIG_PATH }}:/etc/cluster-config.yml {% endif %} 
           {% if mount_rucio_oidc_admin_token|bool %} 
             {% if RUCIO_CFG_ACCOUNT == 'root' %}
-              -v /tmp/rucio-auth-token:/tmp/root/.rucio_root/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }} 
+              -v /tmp/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }}:/tmp/root/.rucio_root/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }} 
             {% else %}
-              -v /tmp/rucio-auth-token:/tmp/user/.rucio_user/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }}
+              -v /tmp/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }}:/tmp/user/.rucio_user/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }}
             {% endif %}
           {% endif %} 
           -e TASK_FILE_PATH="/opt/rucio-analysis/etc/tasks/{{ item.task_subpath }}"
