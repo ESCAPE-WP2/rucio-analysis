@@ -482,7 +482,7 @@ class RucioWrappersAPI(RucioWrappers):
             else:
                 filters_dict = filters
         dids = []
-        for name in client.list_dids(scope=scope, filters=filters_dict, type=type, recursive=recursive):
+        for name in client.list_dids(scope=scope, filters=filters_dict, did_type=type, recursive=recursive):
             dids.append("{}:{}".format(scope, name))
         return dids
 
