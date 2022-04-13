@@ -42,5 +42,4 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/sync/sync-replication-bulk.yml"
     disabled: no
-    force_use_oidc_authN: no
 

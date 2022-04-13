@@ -14,30 +14,27 @@
         month: "{{ item.month }}"
         weekday: "{{ item.weekday }}"
         disabled: "{{ item.disabled | default(\"no\") }}"
-        job: docker run --rm 
+        job: docker run --rm
           -e RUCIO_CFG_RUCIO_HOST="{{ RUCIO_CFG_RUCIO_HOST }}"
           -e RUCIO_CFG_AUTH_HOST="{{ RUCIO_CFG_AUTH_HOST }}"
-          {% if item.force_use_oidc_authN %} 
-            {% set RUCIO_CFG_ACCOUNT = 'robbarnsley %} #FIXME: oidc-agent gets token with id robbarnsley, this causes mismatch in database if account is set to root.
-            -e RUCIO_CFG_AUTH_TYPE="oidc"
-          {% else %}
-            -e RUCIO_CFG_AUTH_TYPE="{{ RUCIO_CFG_AUTH_TYPE }}"
-          {% endif %}
           -e RUCIO_CFG_ACCOUNT="{{ RUCIO_CFG_ACCOUNT }}"
-          {% if not item.force_use_oidc_authN %}
-            {% if RUCIO_CFG_AUTH_TYPE == 'userpass' %}
-              -e RUCIO_CFG_USERNAME={{ RUCIO_CFG_USERNAME }} 
-              -e RUCIO_CFG_PASSWORD={{ RUCIO_CFG_PASSWORD }} 
-            {% endif %}
+          -e RUCIO_CFG_AUTH_TYPE="{{ RUCIO_CFG_AUTH_TYPE }}"
+          {% if RUCIO_CFG_AUTH_TYPE == 'userpass' %}
+            -e RUCIO_CFG_USERNAME={{ RUCIO_CFG_USERNAME }} 
+            -e RUCIO_CFG_PASSWORD={{ RUCIO_CFG_PASSWORD }} 
+          {% endif %}
+          {% if not RUCIO_CFG_AUTH_TYPE == 'oidc' %}
             -e RUCIO_CFG_CLIENT_CERT="/opt/rucio/etc/client.crt" 
             -e RUCIO_CFG_CLIENT_KEY="/opt/rucio/etc/client.key" 
             -v {{ ansible_env.HOME }}/.x509/{{ RUCIO_CFG_CLIENT_CERT | basename }}:/opt/rucio/etc/client.crt 
             -v {{ ansible_env.HOME }}/.x509/{{ RUCIO_CFG_CLIENT_KEY | basename }}:/opt/rucio/etc/client.key 
           {% endif %}
-          {% if mount_k8s_cluster_config|bool %} -v {{ KUBERNETES_CONFIG_PATH }}:/etc/cluster-config.yml {% endif %} 
+          {% if mount_k8s_cluster_config|bool %} 
+            -v {{ KUBERNETES_CONFIG_PATH }}:/etc/cluster-config.yml 
+          {% endif %} 
           {% if mount_rucio_oidc_admin_token|bool %} 
             {% if RUCIO_CFG_ACCOUNT == 'root' %}
-              -v /tmp/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }}:/tmp/root/.rucio_root/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }} 
+              -v /tmp/auth_token_for_account_root:/tmp/root/.rucio_root/auth_token_for_account_root
             {% else %}
               -v /tmp/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }}:/tmp/user/.rucio_user/auth_token_for_account_{{ RUCIO_CFG_ACCOUNT }}
             {% endif %}

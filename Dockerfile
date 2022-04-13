@@ -13,10 +13,12 @@ COPY requirements.txt /tmp/requirements.txt
 
 RUN python3 -m pip install -r /tmp/requirements.txt
 
-COPY . /opt/rucio-analysis
+COPY --chown=user . /opt/rucio-analysis
 
 WORKDIR /opt/rucio-analysis
 
 ENV TASK_FILE_PATH ./opt/rucio-analysis/etc/tasks/test.stubs.yml
+
+USER user
 
 ENTRYPOINT ["bash", "./etc/init/docker-init.sh"]

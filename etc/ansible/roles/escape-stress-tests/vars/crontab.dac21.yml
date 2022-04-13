@@ -8,7 +8,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/subscription-create.yml"
     disabled: no
-    force_use_oidc_authN: no
 
     # Subscription feed, run once an hour for a day
   - name: tests-create-subscription
@@ -19,7 +18,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/subscription-feed.yml"
     disabled: no
-    force_use_oidc_authN: no
 
     # Long haul transfers 50 MB
   - name: tests-transfers-50MB-dev
@@ -30,7 +28,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/long-haul-50MB.yml"
     disabled: no
-    force_use_oidc_authN: no
 
     # Long haul transfers 500 MB
   - name: tests-transfers-500MB-dev
@@ -41,7 +38,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/long-haul-500MB.yml"
     disabled: no
-    force_use_oidc_authN: no
 
     # Long haul transfers 5 GB
   - name: tests-transfers-5GB-dev
@@ -52,7 +48,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/long-haul-5GB.yml"
     disabled: no
-    force_use_oidc_authN: no
 
     # Lifecycle test aarnet start
   - name: tests-lifecycle-aarnet-start
@@ -63,7 +58,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/lifecycle-aarnet-start.yml"
     disabled: no
-    force_use_oidc_authN: no
 
     # Lifecycle test aarnet continue
   - name: tests-lifecycle-aarnet-continue
@@ -74,7 +68,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/lifecycle-aarnet-continue.yml"
     disabled: no
-    force_use_oidc_authN: no
 
     # Lifecycle test idia start
   - name: tests-lifecycle-idia-start
@@ -85,7 +78,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/lifecycle-idia-start.yml"
     disabled: no
-    force_use_oidc_authN: no
 
     # Lifecycle test idia continue 
   - name: tests-lifecycle-idia-continue
@@ -96,7 +88,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/tests/dac21/lifecycle-idia-continue.yml"
     disabled: no
-    force_use_oidc_authN: no
 
   - name: db-sync-dev
     minute: "*/5"
@@ -106,5 +97,4 @@ jobs:
     weekday: "*"
     task_subpath: "escape-stress-tests/sync/sync-replication-bulk.yml"
     disabled: no
-    force_use_oidc_authN: no
 

@@ -13,7 +13,7 @@ update-local-skao-rucio-analysis-prod:
 	ansible-playbook -i hosts/inventory.yml update-local.yml -e HOSTS=skao-rucio-analysis -e ansible_role=skao
 
 update-local-skao-rucio-analysis-dev:
-	ansible-playbook -i hosts/inventory.yml update-local.yml -e HOSTS=skao-rucio-analysis -e ansible_role=skao-dev
+	ansible-playbook -i hosts/inventory.yml update-local.yml -e HOSTS=skao-rucio-analysis -e ansible_role=skao-dev 
 
 update-local-skao-rucio-analysis-bulk-dev:
 	ansible-playbook -i hosts/inventory.yml update-local.yml -e HOSTS=escape-stress-tests -e ansible_role=escape-stress-tests

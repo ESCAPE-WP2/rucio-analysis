@@ -10,9 +10,9 @@ test-upload-tokens-dev:
       - 100000 # bytes
     lifetime: 3600 # seconds
     protocols:
-      - davs
+      - https
     rses:
-      - DESY_DCACHE
+      - CNAF
       - STFC_STORM
     scope: testing
     databases:
@@ -33,7 +33,7 @@ test-upload-replication-tokens-dev:
       - 100000 # bytes
     lifetime: 3600 # seconds
     rses:
-      - DESY_DCACHE
+      - CNAF
       - STFC_STORM
     scope: testing
     databases:

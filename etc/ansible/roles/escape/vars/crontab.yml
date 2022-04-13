@@ -7,7 +7,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape/tests/upload-and-replication.yml"
     disabled: no
-    force_use_oidc_authN: no
  
   - name: es-db-sync
     minute: "*/5"
@@ -17,7 +16,6 @@ jobs:
     weekday: "*"
     task_subpath: "escape/sync/sync-upload-and-replication.yml"
     disabled: no
-    force_use_oidc_authN: no
     
   - name: reports-daily
     minute: "0"
@@ -27,5 +25,4 @@ jobs:
     weekday: "*"
     task_subpath: "escape/reports/daily.yml"
     disabled: no
-    force_use_oidc_authN: no
 

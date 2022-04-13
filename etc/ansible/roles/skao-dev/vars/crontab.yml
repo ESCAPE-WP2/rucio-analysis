@@ -6,8 +6,7 @@ jobs:
     month: "*"
     weekday: "*"
     task_subpath: "skao-dev/tests/upload-and-replication.yml"
-    disabled: no
-    force_use_oidc_authN: no
+    disabled: yes
 
   - name: tests-transfers-dev-tokens
     minute: "*/15"
@@ -17,7 +16,15 @@ jobs:
     weekday: "*"
     task_subpath: "skao-dev/tests/upload-and-replication-tokens.yml"
     disabled: no
-    force_use_oidc_authN: yes
+
+  - name: db-sync-dev
+    minute: "*/5"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_subpath: "skao-dev/sync/sync-upload-and-replication.yml"
+    disabled: yes
 
   - name: reports-daily-dev
     minute: "0"
@@ -26,8 +33,7 @@ jobs:
     month: "*"
     weekday: "*"
     task_subpath: "skao-dev/reports/daily.yml"
-    disabled: no
-    force_use_oidc_authN: no
+    disabled: yes
 
   - name: probes-daemons-dev
     minute: "*/1"
@@ -36,8 +42,7 @@ jobs:
     month: "*"
     weekday: "*"
     task_subpath: "skao-dev/probes/daemons.yml"
-    disabled: no
-    force_use_oidc_authN: no
+    disabled: yes
 
   - name: probes-services-dev
     minute: "*/1"
@@ -46,8 +51,7 @@ jobs:
     month: "*"
     weekday: "*"
     task_subpath: "skao-dev/probes/service_heartbeats.yml"
-    disabled: no
-    force_use_oidc_authN: no
+    disabled: yes
 
   - name: probes-service-metrics-fts-dev
     minute: "*/1"
@@ -56,8 +60,7 @@ jobs:
     month: "*"
     weekday: "*"
     task_subpath: "skao-dev/probes/service_metrics.yml"
-    disabled: no
-    force_use_oidc_authN: no
+    disabled: yes
 
   - name: probes-fts-dev
     minute: "*/1"
@@ -66,6 +69,5 @@ jobs:
     month: "*"
     weekday: "*"
     task_subpath: "skao-dev/probes/fts.yml"
-    disabled: no
-    force_use_oidc_authN: no
+    disabled: yes
 

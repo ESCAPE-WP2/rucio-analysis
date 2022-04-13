@@ -293,7 +293,7 @@ class RucioWrappersAPI(RucioWrappers):
             tokens = did.split(":")
             scope = tokens[0]
             name = tokens[1]
-            client.add_did(scope=scope, name=name, type=type)
+            client.add_did(scope=scope, name=name, did_type=type)
         except RucioException as error:
             raise Exception(error)
 
