@@ -94,7 +94,6 @@ class TestUpload(Task):
                                 rucio.attach(todid=datasetDID, dids=fileDID)
                             except Exception as e:
                                 self.logger.warning(repr(e))
-                                break
                             self.logger.debug("Attached file to dataset")
                         except Exception as e:
                             self.logger.warning("Upload failed: {}".format(e))

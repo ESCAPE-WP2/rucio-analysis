@@ -14,6 +14,9 @@ test-upload-tokens-dev:
     rses:
       - CNAF
       - STFC_STORM
+      #- DESY_DCACHE
+      - LANCASTER
+      - IMPERIAL
     scope: testing
     databases:
       - type: es
@@ -35,6 +38,9 @@ test-upload-replication-tokens-dev:
     rses:
       - CNAF
       - STFC_STORM
+     # - DESY_DCACHE
+      - LANCASTER
+      - IMPERIAL
     scope: testing
     databases:
       - type: es

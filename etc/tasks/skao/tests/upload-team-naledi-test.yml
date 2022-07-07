@@ -1,0 +1,20 @@
+test-upload:
+  description: "Test uploading via different protocols to RSEs."
+  module_name: "tasks.tests.upload"
+  class_name: "TestUpload"
+  enabled: true
+  args:
+  kwargs:
+    n_files: 10 
+    sizes:
+      - 100000 # bytes
+    lifetime: 86400 # seconds
+    protocols:
+      - gsiftp
+    rses:
+      - IDIA
+    scope: team_naledi_test
+    databases:
+      - type: es
+        uri: https://srcdev.skatelescope.org/rucio/monit/elastic/
+        index: custom
