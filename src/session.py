@@ -1,3 +1,4 @@
+import requests
 import yaml
 
 
@@ -10,18 +11,22 @@ class Session():
 
     def _parseTasksFile(self, path):
         """ Parse a configuration yaml file. """
-        self.logger.info("Parsing tasks file")
+        self.logger.info("Parsing tasks file: {}".format(path))
+        contents = None
+        if path.startswith('http'):
+            contents = requests.get(path).text
+        else:
+            try:
+                with open(path) as f:
+                    contents = f.read()
+            except IOError as e:
+                self.logger.critical("Tasks file not found.")
+                self.logger.critical(repr(e))
+                exit()
         try:
-            with open(path) as f:
-                contents = f.read()
-                try:
-                    self._tasks = yaml.safe_load(contents)
-                except yaml.scanner.ScannerError as e:
-                    self.logger.critical("Could not parse yaml.")
-                    self.logger.critical(repr(e))
-                    exit()
-        except IOError as e:
-            self.logger.critical("Tasks file not found.")
+            self._tasks = yaml.safe_load(contents)
+        except (yaml.scanner.ScannerError, yaml.parser.ParserError) as e:
+            self.logger.critical("Could not parse yaml.")
             self.logger.critical(repr(e))
             exit()
 

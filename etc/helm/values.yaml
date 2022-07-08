@@ -1,0 +1,99 @@
+image:
+  repository: registry.gitlab.com/ska-telescope/src/ska-rucio-prototype/ska-rucio-analysis-client
+  tag: latest
+  pullPolicy: Always
+
+deployment:
+  namespace: rucio-analysis
+
+config:
+  RUCIO_CFG_RUCIO_HOST: https://srcdev.skatelescope.org/rucio-dev
+  RUCIO_CFG_AUTH_HOST: https://srcdev.skatelescope.org/rucio-dev
+  RUCIO_CFG_ACCOUNT: robbarnsley
+  RUCIO_CFG_AUTH_TYPE: oidc
+  RUCIO_CFG_USERNAME:
+  RUCIO_CFG_PASSWORD:
+  VOMS: skatelescope.eu
+
+secrets:
+  - name: OIDC_AGENT_AUTH_CLIENT_CFG_VALUE
+    fromSecretName: oidc-agent-auth-client
+    fromSecretKey: cfg
+  - name: OIDC_AGENT_AUTH_CLIENT_CFG_PASSWORD
+    fromSecretName: oidc-agent-auth-client
+    fromSecretKey: password
+  - name: KUBE_CONFIG
+    fromSecretName: kube
+    fromSecretKey: cfg.dev
+  - name: RUCIO_CFG_CLIENT_CERT_VALUE
+    fromSecretName: rucio-cfg-client
+    fromSecretKey: certificate
+  - name: RUCIO_CFG_CLIENT_KEY_VALUE
+    fromSecretName: rucio-cfg-client
+    fromSecretKey: key
+
+cronjobs:
+  - name: stubs
+    minute: "*/15"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_path: "etc/tasks/stubs.yml"
+    disabled: yes
+  - name: tests-transfers
+    minute: "*/15"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_path: "etc/tasks/skao-dev/tests/upload-and-replication.yml"
+    disabled: no
+  - name: db-sync
+    minute: "*/5"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_path: "etc/tasks/skao-dev/sync/sync-upload-and-replication.yml"
+    disabled: yes
+  - name: reports-daily
+    minute: "0"
+    hour: "9"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_path: "etc/tasks/skao-dev/reports/daily.yml"
+    disabled: yes
+  - name: probes-daemons
+    minute: "*/1"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_path: "etc/tasks/skao-dev/probes/daemons.yml"
+    disabled: yes
+  - name: probes-service-heartbeats
+    minute: "*/1"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_path: "etc/tasks/skao-dev/probes/service_heartbeats.yml"
+    disabled: yes
+  - name: probes-service-metrics-fts
+    minute: "*/1"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_relpath: "etc/tasks/skao-dev/probes/service_metrics.yml"
+    disabled: yes
+  - name: probes-fts
+    minute: "*/1"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_relpath: "etc/tasks/skao-dev/probes/fts.yml"
+    disabled: yes

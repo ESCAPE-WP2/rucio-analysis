@@ -43,14 +43,7 @@ class StubRucioAPI(Task):
         super().run()
         self.tic()
         try:
-            # Assign variables from test.yml kwargs.
-            #
-            upload_to = kwargs["upload_to"]
-            replicate_to = kwargs["replicate_to"]
-            scope = kwargs["scope"]
-            lifetime = kwargs["lifetime"]
-            size = kwargs["size"]
-            download = kwargs["download"]
+            pass
         except KeyError as e:
             self.logger.critical("Could not find necessary kwarg for test.")
             self.logger.critical(repr(e))
@@ -60,29 +53,8 @@ class StubRucioAPI(Task):
         # START ---------------
         rucio = RucioWrappersAPI()
         self.logger.info(rucio.ping())
+        self.logger.info(rucio.whoAmI())
 
-        # Generate random file of size <size> and upload.
-        #
-        f = generateRandomFile(size)
-        did = "{}:{}".format(scope, os.path.basename(f.name))
-        try:
-            self.logger.debug("Uploading file ({}) to {}...".format(did, upload_to))
-            rucio.upload(rse=upload_to, scope=scope, filePath=f.name,
-                         lifetime=lifetime, logger=self.logger)
-            self.logger.debug("Upload complete")
-            if replicate_to is not None:
-                self.logger.debug("Replicating file ({}) to {}...".format(did,
-                                                                          replicate_to))
-                rucio.addRule(did, 1, replicate_to, lifetime=lifetime,
-                              src=upload_to)
-                self.logger.debug("Replication complete")
-            if download:
-                self.logger.debug("Downloading file ({})...".format(did))
-                rucio.download(did)
-                self.logger.debug("Download complete")
-        except Exception as e:
-            self.logger.warning(repr(e))
-        os.remove(f.name)
         # END ---------------
 
         self.toc()

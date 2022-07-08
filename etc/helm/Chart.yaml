@@ -1,0 +1,8 @@
+name: etc/helm
+description: A chart for the deployment of rucio-analysis
+version: 1.1.1
+apiVersion: v1
+keywords:
+  - etc/helm
+sources:
+home:

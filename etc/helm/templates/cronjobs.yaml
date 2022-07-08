@@ -1,0 +1,35 @@
+{{- range $key_cronjob, $val_cronjob := .Values.cronjobs }}
+{{ if not $val_cronjob.disabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $val_cronjob.name }}
+  namespace: {{ $.Values.deployment.namespace }}
+spec:
+  schedule: "{{ $val_cronjob.minute }} {{ $val_cronjob.hour }} {{ $val_cronjob.day }} {{ $val_cronjob.month }} {{ $val_cronjob.weekday }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            name: {{ $val_cronjob.name }}
+            env:
+              {{- range $key_config, $val_config := $.Values.config }}
+              - name: {{ $key_config | upper }}
+                value: "{{ $val_config }}"
+              {{- end }}
+              {{- range $key_secret, $val_secret := $.Values.secrets }}
+              - name: {{ $val_secret.name | upper }}
+                valueFrom:
+                  secretKeyRef:
+                    name: "{{ $val_secret.fromSecretName }}"
+                    key: "{{ $val_secret.fromSecretKey }}"
+              {{- end }}
+              - name: TASK_FILE_PATH
+                value: "{{ $val_cronjob.task_file_path }}"
+          restartPolicy: OnFailure
+---
+{{ end }}
+{{- end }}
