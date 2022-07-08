@@ -28,7 +28,7 @@ if __name__ == "__main__":
     # These will be overriden by per-task loggers, but provide a failsafe
     # if exceptions occur while instantiating these tasks.
     #
-    logger = Logger(name='root', level='CRITICAL').get()
+    logger = Logger(name='root', level='INFO').get()
 
     session = Session(tasks=iargs.t, logger=logger)
     for task in session.tasks:

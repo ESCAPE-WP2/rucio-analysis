@@ -1,5 +1,0 @@
-- name: make docker image
-  become: yes
-  command: 
-    chdir: "/opt/rucio-analysis"
-    cmd: make {{ rucio_analysis_image_make_target }}

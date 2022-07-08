@@ -8,15 +8,10 @@ test-hello-world-stub:
       text: "Hello World!"
 
 test-rucio-api-stub:
-  description: "Test Rucio API stub"
+  description: "Test Rucio API stub (ping, whoami)"
   module_name: "tasks.stubs"
   class_name: "StubRucioAPI"
   enabled: true
   args:
   kwargs:
-    size: 1000 # bytes
-    lifetime: 3600 # seconds
-    upload_to: DESY-DCACHE
-    replicate_to: EULAKE-1
-    download: false
-    scope: SKA_SKAO_BARNSLEY-testing
+    dummy:

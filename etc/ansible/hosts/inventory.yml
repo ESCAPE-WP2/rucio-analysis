@@ -1,5 +1,0 @@
-all:
-  hosts:
-    escape-rucio-analysis:
-    skao-rucio-analysis:
-    escape-stress-tests:

@@ -1,5 +1,0 @@
-KUBERNETES_CONFIG_PATH: /home/rucio/.kube/config.dev
-RUCIO_ANALYSIS_IMAGE_MAKE_TARGET: skao
-RUCIO_CFG_RUCIO_HOST: https://srcdev.skatelescope.org/rucio-dev
-RUCIO_CFG_AUTH_HOST: https://srcdev.skatelescope.org/rucio-dev
-RUCIO_VOMS: skatelescope.eu

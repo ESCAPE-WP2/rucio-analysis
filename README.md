@@ -1,4 +1,4 @@
-# rucio-analysis
+# rucio-task-manager
 
 A modular and extensible framework for performing tasks on a Rucio datalake.
 
@@ -7,30 +7,37 @@ A modular and extensible framework for performing tasks on a Rucio datalake.
 ```
   ├── Dockerfile
   ├── etc
-  │   ├── ansible
-  │   │   ├── deploy.yml
-  │   │   ├── hosts
-  |   |   └── roles
-  │   ├── init
+  │   ├── helm
+  │   ├── docker
   │   └── tasks
+  │      └── <deployment>
+  │         └── probes
+  │         └── reports
+  │         └── sync
+  │         └── tests
   ├── LICENSE
   ├── Makefile
   ├── README.md
   ├── requirements.txt
   └── src
-  |   |── common
-  │   ├── daemons
-  │   └── tasks
+      |── common
+      └── tasks
+         └── probes
+         └── reports
+         └── sync
+         └── tests
 
 ```
 
-Fundamentally, this framework is a task scheduler for Rucio. A "task" is any operation or sequence of operations that can be performed on the datalake.
+Fundamentally, this framework is a task scheduler for Rucio. A "task" is any operation or sequence of operations that 
+can be performed on the datalake.
 
-Within this framework, a task is defined by two parts: the logic and the definition. Task logic should be sufficiently abstracted & parameterised so as to clearly demarcate these two parts, allowing for easy re-use and chaining of tasks.
+Within this framework, a task is defined by two parts: the logic and the definition. Task logic should be sufficiently 
+abstracted & parameterised so as to clearly demarcate these two parts, allowing for easy re-use and chaining of tasks.
 
-The source for the task logic is kept in `src/tasks`. The structure of `src/tasks` takes the following format: `<task_type>/<task_name>.yml` where, for consistency, `<task_type>` should be one of:
+The source for the task logic is kept in `src/tasks`. The structure of `src/tasks` takes the following 
+format: `<task_type>/<task_name>.yml` where, for consistency, `<task_type>` should be one of:
 
-- misc
 - probes (cluster health, uptime etc.)
 - reports
 - sync (syncing functionality, e.g. databases)
@@ -38,54 +45,105 @@ The source for the task logic is kept in `src/tasks`. The structure of `src/task
 
 Other categories may be added as needed.
 
-Task definitions are written in yaml and stored in `etc/tasks`. Each definition contains fields to specify the task logic module to be used and any necessary corresponding arguments. The structure of `etc/tasks` takes the following format: `<project_name>/<task_type>/<task_name>.yml`.
+Task definitions are written in yaml and stored in `etc/tasks`. Each definition contains fields to specify the task 
+logic module to be used and any necessary corresponding arguments. The structure of `etc/tasks` takes the following 
+format: `<deployment>/<task_type>/<task_name>.yml`.
 
-Deployment is managed through Ansible (`etc/ansible`). Hosts eligible for remote deployment are defined in `etc/ansible/hosts/inventory.yml`. Deployment can also be done locally.
-
-Roles must be added to `etc/ansible/roles`. Within each role there is a `vars` subdirectory. For remote deployment, a crontab, `crontab.yml`, must exist in this subdirectory.
-
-The recipe for adding a new remote host is described in detail in **Setting up a new remote host**.
-
-## Prerequisites
-
-This framework is designed to be built off a preexisting dockerised Rucio client image. This image could be the de facto standard provided by the Rucio maintainers (https://github.com/rucio/containers/tree/master/clients), included in the root `Makefile` as target "rucio", or an extended image. Client images can be extended to contain the prerequisite certificate bundles, VOMS setup and Rucio template configs for a specific datalake.
-
-Extended images currently exist for the _escape_ and _prototype skao_ datalakes. Builds for other datalake instances can be enabled by adding a new `docker build` routine as a new target in the root `Makefile` with the corresponding build arguments for the base client image and tag. This is a necessary step to make it accessible for deployment via Ansible.
+A Helm chart for deployment to a kubernetes cluster is kept in `etc/helm`.
 
 # Usage
 
-## Rucio configuration environment variables
+This framework is designed to be run in a dockerised environment. It currently supports authentication with the datalake via userpass, x509 and OpenID Connect. Note that with only userpass authentication, some operations e.g. upload/delete on Grid managed storage sites will be restricted.
+
+Images should be built off a preexisting dockerised Rucio client image. This image could be the de facto standard provided by the Rucio maintainers (https://github.com/rucio/containers/tree/master/clients), included in the root `Makefile` as target "rucio", or an extended image. Client images can be extended to contain the prerequisite certificate bundles, VOMS setup and Rucio template configs for a specific datalake.
+
+Extended images currently exist for _prototype skao_ datalakes. Builds for other datalake instances can be enabled by adding a new `docker build` routine as a new target in the root `Makefile` with the corresponding build arguments for the base client image and tag.
+
+When a change is made to either the logic or definition (unless only the definition has changed and is being supplied as an url in the **TASK_FILE_PATH**), the image will need to be rebuilt, e.g. for skao images:
+
+```bash
+eng@ubuntu:~/rucio-analysis$ make skao
+```
+
+## Required environment variables
 
 To use the framework, it is first necessary to set a few environment variables. A brief description of each is given below:
 
+- **RUCIO_CFG_AUTH_TYPE**: the authentication type (userpass||x509||oidc)
+- **$TASK_FILE_PATH**: the relative path from the package root to the task file or url
+
+Depending on whether they are already set in the image's baked-in `rucio.cfg`, the following may need to be set:
+
+- **RUCIO_CFG_RUCIO_HOST**: the Rucio server host
+- **RUCIO_CFG_AUTH_HOST**: the Rucio auth host
 - **RUCIO_CFG_ACCOUNT**: the Rucio account under which the tasks are to be performed
-- **RUCIO_CFG_AUTH_TYPE**: the authentication type (x509||userpass)
 
-where, if the authentication type is defined as "x509", the following are also required:
+Additionally, there are authentication type dependent variables that must be set.
 
-- **RUCIO_CFG_CLIENT_CERT**: a valid X.509 certificate file with the necessary permissions on the datalake
-- **RUCIO_CFG_CLIENT_KEY**: a valid X.509 key file with the necessary permissions on the datalake
+### Authentication by username/password
 
-or if the authentication type is defined as "userpass":
+For "userpass" authentication, the following variables are also required:
 
-- **RUCIO_CFG_USERNAME**: a user with the necessary permissions on the datalake
+- **RUCIO_CFG_USERNAME**: username
 - **RUCIO_CFG_PASSWORD**: the corresponding password for the user
 
-Note that without X.509 authentication, some operations e.g. upload/delete on Grid managed storage sites will be restricted.
+### Authentication by X.509
 
-## Using the framework interactively in a dockerised environment
+For "x509" authentication, it is possible to supply the necessary credentials via two methods.
 
-Make the rucio-analysis image for the desired project, e.g. for escape:
+If the key/certificate values are stored in environment variables as plaintext, e.g. coming from a k8s secret, then:
+
+- **RUCIO_CFG_CLIENT_CERT_VALUE**: a valid X.509 certificate
+- **RUCIO_CFG_CLIENT_KEY_VALUE**: a valid X.509 key
+
+Alternatively, the paths to the key/certificate can be held in the following variables:
+
+- **RUCIO_CFG_CLIENT_CERT**: path to a valid X.509 certificate 
+- **RUCIO_CFG_CLIENT_KEY**: path to a valid X.509 key
+- **VOMS**: the virtual organisation that the user belongs to
+
+but the key/certificate **must be volume mounted to these locations**.
+
+### Authentication by OpenID Connect
+
+For "oidc" authentication, it is possible to supply the necessary credentials via two methods.
+
+The first method assumes that the user has a client configuration generated by the `oidc-agent` tool. This client should have a refresh token attached to it in order that access tokens can be generated when required. This is useful if asynchronous cronjobs need to be run.
+
+The encryped oidc-agent client configuration is stored in an environment variable as plaintext:
+
+- **OIDC_AGENT_AUTH_CLIENT_CFG_VALUE**: an encrypted oidc-agent client with refresh token
+- **OIDC_AGENT_AUTH_CLIENT_CFG_PASSWORD**: the password to decrypt this client
+
+The second method assumes that the user has an access token:
+
+- **OIDC_ACCESS_TOKEN**: an encrypted oidc-agent client with refresh token
+
+Both methods require the Rucio account to be explicitly set:
+
+- **RUCIO_CFG_ACCOUNT**: the Rucio account under which the tasks are to be performed
+
+Depending on whether they are already set in the image's baked-in `rucio.cfg`, the following may need to be set:
+
+- **RUCIO_CFG_OIDC_SCOPE**: list of OIDC scopes
+- **RUCIO_CFG_OIDC_AUDIENCE**: list of OIDC audiences
+
+## Examples
+
+In all the examples below, it is also possible to override other `RUCIO_*` environment variables. If they are not explicitly supplied, they will be taken from the `rucio.cfg`.
+
+### userpass
 
 ```bash
-eng@ubuntu:~/rucio-analysis$ make escape
+eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
+-e RUCIO_CFG_AUTH_TYPE=userpass \
+-e RUCIO_CFG_USERNAME=$RUCIO_CFG_USERNAME \
+-e RUCIO_CFG_PASSWORD=$RUCIO_CFG_PASSWORD \
+-e TASK_FILE_PATH=etc/tasks/stubs.yml \
+--name=rucio-analysis rucio-analysis:skao
 ```
 
-Tasks can then be executed manually inside the container by overriding the default entrypoint.
-
-### Userpass
-
-For userpass authentication with Rucio, you must specify the corresponding credentials as environment variables:
+Additionally, for development purposes, it is possible to mount the package from the host directly into the container provided you have exported the project's root directory path as **RUCIO_ANALYSIS_ROOT**, e.g.:
 
 ```bash
 eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
@@ -93,26 +151,31 @@ eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
 -e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
 -e RUCIO_CFG_USERNAME=$RUCIO_CFG_USERNAME \
 -e RUCIO_CFG_PASSWORD=$RUCIO_CFG_PASSWORD \
---name=rucio-analysis --entrypoint /bin/bash \
-rucio-analysis:escape
-```
-
-Additionally, for development purposes, it is possible to mount the source from the host directly into the container provided you have exported the project's root directory path as **RUCIO_ANALYSIS_ROOT**:
-
-```bash
-eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
--e RUCIO_CFG_AUTH_TYPE=userpass \
--e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
--e RUCIO_CFG_USERNAME=$RUCIO_CFG_USERNAME \
--e RUCIO_CFG_PASSWORD=$RUCIO_CFG_PASSWORD \
+-e TASK_FILE_PATH=etc/tasks/stubs.yml \
 -v $RUCIO_ANALYSIS_ROOT:/opt/rucio-analysis \
---name=rucio-analysis --entrypoint /bin/bash \
-rucio-analysis:escape
+--name=rucio-analysis rucio-analysis:skao
 ```
 
-### X.509
+With this, it is not required to rebuilt the image everytime it is run.
 
-For X.509 authentication with Rucio, you must bind the certificate credentials to a volume inside the container:
+### x509
+
+#### By passing in key/certificate values as plaintext
+
+```bash
+eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
+-e RUCIO_CFG_AUTH_TYPE=oidc \
+-e RUCIO_CFG_CLIENT_CERT_VALUE="`cat $RUCIO_CFG_CLIENT_CERT`" \
+-e RUCIO_CFG_CLIENT_KEY_VALUE="`cat $RUCIO_CFG_CLIENT_KEY`" \
+-e VOMS=skatelescope.eu \
+-e RUCIO_CFG_ACCOUNT=root \
+-e TASK_FILE_PATH=etc/tasks/stubs.yml \
+--name=rucio-analysis rucio-analysis:skao
+```
+
+#### By passing in key/certificate paths
+
+For X.509 authentication with Rucio via paths you must bind the certificate credentials to a volume inside the container, e.g.:
 
 ```bash
 eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
@@ -120,109 +183,88 @@ eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
 -e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
 -e RUCIO_CFG_CLIENT_CERT=/opt/rucio/etc/client.crt \
 -e RUCIO_CFG_CLIENT_KEY=/opt/rucio/etc/client.key \
+-e VOMS=skatelescope.eu \
+-e TASK_FILE_PATH=etc/tasks/stubs.yml \
 -v $RUCIO_CFG_CLIENT_CERT:/opt/rucio/etc/client.crt \
 -v $RUCIO_CFG_CLIENT_KEY:/opt/rucio/etc/client.key \
---name=rucio-analysis --entrypoint /bin/bash \
-rucio-analysis:escape
+--name=rucio-analysis rucio-analysis:skao
 ```
 
-With X.509, it is possible to upload to Grid storage sites. An example upload task is included as a stub. 
+### oidc
 
-Remember that you must first create an X.509 proxy, e.g. 
-
-```bash
-[user@b802f5113379 rucio-analysis]$:~$ voms-proxy-init --cert /opt/rucio/etc/client.crt --key /opt/rucio/etc/client.key --voms escape
-```
-
-then execute the stub task:
+#### By passing in an oidc-agent client configuration
 
 ```bash
-[root@b802f5113379 rucio-analysis]$ python3 src/run.py -t etc/tasks/stubs.yml
-2020-10-23 08:16:17,039 [root] INFO     9697    Parsing tasks file
-2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Executing TestStubHelloWorld.run()
-2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Hello World!
-2020-10-23 08:16:17,253 [TestStubHelloWorld] INFO       9697    Finished in 0s
-2020-10-23 08:16:17,254 [TestStubRucioAPI] INFO 9697    Executing TestStubRucioAPI.run()
-2020-10-23 08:16:17,591 [TestStubRucioAPI] INFO 9697    {'status': 'ACTIVE', 'account': 'robbarnsley', 'account_type': 'SERVICE', 'created_at': '2020-07-16T08:08:13', 'suspended_at': None, 'updated_at': '2020-07-16T08:08:13', 'deleted_at': None, 'email': 'r.barnsley@skatelescope.org'}
-2020-10-23 08:16:17,870 [TestStubRucioAPI] INFO 9697    Preparing upload for file 1KB_231020T08.16.17
-2020-10-23 08:16:19,312 [TestStubRucioAPI] INFO 9697    Trying upload with gsiftp to EULAKE-1
-2020-10-23 08:16:21,779 [TestStubRucioAPI] INFO 9697    Successful upload of temporary file. gsiftp://eulakeftp.cern.ch:2811/eos/eulake/tests/rucio_test/eulake_1/SKA_SKAO_BARNSLEY-testing/4f/d3/1KB_231020T08.16.17.rucio.upload
-2020-10-23 08:16:22,016 [TestStubRucioAPI] INFO 9697    Successfully uploaded file 1KB_231020T08.16.17
-2020-10-23 08:16:22,602 [TestStubRucioAPI] INFO 9697    Successfully added replica in Rucio catalogue at EULAKE-1
-2020-10-23 08:16:22,761 [TestStubRucioAPI] INFO 9697    Successfully added replication rule at EULAKE-1
-2020-10-23 08:16:23,267 [TestStubRucioAPI] INFO 9697    Finished in 6s
-```
-
-## Running a task in a dockerised environment
-
-To run a task directly in the dockerised environment, do not override the default entrypoint. You must include the the VOMS name (**RUCIO_VOMS**) and task file path from the perspective of the container's filesystem (**TASK_FILE_PATH** ) as additional environment variables in the `docker run` command, e.g.
-
-```bash
-eng@ubuntu:~/rucio-analysis$ docker run --rm \
+eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
+-e RUCIO_CFG_AUTH_TYPE=$RUCIO_CFG_AUTH_TYPE \
 -e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
--e RUCIO_CFG_CLIENT_CERT=/opt/rucio/etc/client.crt \
--e RUCIO_CFG_CLIENT_KEY=/opt/rucio/etc/client.key \
--e RUCIO_VOMS=escape \
--e TASK_FILE_PATH="/opt/rucio-analysis/etc/tasks/escape/tests/upload-and-replication.yml" \
--v $RUCIO_CFG_CLIENT_CERT:/opt/rucio/etc/client.crt \
--v $RUCIO_CFG_CLIENT_KEY:/opt/rucio/etc/client.key \
---name=rucio-analysis \
-rucio-analysis:escape
+-e OIDC_AGENT_AUTH_CLIENT_CFG_VALUE="`cat ~/.oidc-agent/<client_name>`" \
+-e OIDC_AGENT_AUTH_CLIENT_CFG_PASSWORD=$OIDC_AGENT_AUTH_CLIENT_CFG_PASSWORD \
+-e TASK_FILE_PATH=etc/tasks/stubs.yml \
+--name=rucio-analysis rucio-analysis:skao
 ```
 
-# Scheduling tasks
+#### By passing in an access token
 
-To keep containers single purpose, task scheduling is achieved using a crontab on the remote host machine.
-
-## Setting up a new remote host
-
-This framework contains a means to configure a remote host's crontab using Ansible. The recipe to add a new remote host is as follows:
-
-1.  Add the extended dockerised Rucio client as a new target of the root `Makefile`. This can be done by copying an existing entry and modifying the `$BASEIMAGE` & `$BASETAG` build arguments to point to the desired Rucio client base image, and modifying the `--tag` attribute with some unique project name identifier.
-
-2.  Make a new directory in `etc/ansible/roles` with the remote host name, create a `crontab.yml` in the `vars` subdirectory and populate it like:
-
-        ```yaml
-        jobs:
-        - name: <task_name>
-            minute: "0"
-            hour: "*"
-            day: "*"
-            month: "*"
-            weekday: "*"
-            task_subpath: "path/to/test"
-            disabled: no
-        ```
-
-    where `<task_subpath>` is relative to `etc/tasks/`. Logs for a task can be effectively turned off by setting `override_log_path` to "/dev/null". Tasks can be disabled by setting the `disabled` parameter to "no".
-
-3.  Add the remote host to `etc/ansible/hosts/inventory.yml`. 
-
-## Deploying to a remote host machine
-
-If the remote host has been specified as above then running the deployment is a case of setting the **RUCIO_CFG** attributes, as described in **usage**, and running the `deploy` playbook with the necessary environment parameters required to build rucio-analysis for the corresponding remote host; this includes the make target (as defined in step 1) to build the extended Rucio client image, the Ansible role which defines the crontab to be deployed, and the VOMS used to authenticate with Grid services., e.g.:
+For OIDC authentication with Rucio via an access token:
 
 ```bash
-eng@ubuntu:~/rucio-analysis/etc/ansible$ ansible-playbook -i hosts/inventory.yml deploy-to-remote.yml -e HOSTS=<remote_host> -e ansible_role=escape -e rucio_voms=escape -e rucio_analysis_image_make_target=escape
+eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
+-e RUCIO_CFG_AUTH_TYPE=$RUCIO_CFG_AUTH_TYPE \
+-e RUCIO_CFG_ACCOUNT=$RUCIO_CFG_ACCOUNT \
+-e OIDC_ACCESS_TOKEN="$OIDC_ACCESS_TOKEN" \
+-e TASK_FILE_PATH=etc/tasks/stubs.yml \
+--name=rucio-analysis rucio-analysis:skao
 ```
 
-where `<remote_host>` is set to the remote host name specified in `etc/ansible/hosts/inventory.yml`. 
+# Deployment
 
-For convenience, this command can be added as a Make target in `etc/ansible/Makefile`, allowing for one-line deployment, e.g.:
+## Kubernetes
+
+Deployment in a kubernetes cluster is managed by Helm. 
+
+As is standard procedure for Helm, the values in `etc/helm/values.yaml` can be adjusted accordingly. 
+
+Variables to be directly assigned as environment variables to the container can be specified in the `config` section, e.g.
+
+```yaml
+config:
+  RUCIO_CFG_RUCIO_HOST: https://srcdev.skatelescope.org/rucio-dev
+  RUCIO_CFG_AUTH_HOST: https://srcdev.skatelescope.org/rucio-dev
+```
+
+Secrets such as certificates and keys can be created, e.g. 
 
 ```bash
-eng@ubuntu:~/rucio-analysis/etc/ansible$ make deploy-to-escape-rucio-analysis
+$ kubectl create secret generic oidc-agent-auth-client --from-file=cfg=/path/to/file --from-literal=password=<password>
+```
+then specified in the `secrets` section:
+
+```yaml
+secrets:
+  - name: OIDC_AGENT_AUTH_CLIENT_CFG_VALUE
+    fromSecretName: oidc-agent-auth-client
+    fromSecretKey: cfg
+  - name: OIDC_AGENT_AUTH_CLIENT_CFG_PASSWORD
+    fromSecretName: oidc-agent-auth-client
+    fromSecretKey: password
 ```
 
-## Updating a local machine
+to be similarly assigned as environment variables in the container.
 
-If an existing rucio-analysis distribution already exists on a local machine, it is possible to rebuild the image (**!necessary for local code changes!**) and redeploy the crontab with, e.g.:
+Cronjobs for tasks can be scheduled by adding a new entry to the `cronjobs` section, e.g.
 
-```bash
-eng@ubuntu:~/rucio-analysis/etc/ansible$ ansible-playbook -i hosts/inventory.yml update-local.yml -e HOSTS=skao-rucio-analysis -e ansible_role=skao-dev -e rucio_voms=skatelescope.eu -e rucio_analysis_image_make_target=skao
+```yaml
+cronjobs:
+  - name: <task_name>
+    minute: "0"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_path: "path/to/test"
+    disabled: no
 ```
-
-passing in all the same environment variables required for remote deployment.
 
 # Development
 
