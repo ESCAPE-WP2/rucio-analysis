@@ -70,7 +70,7 @@ eng@ubuntu:~/rucio-analysis$ make skao
 To use the framework, it is first necessary to set a few environment variables. A brief description of each is given below:
 
 - **RUCIO_CFG_AUTH_TYPE**: the authentication type (userpass||x509||oidc)
-- **$TASK_FILE_PATH**: the relative path from the package root to the task file or url
+- **TASK_FILE_PATH**: the relative path from the package root to the task file or url
 
 Depending on whether they are already set in the image's baked-in `rucio.cfg`, the following may need to be set:
 

@@ -22,7 +22,7 @@ secrets:
   - name: OIDC_AGENT_AUTH_CLIENT_CFG_PASSWORD
     fromSecretName: oidc-agent-auth-client
     fromSecretKey: password
-  - name: KUBE_CONFIG
+  - name: KUBE_CONFIG_VALUE
     fromSecretName: kube
     fromSecretKey: cfg.dev
   - name: RUCIO_CFG_CLIENT_CERT_VALUE

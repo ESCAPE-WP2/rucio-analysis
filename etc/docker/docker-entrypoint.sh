@@ -7,6 +7,12 @@ echo "initialising Rucio"
 /etc/profile.d/rucio_init.sh
 echo
 
+# Pass through kube config if set
+if [ -v KUBE_CONFIG_VALUE ]
+then
+  echo "$KUBE_CONFIG_VALUE" > ~/.kube/config
+fi
+
 # Set up authentication
 if [ "${RUCIO_CFG_AUTH_TYPE,,}" == 'userpass' ]
 then
