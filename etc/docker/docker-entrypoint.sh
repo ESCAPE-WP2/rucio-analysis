@@ -91,4 +91,12 @@ echo
 rucio whoami
 echo
 
+# if task has came in as yaml, do template substitution & pipe the result to a file
+if [ -v TASK_FILE_YAML ]
+then
+  echo "$TASK_FILE_YAML" > /tmp/task.yaml
+  j2 /tmp/task.yaml > /tmp/task.yaml.j2
+  export TASK_FILE_PATH=/tmp/task.yaml.j2
+fi
+
 python3 src/run.py -v -t "$TASK_FILE_PATH"

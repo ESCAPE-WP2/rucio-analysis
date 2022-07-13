@@ -2,18 +2,23 @@ import abc
 import subprocess
 
 from gfal2 import Gfal2Context
+from rucio.client.accountclient import AccountClient
 from rucio.client.client import Client
 from rucio.client.rseclient import RSEClient
 from rucio.client.downloadclient import DownloadClient
 from rucio.client.pingclient import PingClient
 from rucio.client.uploadclient import UploadClient
-from rucio.common.exception import RucioException
+from rucio.common.exception import AccountNotFound, RucioException
 
 
 class RucioWrappers:
-    """
-    Wrappers for common Rucio functionality.
-    """
+    """ Client wrappers for common functionality. """
+    def __init__(self):
+        pass
+
+    @abc.abstractstaticmethod
+    def addAccount():
+        raise NotImplementedError
 
     @abc.abstractstaticmethod
     def addDataset():
@@ -37,6 +42,10 @@ class RucioWrappers:
 
     @abc.abstractstaticmethod
     def erase():
+        raise NotImplementedError
+
+    @abc.abstractstaticmethod
+    def getAccount(account):
         raise NotImplementedError
 
     @abc.abstractstaticmethod
@@ -66,6 +75,10 @@ class RucioWrappers:
     @abc.abstractstaticmethod
     def getRSEUsage(rse):
         raise NotImplementedError()
+
+    @abc.abstractstaticmethod
+    def listAccounts():
+        raise NotImplementedError
 
     @abc.abstractstaticmethod
     def listContent():
@@ -192,6 +205,49 @@ class RucioWrappersCLI(RucioWrappers):
         return dids
 
     @staticmethod
+    def getMetadata(did, plugin="DID_COLUMN"):
+        """
+        Get metadata for did, <did>.
+
+        Args:
+            plugin (`str`): can be DID_COLUMN or JSON
+        """
+        rtn = subprocess.run(
+            [
+                "rucio",
+                "get-metadata",
+                did,
+                "--plugin",
+                plugin,
+            ],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
+    @staticmethod
+    def setMetadata(did, key, value):
+        """ Set metadata for did, <did>. """
+        rtn = subprocess.run(
+            [
+                "rucio",
+                "set-metadata",
+                "--did",
+                did,
+                "--key",
+                key,
+                "--value",
+                value,
+            ],
+            stdout=subprocess.PIPE,
+        )
+        if rtn.returncode != 0:
+            raise Exception("Non-zero return code")
+        return rtn
+
+
+    @staticmethod
     def upload(rse, scope, filePath, lifetime):
         """ Upload file, <filePath>, to rse, <RSE>, with lifetime <lifetime>. """
         rtn = subprocess.run(
@@ -239,51 +295,18 @@ class RucioWrappersCLI(RucioWrappers):
             raise Exception("Non-zero return code")
         return rtn
 
-    @staticmethod
-    def getMetadata(did, plugin="DID_COLUMN"):
-        """
-        Get metadata for did, <did>.
-
-        Args:
-            plugin (`str`): can be DID_COLUMN or JSON
-        """
-        rtn = subprocess.run(
-            [
-                "rucio",
-                "get-metadata",
-                did,
-                "--plugin",
-                plugin,
-            ],
-            stdout=subprocess.PIPE,
-        )
-        if rtn.returncode != 0:
-            raise Exception("Non-zero return code")
-        return rtn
-
-    @staticmethod
-    def setMetadata(did, key, value):
-        """ Set metadata for did, <did>. """
-        rtn = subprocess.run(
-            [
-                "rucio",
-                "set-metadata",
-                "--did",
-                did,
-                "--key",
-                key,
-                "--value",
-                value,
-            ],
-            stdout=subprocess.PIPE,
-        )
-        if rtn.returncode != 0:
-            raise Exception("Non-zero return code")
-        return rtn
-
 
 class RucioWrappersAPI(RucioWrappers):
     """ Talk to a Rucio instance via the API. """
+
+    @abc.abstractstaticmethod
+    def addAccount(name, type, email):
+        """ Create a new account. Types are 'USER', 'GROUP' or 'SERVICE'. """
+        try:
+            client = AccountClient()
+            return client.add_account(account=name, type_=type, email=email)
+        except RucioException as error:
+            raise Exception(error)
 
     @staticmethod
     def addDID(did, type):
@@ -389,6 +412,17 @@ class RucioWrappersAPI(RucioWrappers):
         for rid in rids:
             client.delete_replication_rule(rule_id=rid, purge_replicas=purgeReplicas)
 
+    @abc.abstractstaticmethod
+    def getAccount(name):
+        """ Returns a dictionary with information about an account. """
+        try:
+            client = AccountClient()
+            return client.get_account(name)
+        except AccountNotFound:
+            return None
+        except RucioException as error:
+            raise Exception(error)
+
     @staticmethod
     def getMetadata(did, plugin="DID_COLUMN"):
         """
@@ -457,6 +491,15 @@ class RucioWrappersAPI(RucioWrappers):
         client = RSEClient()
         usage = client.get_rse_usage(rse)
         return usage
+
+    @staticmethod
+    def listAccounts():
+        """ Returns a dictionary with accounts information. """
+        try:
+            client = AccountClient()
+            return client.list_accounts()
+        except RucioException as error:
+            raise Exception(error)
 
     @staticmethod
     def listContent(scope, name):
@@ -604,3 +647,5 @@ class RucioWrappersAPI(RucioWrappers):
     def whoAmI():
         client = Client()
         return client.whoami()
+
+
