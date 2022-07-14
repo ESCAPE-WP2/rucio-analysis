@@ -266,6 +266,39 @@ cronjobs:
     disabled: no
 ```
 
+Task files can either be specified as a path, `task_file_path`, or inline as yaml under `task_file_yaml`. If both are specified, then the inline yaml takes preference.
+
+It is possible to substitute secrets into tasks using j2 syntax ( `{{ VARIABLE }}`), e.g.
+
+```bash
+$ kubectl create secret generic task-stubs --from-literal=text=HelloWorld
+```
+
+```yaml
+secrets:
+  - name: TASK_STUBS_TEXT
+    fromSecretName: task-stubs
+    fromSecretKey: text
+    
+cronjobs:
+  - name: stubs
+    minute: "*/15"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    task_file_yaml: 
+      test-hello-world-stub:
+        description: "Test hello world stub"
+        module_name: "tasks.stubs"
+        class_name: "StubHelloWorld"
+        enabled: true
+        args:
+        kwargs:
+          text: {{ TASK_STUBS_TEXT }}
+    disabled: yes
+```
+
 # Development
 
 ## Creating a new task
@@ -273,7 +306,7 @@ cronjobs:
 The procedure for creating a new tests is as follows:
 
 1. Take a copy of the `TestStubHelloWorld` class stub in `src/tasks/stubs.py` and rename both the file and class name.
-2. Amend the entrypoint `run()` function as desired. Functionality for communicating with Rucio either by the CLI or API is provided via the wrapper and helper functions in `rucio/wrappers.py` and `rucio/helpers.py` respectively. Example usage can be found in the `StubRucioAPI` class stub in `src/tasks/stubs.py`.
+2. Amend the entrypoint `run()` function as desired. Functionality for communicating with Rucio either by the CLI or API is provided via the wrapper and helper functions in `rucio/wrappers.py` and `rucio/helpers.py` respectively. Alternatively, you can use the client functions directly. Example usage can be found in the `StubRucioAPI` class stub in `src/tasks/stubs.py`.
 3. Create a new task definition file e.g. `etc/tasks/test.yml` copying the format of the `test-hello-world-stub` definition in `etc/tasks/stubs.yml`. A task has the following mandatory fields:
    - `module_name` (starting from and including the `tasks.` prefix) and `class_name`, set accordingly to match the modules/classes redefined in step 1,
    - `args` and `kwargs` keys corresponding to the parameters injected into the task's entry point `run()`,

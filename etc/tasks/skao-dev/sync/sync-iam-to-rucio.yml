@@ -1,0 +1,18 @@
+sync-iam-rucio:
+    description: "Sync IAM users with a Rucio server"
+    module_name: "tasks.sync.iam"
+    class_name: "SyncIAMRucio"
+    enabled: true
+    args:
+    kwargs:
+      iam_server_base_url: https://iam-escape.cloud.cnaf.infn.it/
+      client_id: 5313fe03-ad7f-4094-99af-f93d173cebb4
+      client_secret:
+      rucio_user_iam_groups:
+        - escape/ska
+      rucio_admin_iam_groups:
+        - escape/ska/admins
+      skip_accounts:
+        - root
+      rse_quota: 1000000000000
+      dry_run: False
