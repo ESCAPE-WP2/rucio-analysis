@@ -29,7 +29,8 @@ spec:
               {{- end }}
               {{ if $val_cronjob.task_file_yaml }}
               - name: TASK_FILE_YAML
-                value: "{{ $val_cronjob.task_file_yaml }}"
+                value: |
+{{ $val_cronjob.task_file_yaml | toYaml | indent 18 }}
               {{ else if $val_cronjob.task_file_path }}
               - name: TASK_FILE_PATH
                 value: "{{ $val_cronjob.task_file_path }}"

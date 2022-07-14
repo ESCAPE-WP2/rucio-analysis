@@ -24,17 +24,17 @@ secrets:
     fromSecretKey: client_secret
 
 cronjobs:
-  - name: sync-iam-rucio
+  - name: sync-iam-rucio-dev
     minute: "*/1"
     hour: "*"
     day: "*"
     month: "*"
     weekday: "*"
-    task_file_yaml:
+    task_file_yaml: 
       sync-iam-rucio-dev:
-        description: "Sync IAM users with a Rucio server"
-        module_name: "tasks.sync.iam"
-        class_name: "SyncIAMRucio"
+        description: Sync IAM users with a Rucio server
+        module_name: tasks.sync.iam
+        class_name: SyncIAMRucio
         enabled: true
         args:
         kwargs:
