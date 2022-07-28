@@ -47,6 +47,6 @@ cronjobs:
             - escape/ska/admins
           skip_accounts:
             - root
-            - skao-service-account-1
+            - skao-rucio-service-1
           rse_quota: 1000000000000
           dry_run: False
