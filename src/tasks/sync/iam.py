@@ -221,7 +221,6 @@ class SyncIAMRucio(Task):
         # rucio_admin_iam_groups respectively).
         #
         self.logger.info("Updating accounts...")
-        rses = rucio.list_rses()
         for idx, account in enumerate(users_rucio):
             if account['account'] in self.skip_accounts:
                 continue
@@ -262,15 +261,16 @@ class SyncIAMRucio(Task):
                         rucio.add_account_attribute(account['account'], 'sign-gcs', 'True')
 
                     # assign fixed quota for all RSEs to account
-                    for rse in rses:
+                    for rse in rucio.list_rses():
                         try:
                             limit = rucio.get_local_account_limits(account['account'])[rse['rse']]
                             if limit == self.rse_quota:
                                 continue
                         except KeyError:
-                            self.logger.debug(" -> Adding quota {} for account {} at rse {}".format(
-                                self.rse_quota, user['username'], rse['rse']))
-                            rucio.set_local_account_limit(account['account'], rse['rse'], self.rse_quota)
+                            pass
+                        self.logger.debug(" -> Adding quota {} for account {} at rse {}".format(
+                            self.rse_quota, account['account'], rse['rse']))
+                        rucio.set_local_account_limit(account['account'], rse['rse'], self.rse_quota)
                 else:                                                                   # not verified as a user
                     exists = [entry for entry in attributes if entry['key'] == 'sign-gcs']
                     if exists:

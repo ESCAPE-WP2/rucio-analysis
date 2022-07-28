@@ -223,6 +223,14 @@ eng@ubuntu:~/rucio-analysis$ docker run --rm -it \
 
 Deployment in a kubernetes cluster is managed by Helm. 
 
+A rucio-analysis image must be built, tagged and pushed to a location accessible to the cluster, e.g. for SKAO's gitlab:
+
+```bash
+eng@ubuntu:~/rucio-analysis$ docker build .
+eng@ubuntu:~/rucio-analysis$ docker tag rucio-analysis:skao registry.gitlab.com/ska-telescope/src/ska-rucio-prototype/ska-rucio-analysis-client:latest
+eng@ubuntu:~/rucio-analysis$ docker push registry.gitlab.com/ska-telescope/src/ska-rucio-prototype/ska-rucio-analysis-client:latest
+```
+
 As is standard procedure for Helm, the values in `etc/helm/values.yaml` can be adjusted accordingly. 
 
 Variables to be directly assigned as environment variables to the container can be specified in the `config` section, e.g.
@@ -289,9 +297,9 @@ cronjobs:
     weekday: "*"
     task_file_yaml: 
       test-hello-world-stub:
-        description: "Test hello world stub"
-        module_name: "tasks.stubs"
-        class_name: "StubHelloWorld"
+        description: Test hello world stub
+        module_name: tasks.stubs
+        class_name: StubHelloWorld
         enabled: true
         args:
         kwargs:

@@ -77,14 +77,8 @@ then
   fi
   tr -d '\n' < "/tmp/tmp_auth_token_for_account_$RUCIO_CFG_ACCOUNT" > "/tmp/auth_token_for_account_$RUCIO_CFG_ACCOUNT"
   # move this token to the location expected by Rucio
-  if [ "${RUCIO_CFG_ACCOUNT,,}" == 'root' ]
-  then
-    mkdir -p /tmp/root/.rucio_root/
-    mv "/tmp/auth_token_for_account_$RUCIO_CFG_ACCOUNT" /tmp/root/.rucio_root/
-  else
-    mkdir -p /tmp/user/.rucio_user/
-    mv "/tmp/auth_token_for_account_$RUCIO_CFG_ACCOUNT" /tmp/user/.rucio_user/
-  fi
+  mkdir -p /tmp/user/.rucio_user/
+  mv "/tmp/auth_token_for_account_$RUCIO_CFG_ACCOUNT" /tmp/user/.rucio_user/
 fi
 
 echo

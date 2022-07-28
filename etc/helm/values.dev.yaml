@@ -9,7 +9,7 @@ deployment:
 config:
   RUCIO_CFG_RUCIO_HOST: https://srcdev.skatelescope.org/rucio-dev
   RUCIO_CFG_AUTH_HOST: https://srcdev.skatelescope.org/rucio-dev
-  RUCIO_CFG_ACCOUNT: robbarnsley
+  RUCIO_CFG_ACCOUNT: root
   RUCIO_CFG_AUTH_TYPE: oidc
 
 secrets:
@@ -25,7 +25,7 @@ secrets:
 
 cronjobs:
   - name: sync-iam-rucio-dev
-    minute: "*/1"
+    minute: "*/15"
     hour: "*"
     day: "*"
     month: "*"
@@ -47,5 +47,6 @@ cronjobs:
             - escape/ska/admins
           skip_accounts:
             - root
+            - skao-service-account-1
           rse_quota: 1000000000000
           dry_run: False
