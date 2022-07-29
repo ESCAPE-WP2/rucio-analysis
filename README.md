@@ -1,5 +1,7 @@
 # rucio-task-manager
 
+AS OF 28/07/22 THIS HAS MIGRATED TO https://gitlab.com/ska-telescope/src/ska-rucio-task-manager
+
 A modular and extensible framework for performing tasks on a Rucio datalake.
 
 # Architecture
